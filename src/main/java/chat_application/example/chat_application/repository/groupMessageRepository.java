@@ -1,6 +1,6 @@
 package chat_application.example.chat_application.repository;
 
-import chat_application.example.chat_application.entities.GroupMessage;
+import chat_application.example.chat_application.entities.group.GroupMessage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

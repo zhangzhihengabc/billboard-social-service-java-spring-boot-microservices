@@ -4,6 +4,7 @@ import chat_application.example.chat_application.entities.enums.IsCyclos;
 import chat_application.example.chat_application.entities.enums.Type;
 import chat_application.example.chat_application.entities.enums.UserStatus;
 import chat_application.example.chat_application.entities.enums.UserTypeEnum;
+import chat_application.example.chat_application.entities.group.Group;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;

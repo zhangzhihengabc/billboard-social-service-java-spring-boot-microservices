@@ -1,5 +1,6 @@
-package chat_application.example.chat_application.entities;
+package chat_application.example.chat_application.entities.group;
 
+import chat_application.example.chat_application.entities.User;
 import chat_application.example.chat_application.entities.enums.GroupStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -1,6 +1,6 @@
-package chat_application.example.chat_application.entities;
+package chat_application.example.chat_application.entities.commentEntities;
 
-import chat_application.example.chat_application.entities.group.GroupMessage;
+import chat_application.example.chat_application.entities.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,27 +11,28 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "message_likes", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"message_id", "user_id"})  // Prevent duplicate likes
+@Table(name = "comment_likes", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"comment_id", "user_id"})
 })
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MessageLike {
+public class CommentLike {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "message_id", nullable = false)
-    private GroupMessage message;
+    @JoinColumn(name = "comment_id", nullable = false)
+    private Comment comment;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @CreationTimestamp
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 }

@@ -1,9 +1,9 @@
 package chat_application.example.chat_application.entities.chatEntities;
 
 
-import chat_application.example.chat_application.entities.GroupMessageRoom;
 import chat_application.example.chat_application.entities.User;
 import chat_application.example.chat_application.entities.enums.PresenceStatus;
+import chat_application.example.chat_application.entities.group.GroupMessageRoom;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
