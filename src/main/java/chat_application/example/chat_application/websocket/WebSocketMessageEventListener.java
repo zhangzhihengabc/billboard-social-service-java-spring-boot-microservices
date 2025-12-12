@@ -2,11 +2,11 @@ package chat_application.example.chat_application.websocket;
 
 import chat_application.example.chat_application.dto.ErrorDTO;
 import chat_application.example.chat_application.dto.event.readEventDTO;
+import chat_application.example.chat_application.dto.event.typingEventDTO;
 import chat_application.example.chat_application.dto.request.SendMessageRequestDTO;
 import chat_application.example.chat_application.dto.request.readRequestDTO;
 import chat_application.example.chat_application.dto.request.typingRequestDTO;
 import chat_application.example.chat_application.dto.response.messageResponseDTO;
-import chat_application.example.chat_application.dto.event.typingEventDTO;
 import chat_application.example.chat_application.dto.userSummaryDTO;
 import chat_application.example.chat_application.service.messageService;
 import chat_application.example.chat_application.service.readService;

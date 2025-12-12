@@ -1,9 +1,8 @@
 package chat_application.example.chat_application.entities.chatEntities;
 
 
-
-import chat_application.example.chat_application.entities.Group;
 import chat_application.example.chat_application.entities.User;
+import chat_application.example.chat_application.entities.group.Group;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

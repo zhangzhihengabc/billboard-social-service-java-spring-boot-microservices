@@ -1,9 +1,9 @@
 package chat_application.example.chat_application.config;
 
-import chat_application.example.chat_application.entities.GroupMessageMember;
-import chat_application.example.chat_application.entities.GroupMessageRoom;
 import chat_application.example.chat_application.entities.User;
 import chat_application.example.chat_application.entities.enums.*;
+import chat_application.example.chat_application.entities.group.GroupMessageMember;
+import chat_application.example.chat_application.entities.group.GroupMessageRoom;
 import chat_application.example.chat_application.repository.groupMessageMemberRepository;
 import chat_application.example.chat_application.repository.groupMessageRoomRepository;
 import chat_application.example.chat_application.repository.userRepository;

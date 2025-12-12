@@ -1,20 +1,13 @@
 package chat_application.example.chat_application.service;
 
-import chat_application.example.chat_application.dto.response.readMessageResponseDTO;
-import chat_application.example.chat_application.entities.GroupMessageMember;
+import chat_application.example.chat_application.entities.group.GroupMessageMember;
 import chat_application.example.chat_application.exception.ForbiddenException;
-import chat_application.example.chat_application.exception.ResourceNotFoundException;
 import chat_application.example.chat_application.repository.groupMessageMemberRepository;
-import chat_application.example.chat_application.repository.groupMessageRoomRepository;
-import chat_application.example.chat_application.repository.userRepository;
 import chat_application.example.chat_application.utill.redisUtill;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
