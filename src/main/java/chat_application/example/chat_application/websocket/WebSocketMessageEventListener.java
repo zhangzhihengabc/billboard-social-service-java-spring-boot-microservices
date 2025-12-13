@@ -1,16 +1,16 @@
 package chat_application.example.chat_application.websocket;
 
 import chat_application.example.chat_application.dto.ErrorDTO;
-import chat_application.example.chat_application.dto.event.readEventDTO;
-import chat_application.example.chat_application.dto.event.typingEventDTO;
-import chat_application.example.chat_application.dto.request.SendMessageRequestDTO;
-import chat_application.example.chat_application.dto.request.readRequestDTO;
-import chat_application.example.chat_application.dto.request.typingRequestDTO;
-import chat_application.example.chat_application.dto.response.messageResponseDTO;
-import chat_application.example.chat_application.dto.userSummaryDTO;
-import chat_application.example.chat_application.service.messageService;
-import chat_application.example.chat_application.service.readService;
-import chat_application.example.chat_application.utill.redisUtill;
+import chat_application.example.chat_application.dto.UserSummaryDTO;
+import chat_application.example.chat_application.dto.event.ReadEventDTO;
+import chat_application.example.chat_application.dto.event.TypingEventDTO;
+import chat_application.example.chat_application.dto.request.ReadRequestDTO;
+import chat_application.example.chat_application.dto.request.message.SendMessageRequestDTO;
+import chat_application.example.chat_application.dto.request.TypingRequestDTO;
+import chat_application.example.chat_application.dto.response.MessageResponseDTO;
+import chat_application.example.chat_application.service.MessageService;
+import chat_application.example.chat_application.service.ReadService;
+import chat_application.example.chat_application.utill.RedisUtill;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -26,10 +26,10 @@ import java.time.LocalDateTime;
 @Slf4j
 public class WebSocketMessageEventListener {
 
-    private final messageService messageService;
+    private final MessageService messageService;
     private final SimpMessagingTemplate messagingTemplate;
-    private final redisUtill redisUtill;
-    private final readService readService;
+    private final RedisUtill redisUtill;
+    private final ReadService readService;
 
     /**
      * Send error message to specific user
@@ -58,7 +58,7 @@ public class WebSocketMessageEventListener {
 
         try {
             // 1. Save message (transaction commits when method returns)
-            messageResponseDTO savedMessage = messageService.saveMessage(request);
+            MessageResponseDTO savedMessage = messageService.saveMessage(request);
 
             // 2. Broadcast AFTER transaction commits
             messageService.broadcastMessage(roomId, savedMessage);
@@ -76,20 +76,20 @@ public class WebSocketMessageEventListener {
     @MessageMapping("/room/{roomId}/typing")
     public void handleTyping(
             @DestinationVariable Long roomId,
-            @Payload typingRequestDTO request) {
+            @Payload TypingRequestDTO request) {
 
         log.info("WebSocket: User {} {} in room {}",
                 request.getUserId(),
                 request.getIsTyping() ? "is typing" : "stopped typing",
                 roomId);
 
-        userSummaryDTO user = userSummaryDTO.builder()
+        UserSummaryDTO user = UserSummaryDTO.builder()
                 .id(request.getUserId())
                 .username(request.getUsername())
                 .isOnline(true)
                 .build();
 
-        typingEventDTO typingEvent = typingEventDTO.builder()
+        TypingEventDTO typingEvent = TypingEventDTO.builder()
                 .roomId(roomId)
                 .user(user)
                 .isTyping(request.getIsTyping())
@@ -109,7 +109,7 @@ public class WebSocketMessageEventListener {
     @MessageMapping("/room/{roomId}/read")
     public void handleRead(
             @DestinationVariable Long roomId,
-            @Payload readRequestDTO request) {
+            @Payload ReadRequestDTO request) {
 
         log.info("WebSocket: User {} read up to message {} in room {}",
                 request.getUserId(),
@@ -121,7 +121,7 @@ public class WebSocketMessageEventListener {
             readService.markMessagesAsRead(request.getUserId(), roomId, request.getLastReadMessageId());
 
             // 2. Build read event
-            readEventDTO readEvent = readEventDTO.builder()
+            ReadEventDTO readEvent = ReadEventDTO.builder()
                     .roomId(roomId)
                     .userId(request.getUserId())
                     .username(request.getUsername())
