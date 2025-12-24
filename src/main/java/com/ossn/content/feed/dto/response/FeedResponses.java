@@ -1,6 +1,7 @@
 package com.ossn.content.feed.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.ossn.content.dto.UserSummary;
 import com.ossn.content.feed.entity.enums.PostType;
 import com.ossn.content.feed.entity.enums.PostVisibility;
 import com.ossn.content.feed.entity.enums.ReactionType;
@@ -13,18 +14,6 @@ import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FeedResponses {
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class UserSummary {
-        private UUID id;
-        private String username;
-        private String displayName;
-        private String avatarUrl;
-        private Boolean isVerified;
-    }
 
     @Data
     @Builder

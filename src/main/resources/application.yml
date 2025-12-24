@@ -67,3 +67,7 @@ content:
     max-topics-per-forum: 10000
     max-posts-per-topic: 5000
     post-edit-window-minutes: 30
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8080}

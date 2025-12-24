@@ -1,9 +1,10 @@
 package com.ossn.content.feed.service;
 
-import com.ossn.content.feed.client.SocialGraphClient;
-import com.ossn.content.feed.client.UserServiceClient;
+import com.ossn.content.client.SocialGraphClient;
+import com.ossn.content.client.UserServiceClient;
 import com.ossn.content.feed.dto.request.FeedRequests.*;
 import com.ossn.content.feed.dto.response.FeedResponses.*;
+import com.ossn.content.dto.UserSummary;
 import com.ossn.content.feed.entity.Post;
 import com.ossn.content.feed.entity.PostMedia;
 import com.ossn.content.feed.entity.PostMention;
@@ -11,9 +12,9 @@ import com.ossn.content.feed.entity.PostReaction;
 import com.ossn.content.feed.entity.enums.PostType;
 import com.ossn.content.feed.entity.enums.ReactionType;
 import com.ossn.content.feed.event.FeedEventPublisher;
-import com.ossn.content.feed.exception.ForbiddenException;
-import com.ossn.content.feed.exception.ResourceNotFoundException;
-import com.ossn.content.feed.exception.ValidationException;
+import com.ossn.content.exception.ForbiddenException;
+import com.ossn.content.exception.ResourceNotFoundException;
+import com.ossn.content.exception.ValidationException;
 import com.ossn.content.feed.repository.PostReactionRepository;
 import com.ossn.content.feed.repository.PostRepository;
 import lombok.RequiredArgsConstructor;

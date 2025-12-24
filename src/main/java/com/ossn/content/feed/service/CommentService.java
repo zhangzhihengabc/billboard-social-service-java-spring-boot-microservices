@@ -1,16 +1,17 @@
 package com.ossn.content.feed.service;
 
-import com.ossn.content.feed.client.UserServiceClient;
+import com.ossn.content.client.UserServiceClient;
 import com.ossn.content.feed.dto.request.FeedRequests.*;
 import com.ossn.content.feed.dto.response.FeedResponses.*;
+import com.ossn.content.dto.UserSummary;
 import com.ossn.content.feed.entity.Comment;
 import com.ossn.content.feed.entity.CommentReaction;
 import com.ossn.content.feed.entity.Post;
 import com.ossn.content.feed.entity.enums.ReactionType;
 import com.ossn.content.feed.event.FeedEventPublisher;
-import com.ossn.content.feed.exception.ForbiddenException;
-import com.ossn.content.feed.exception.ResourceNotFoundException;
-import com.ossn.content.feed.exception.ValidationException;
+import com.ossn.content.exception.ForbiddenException;
+import com.ossn.content.exception.ResourceNotFoundException;
+import com.ossn.content.exception.ValidationException;
 import com.ossn.content.feed.repository.CommentReactionRepository;
 import com.ossn.content.feed.repository.CommentRepository;
 import com.ossn.content.feed.repository.PostRepository;

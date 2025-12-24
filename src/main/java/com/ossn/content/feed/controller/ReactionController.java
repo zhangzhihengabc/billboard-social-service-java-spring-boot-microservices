@@ -3,7 +3,7 @@ package com.ossn.content.feed.controller;
 import com.ossn.content.feed.dto.request.FeedRequests.*;
 import com.ossn.content.feed.dto.response.FeedResponses.*;
 import com.ossn.content.feed.entity.enums.ReactionType;
-import com.ossn.content.feed.security.UserPrincipal;
+import com.ossn.content.security.UserPrincipal;
 import com.ossn.content.feed.service.ReactionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

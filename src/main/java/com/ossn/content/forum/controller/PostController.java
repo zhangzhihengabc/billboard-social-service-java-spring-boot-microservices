@@ -2,7 +2,7 @@ package com.ossn.content.forum.controller;
 
 import com.ossn.content.forum.dto.request.ForumRequests.*;
 import com.ossn.content.forum.dto.response.ForumResponses.*;
-import com.ossn.content.forum.security.UserPrincipal;
+import com.ossn.content.security.UserPrincipal;
 import com.ossn.content.forum.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

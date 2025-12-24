@@ -1,10 +1,11 @@
-package com.ossn.content.forum.config;
+package com.ossn.content.config;
 
-import com.ossn.content.forum.security.JwtAuthenticationFilter;
+import com.ossn.content.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,6 +19,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -27,21 +29,35 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Value("${app.cors.allowed-origins}")
+    @Value("${app.cors.allowed-origins:http://localhost:3000,http://localhost:8080}")
     private String allowedOrigins;
 
     @Bean
+    @Primary
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // Actuator & Docs
                 .requestMatchers("/actuator/**").permitAll()
-                .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                .requestMatchers(HttpMethod.GET, "/forums/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/topics/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
+                .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                
+                // Feed endpoints (public read)
+                .requestMatchers(HttpMethod.GET, "/api/feed/public", "/api/feed/trending").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/posts/{postId}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/posts/search").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/feed/user/**", "/api/feed/wall/**", "/api/feed/group/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/posts/{postId}/comments/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/posts/{postId}/reactions/**").permitAll()
+                
+                // Forum endpoints (public read)
+                .requestMatchers(HttpMethod.GET, "/api/forums/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/topics/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/forum-posts/**").permitAll()
+                
+                // All other requests require authentication
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -53,9 +69,9 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setExposedHeaders(Arrays.asList("Authorization", "X-Total-Count"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setExposedHeaders(List.of("Authorization", "X-Total-Count", "X-Page-Number", "X-Page-Size"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 

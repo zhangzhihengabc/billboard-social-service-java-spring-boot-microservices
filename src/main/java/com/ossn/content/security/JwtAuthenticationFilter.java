@@ -1,4 +1,4 @@
-package com.ossn.content.forum.security;
+package com.ossn.content.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -37,6 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
         try {
             String jwt = extractJwtFromRequest(request);
 
@@ -50,9 +51,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 @SuppressWarnings("unchecked")
                 List<String> roles = claims.get("roles", List.class);
 
-                List<SimpleGrantedAuthority> authorities = roles.stream()
+                List<SimpleGrantedAuthority> authorities = roles != null ? roles.stream()
                     .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList()) : List.of();
 
                 UserPrincipal principal = UserPrincipal.builder()
                     .id(userId)

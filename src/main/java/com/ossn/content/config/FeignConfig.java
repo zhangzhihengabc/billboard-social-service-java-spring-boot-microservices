@@ -1,4 +1,4 @@
-package com.ossn.content.forum.config;
+package com.ossn.content.config;
 
 import feign.RequestInterceptor;
 import feign.Retryer;

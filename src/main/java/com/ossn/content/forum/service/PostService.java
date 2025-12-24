@@ -1,14 +1,15 @@
 package com.ossn.content.forum.service;
 
-import com.ossn.content.forum.client.UserServiceClient;
+import com.ossn.content.client.UserServiceClient;
 import com.ossn.content.forum.dto.request.ForumRequests.*;
 import com.ossn.content.forum.dto.response.ForumResponses.*;
+import com.ossn.content.dto.UserSummary;
 import com.ossn.content.forum.entity.*;
 import com.ossn.content.forum.entity.enums.VoteType;
 import com.ossn.content.forum.event.ForumEventPublisher;
-import com.ossn.content.forum.exception.ForbiddenException;
-import com.ossn.content.forum.exception.ResourceNotFoundException;
-import com.ossn.content.forum.exception.ValidationException;
+import com.ossn.content.exception.ForbiddenException;
+import com.ossn.content.exception.ResourceNotFoundException;
+import com.ossn.content.exception.ValidationException;
 import com.ossn.content.forum.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

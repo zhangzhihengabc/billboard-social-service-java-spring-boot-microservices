@@ -1,7 +1,7 @@
 package com.ossn.content.feed.controller;
 
 import com.ossn.content.feed.dto.response.FeedResponses.*;
-import com.ossn.content.feed.security.UserPrincipal;
+import com.ossn.content.security.UserPrincipal;
 import com.ossn.content.feed.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

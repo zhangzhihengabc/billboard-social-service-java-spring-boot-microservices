@@ -1,6 +1,6 @@
-package com.ossn.content.feed.client;
+package com.ossn.content.client;
 
-import com.ossn.content.feed.dto.response.FeedResponses.UserSummary;
+import com.ossn.content.dto.UserSummary;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -12,11 +12,14 @@ public class UserServiceClientFallback implements UserServiceClient {
 
     @Override
     public UserSummary getUserSummary(UUID userId) {
-        log.warn("Fallback: Unable to fetch user summary for userId: {}", userId);
+        log.warn("Fallback: Could not fetch user summary for userId: {}", userId);
         return UserSummary.builder()
             .id(userId)
-            .username("unknown")
+            .username("Unknown")
             .displayName("Unknown User")
+            .avatarUrl(null)
+            .isVerified(false)
+            .level(0)
             .build();
     }
 }

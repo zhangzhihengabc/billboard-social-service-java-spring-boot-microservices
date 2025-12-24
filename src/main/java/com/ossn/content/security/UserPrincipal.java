@@ -1,4 +1,4 @@
-package com.ossn.content.forum.security;
+package com.ossn.content.security;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
