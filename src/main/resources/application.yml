@@ -1,13 +1,13 @@
 server:
-  port: 8083
+  port: 8082
 
 spring:
   application:
-    name: content-service
+    name: social-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/billboard_content
+    url: jdbc:postgresql://localhost:5432/billboard_social
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
+    password: ${DB_PASSWORD:root}
     hikari:
       maximum-pool-size: 20
       minimum-idle: 5
@@ -44,30 +44,40 @@ eureka:
     prefer-ip-address: true
 
 jwt:
-  secret: ${JWT_SECRET:your-secret-key-here-make-it-at-least-256-bits}
+  secret: ${JWT_SECRET:your-256-bit-secret-key-here-make-it-long-enough-for-hs512-algorithm-requirement}
   expiration: 86400000
+
+app:
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:3000,http://localhost:8080}
+  rabbitmq:
+    exchange: social-events
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
 
 logging:
   level:
-    com.billboard.content: DEBUG
+    com.billboard.social: DEBUG
+    org.springframework.security: INFO
 
 # Merged service domains
-content:
-  feed:
-    max-post-length: 10000
-    max-comments-per-post: 1000
-    feed-page-size: 20
-  forum:
-    max-topics-per-forum: 10000
-    max-posts-per-topic: 5000
-    post-edit-window-minutes: 30
-
-app:
-  cors:
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8080}
+social:
+  graph:
+    max-friends: 5000
+    max-followers: 100000
+    max-blocks: 1000
+  group:
+    max-members: 50000
+    max-admins: 100
+    max-user-groups: 500
+  event:
+    max-attendees: 10000
+    max-user-events: 100
+    reminder-hours-before: 24
