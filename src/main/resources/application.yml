@@ -5,7 +5,7 @@ spring:
   application:
     name: content-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/ossn_content
+    url: jdbc:postgresql://localhost:5432/billboard_content
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
     hikari:
@@ -55,7 +55,7 @@ management:
 
 logging:
   level:
-    com.ossn.content: DEBUG
+    com.billboard.content: DEBUG
 
 # Merged service domains
 content:

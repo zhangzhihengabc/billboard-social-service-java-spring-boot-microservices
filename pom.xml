@@ -11,7 +11,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.ossn</groupId>
+    <groupId>com.billboard</groupId>
     <artifactId>content-service</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
