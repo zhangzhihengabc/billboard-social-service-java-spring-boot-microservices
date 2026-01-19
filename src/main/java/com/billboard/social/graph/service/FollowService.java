@@ -1,13 +1,14 @@
 package com.billboard.social.graph.service;
-import com.billboard.social.common.dto.UserSummary;
 
 import com.billboard.social.common.client.UserServiceClient;
+import com.billboard.social.common.dto.PageResponse;
+import com.billboard.social.common.dto.UserSummary;
+import com.billboard.social.common.exception.ResourceNotFoundException;
+import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.graph.dto.request.SocialRequests.*;
 import com.billboard.social.graph.dto.response.SocialResponses.*;
 import com.billboard.social.graph.entity.Follow;
 import com.billboard.social.graph.event.SocialEventPublisher;
-import com.billboard.social.common.exception.ResourceNotFoundException;
-import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.graph.repository.BlockRepository;
 import com.billboard.social.graph.repository.FollowRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,8 +36,10 @@ public class FollowService {
     private final UserServiceClient userServiceClient;
     private final SocialEventPublisher eventPublisher;
 
-    @Value("${app.following.max-following:10000}")
+    @Value("${social.follow.max-following:5000}")
     private int maxFollowing;
+
+    // ==================== CREATE ====================
 
     @Transactional
     @CacheEvict(value = {"followStats", "followingIds"}, allEntries = true)
@@ -64,11 +68,11 @@ public class FollowService {
         }
 
         Follow follow = Follow.builder()
-            .followerId(followerId)
-            .followingId(followingId)
-            .notificationsEnabled(request.getNotificationsEnabled() != null ? request.getNotificationsEnabled() : true)
-            .isCloseFriend(request.getIsCloseFriend() != null ? request.getIsCloseFriend() : false)
-            .build();
+                .followerId(followerId)
+                .followingId(followingId)
+                .notificationsEnabled(request.getNotificationsEnabled() != null ? request.getNotificationsEnabled() : true)
+                .isCloseFriend(request.getIsCloseFriend() != null ? request.getIsCloseFriend() : false)
+                .build();
 
         follow = followRepository.save(follow);
 
@@ -79,13 +83,17 @@ public class FollowService {
         return mapToFollowResponse(follow);
     }
 
+    // ==================== DELETE ====================
+
     @Transactional
     @CacheEvict(value = {"followStats", "followingIds"}, allEntries = true)
     public void unfollow(UUID followerId, UUID followingId) {
-        Follow follow = followRepository.findByFollowerIdAndFollowingId(followerId, followingId)
-            .orElseThrow(() -> new ResourceNotFoundException("Follow relationship not found"));
+        if (!followRepository.existsByFollowerIdAndFollowingId(followerId, followingId)) {
+            throw new ResourceNotFoundException("Follow relationship not found");
+        }
 
-        followRepository.delete(follow);
+        // Use hard delete
+        followRepository.hardDelete(followerId, followingId);
 
         // Publish event
         eventPublisher.publishUnfollowed(followerId, followingId);
@@ -93,10 +101,13 @@ public class FollowService {
         log.info("User {} unfollowed {}", followerId, followingId);
     }
 
+    // ==================== UPDATE ====================
+
     @Transactional
+    @CacheEvict(value = {"followStats"}, allEntries = true)
     public FollowResponse updateFollow(UUID followerId, UUID followingId, UpdateFollowRequest request) {
         Follow follow = followRepository.findByFollowerIdAndFollowingId(followerId, followingId)
-            .orElseThrow(() -> new ResourceNotFoundException("Follow relationship not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Follow relationship not found"));
 
         if (request.getNotificationsEnabled() != null) {
             follow.setNotificationsEnabled(request.getNotificationsEnabled());
@@ -110,82 +121,122 @@ public class FollowService {
 
         follow = followRepository.save(follow);
 
-        log.info("Follow relationship updated for {} -> {}", followerId, followingId);
+        log.info("User {} updated follow settings for {}", followerId, followingId);
         return mapToFollowResponse(follow);
     }
 
+    // ==================== READ ====================
+
     @Transactional(readOnly = true)
-    public Page<FollowResponse> getFollowers(UUID userId, int page, int size) {
+    public PageResponse<FollowResponse> getFollowers(UUID userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Follow> followers = followRepository.findByFollowingId(userId, pageRequest);
-        return followers.map(this::mapToFollowResponse);
+        Page<Follow> followPage = followRepository.findByFollowingId(userId, pageRequest);
+        return PageResponse.from(followPage, this::mapToFollowerResponse);
     }
 
     @Transactional(readOnly = true)
-    public Page<FollowResponse> getFollowing(UUID userId, int page, int size) {
+    public PageResponse<FollowResponse> getFollowing(UUID userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Follow> following = followRepository.findByFollowerId(userId, pageRequest);
-        return following.map(this::mapToFollowResponse);
+        Page<Follow> followPage = followRepository.findByFollowerId(userId, pageRequest);
+        return PageResponse.from(followPage, this::mapToFollowResponse);
     }
 
     @Transactional(readOnly = true)
-    public Page<FollowResponse> getCloseFriends(UUID userId, int page, int size) {
+    public PageResponse<FollowResponse> getCloseFriends(UUID userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Follow> closeFriends = followRepository.findCloseFriends(userId, pageRequest);
-        return closeFriends.map(this::mapToFollowResponse);
-    }
-
-    @Transactional(readOnly = true)
-    @Cacheable(value = "followingIds", key = "#userId")
-    public List<UUID> getFollowingIds(UUID userId) {
-        return followRepository.findFollowingIds(userId);
-    }
-
-    @Transactional(readOnly = true)
-    public List<UUID> getFollowerIds(UUID userId) {
-        return followRepository.findFollowerIds(userId);
+        Page<Follow> followPage = followRepository.findByFollowerIdAndIsCloseFriendTrue(userId, pageRequest);
+        return PageResponse.from(followPage, this::mapToFollowResponse);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(value = "followStats", key = "#userId")
-    public FollowStatsResponse getFollowStats(UUID userId, UUID currentUserId) {
+    public FollowStatsResponse getFollowStats(UUID userId, UUID requesterId) {
         long followersCount = followRepository.countByFollowingId(userId);
         long followingCount = followRepository.countByFollowerId(userId);
 
         boolean isFollowing = false;
         boolean isFollowedBy = false;
 
-        if (currentUserId != null && !currentUserId.equals(userId)) {
-            isFollowing = followRepository.isFollowing(currentUserId, userId);
-            isFollowedBy = followRepository.isFollowing(userId, currentUserId);
+        if (requesterId != null && !requesterId.equals(userId)) {
+            isFollowing = followRepository.existsByFollowerIdAndFollowingId(requesterId, userId);
+            isFollowedBy = followRepository.existsByFollowerIdAndFollowingId(userId, requesterId);
         }
 
         return FollowStatsResponse.builder()
-            .userId(userId)
-            .followersCount(followersCount)
-            .followingCount(followingCount)
-            .isFollowing(isFollowing)
-            .isFollowedBy(isFollowedBy)
-            .build();
+                .userId(userId)
+                .followersCount(followersCount)
+                .followingCount(followingCount)
+                .isFollowing(isFollowing)
+                .isFollowedBy(isFollowedBy)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(value = "followingIds", key = "#userId")
+    public List<UUID> getFollowingIds(UUID userId) {
+        return followRepository.findFollowingIdsByFollowerId(userId);
     }
 
     @Transactional(readOnly = true)
     public boolean isFollowing(UUID followerId, UUID followingId) {
-        return followRepository.isFollowing(followerId, followingId);
+        return followRepository.existsByFollowerIdAndFollowingId(followerId, followingId);
     }
 
+    // ==================== MAPPERS ====================
+
+    /**
+     * Maps Follow entity to FollowResponse with user details of the FOLLOWING user
+     * Used for: getFollowing, getCloseFriends
+     */
     private FollowResponse mapToFollowResponse(Follow follow) {
-        UserSummary userSummary = userServiceClient.getUserSummary(follow.getFollowingId());
+        UserSummary userSummary = fetchUserSummary(follow.getFollowingId());
 
         return FollowResponse.builder()
-            .id(follow.getId())
-            .followerId(follow.getFollowerId())
-            .followingId(follow.getFollowingId())
-            .notificationsEnabled(follow.getNotificationsEnabled())
-            .isCloseFriend(follow.getIsCloseFriend())
-            .isMuted(follow.getIsMuted())
-            .createdAt(follow.getCreatedAt())
-            .user(userSummary)
-            .build();
+                .id(follow.getId())
+                .followerId(follow.getFollowerId())
+                .followingId(follow.getFollowingId())
+                .notificationsEnabled(follow.getNotificationsEnabled())
+                .isCloseFriend(follow.getIsCloseFriend())
+                .isMuted(follow.getIsMuted())
+                .createdAt(follow.getCreatedAt())
+                .user(userSummary)
+                .build();
+    }
+
+    /**
+     * Maps Follow entity to FollowResponse with user details of the FOLLOWER user
+     * Used for: getFollowers
+     */
+    private FollowResponse mapToFollowerResponse(Follow follow) {
+        UserSummary userSummary = fetchUserSummary(follow.getFollowerId());
+
+        return FollowResponse.builder()
+                .id(follow.getId())
+                .followerId(follow.getFollowerId())
+                .followingId(follow.getFollowingId())
+                .notificationsEnabled(follow.getNotificationsEnabled())
+                .isCloseFriend(follow.getIsCloseFriend())
+                .isMuted(follow.getIsMuted())
+                .createdAt(follow.getCreatedAt())
+                .user(userSummary)
+                .build();
+    }
+
+    /**
+     * Fetches user summary from identity-service with fallback
+     */
+    private UserSummary fetchUserSummary(UUID userId) {
+        try {
+            return userServiceClient.getUserSummary(userId);
+        } catch (Exception e) {
+            log.warn("Failed to fetch user summary for {}: {}", userId, e.getMessage());
+            return UserSummary.builder()
+                    .id(userId)
+                    .username("Unknown")
+                    .displayName("Unknown User")
+                    .avatarUrl(null)
+                    .isVerified(false)
+                    .build();
+        }
     }
 }

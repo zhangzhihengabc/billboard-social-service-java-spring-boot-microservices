@@ -4,8 +4,6 @@ import com.billboard.social.common.entity.BaseEntity;
 import com.billboard.social.graph.entity.enums.FriendshipStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -19,8 +17,6 @@ import java.util.UUID;
         @Index(name = "idx_friendship_status", columnList = "status")
     }
 )
-@SQLDelete(sql = "UPDATE friendships SET deleted_at = NOW() WHERE id = ? AND version = ?")
-@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 @NoArgsConstructor
