@@ -7,6 +7,7 @@ import com.billboard.social.common.exception.ForbiddenException;
 import com.billboard.social.common.exception.ResourceNotFoundException;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.common.security.InputValidator;
+import com.billboard.social.common.service.EmailService;
 import com.billboard.social.group.dto.request.GroupRequests.*;
 import com.billboard.social.group.dto.response.GroupResponses.*;
 import com.billboard.social.group.entity.Group;
@@ -40,6 +41,7 @@ public class GroupInvitationService {
     private final GroupMemberRepository memberRepository;
     private final GroupInvitationRepository invitationRepository;
     private final UserServiceClient userServiceClient;
+    private final EmailService emailService;
 
     @Value("${app.group.invitation.default-expiration-days:7}")
     private int defaultExpirationDays;
@@ -79,9 +81,18 @@ public class GroupInvitationService {
         }
 
         UUID inviteeId = request.getUserId();
+        String inviteeEmail = request.getEmail();
+        UserSummary invitee = null;
 
-        // Check if invitee is already a member
+        // Case 1: Invite by User ID - fetch user's email
         if (inviteeId != null) {
+            invitee = fetchUserSummary(inviteeId);
+            inviteeEmail = invitee.getEmail();  // Get email from user service
+
+            if (inviteeEmail == null || inviteeEmail.isBlank()) {
+                log.warn("User {} has no email, invitation email will not be sent", inviteeId);
+            }
+
             memberRepository.findByGroupIdAndUserId(groupId, inviteeId).ifPresent(existing -> {
                 if (existing.getStatus() == MemberStatus.BANNED) {
                     throw new ValidationException("This user is banned from the group");
@@ -94,10 +105,16 @@ public class GroupInvitationService {
                 }
             });
 
-            // Check if pending invitation already exists
-            if (invitationRepository.existsPendingInvitation(groupId, inviteeId, LocalDateTime.now())) {
-                throw new ValidationException("A pending invitation already exists for this user");
-            }
+            // Delete existing invitation if any (hard delete for unique constraint)
+            invitationRepository.findByGroupIdAndInviteeId(groupId, inviteeId)
+                    .ifPresent(existing -> {
+                        if (existing.isPending()) {
+                            throw new ValidationException("A pending invitation already exists for this user");
+                        }
+                        // Delete old accepted/declined/expired invitation to allow re-invite
+                        invitationRepository.delete(existing);
+                        log.info("Deleted old invitation {} to allow re-invite", existing.getId());
+                    });
         }
 
         // Calculate expiration
@@ -110,7 +127,7 @@ public class GroupInvitationService {
                 .group(group)
                 .inviterId(inviterId)
                 .inviteeId(inviteeId)
-                .inviteeEmail(request.getEmail())
+                .inviteeEmail(inviteeEmail)
                 .message(request.getMessage())
                 .status("PENDING")
                 .inviteCode(generateInviteCode())
@@ -119,10 +136,30 @@ public class GroupInvitationService {
 
         invitation = invitationRepository.save(invitation);
 
+        // Send invitation email (for both cases)
+        if (inviteeEmail != null && !inviteeEmail.isBlank()) {
+            UserSummary inviter = fetchUserSummary(inviterId);
+            sendInvitationEmail(inviteeEmail, inviter.getUsername(), group.getName(),
+                    invitation.getInviteCode(), request.getMessage());
+        }
+
         log.info("User {} invited {} to group {}", inviterId,
-                inviteeId != null ? inviteeId : request.getEmail(), groupId);
+                inviteeId != null ? inviteeId : inviteeEmail, groupId);
 
         return mapToInvitationResponse(invitation);
+    }
+
+    /**
+     * Send invitation email asynchronously
+     */
+    private void sendInvitationEmail(String toEmail, String inviterName, String groupName,
+                                     String inviteCode, String message) {
+        try {
+            emailService.sendGroupInvitationEmail(toEmail, inviterName, groupName, inviteCode, message);
+        } catch (Exception e) {
+            log.error("Failed to send invitation email to {}: {}", toEmail, e.getMessage());
+            // Don't fail the invitation if email fails
+        }
     }
 
     // ==================== CREATE INVITE LINK ====================
@@ -201,10 +238,6 @@ public class GroupInvitationService {
             }
         });
 
-        // Accept invitation
-        invitation.accept();
-        invitationRepository.save(invitation);
-
         // Create membership
         GroupMember member = GroupMember.builder()
                 .group(group)
@@ -218,6 +251,8 @@ public class GroupInvitationService {
         // Update group member count
         group.incrementMemberCount();
         groupRepository.save(group);
+
+        invitationRepository.delete(invitation);
 
         log.info("User {} accepted invitation {} and joined group {}", userId, invitationId, group.getId());
 
@@ -238,10 +273,10 @@ public class GroupInvitationService {
             throw new ValidationException("Invitation is no longer valid");
         }
 
-        invitation.decline();
-        invitationRepository.save(invitation);
+        // Hard delete to allow future re-invites (unique constraint)
+        invitationRepository.delete(invitation);
 
-        log.info("User {} declined invitation {}", userId, invitationId);
+        log.info("User {} declined and deleted invitation {}", userId, invitationId);
     }
 
     // ==================== ACCEPT BY CODE ====================
@@ -276,13 +311,6 @@ public class GroupInvitationService {
             }
         });
 
-        // For link-based invites, keep the invitation active for others
-        // For user-specific invites, mark as accepted
-        if (invitation.getInviteeId() != null) {
-            invitation.accept();
-            invitationRepository.save(invitation);
-        }
-
         // Create membership
         GroupMember member = GroupMember.builder()
                 .group(group)
@@ -296,6 +324,12 @@ public class GroupInvitationService {
         // Update group member count
         group.incrementMemberCount();
         groupRepository.save(group);
+
+        // For user-specific invites, delete after accepting
+        // For link-based invites (inviteeId is null), keep for others to use
+        if (invitation.getInviteeId() != null) {
+            invitationRepository.delete(invitation);
+        }
 
         log.info("User {} joined group {} via invite code", userId, group.getId());
 

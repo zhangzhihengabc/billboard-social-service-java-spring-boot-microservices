@@ -29,4 +29,7 @@ public class UserSummary {
 
     @Schema(description = "Whether the user is verified", example = "false")
     private Boolean isVerified;
+
+    @Schema(description = "Email address", example = "myemail@gmail.com")
+    private String email;
 }

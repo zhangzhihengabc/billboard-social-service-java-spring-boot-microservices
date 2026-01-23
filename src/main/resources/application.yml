@@ -58,6 +58,13 @@ app:
     allowed-origins: ${CORS_ORIGINS:http://localhost:3000,http://localhost:8080}
   rabbitmq:
     exchange: social-events
+  mail:
+    from: ${MAIL_FROM:uditmehta100@gmail.com}
+  base-url: ${APP_BASE_URL:http://localhost:3000}
+  group:
+    invitation:
+      default-expiration-days: 7
+      max-pending-per-user: 100
 
 management:
   endpoints:
@@ -91,3 +98,20 @@ social:
 # Identity service URL (for Feign client)
 identity-service:
   url: http://localhost:8081
+
+# Mail configuration
+spring.mail:
+  host: ${MAIL_HOST:smtp.gmail.com}
+  port: ${MAIL_PORT:587}
+  username: ${MAIL_USERNAME:uditmehta100@gmail.com}
+  password: ${MAIL_PASSWORD:ndvgvsmlbxvhjefn}
+  properties:
+    mail:
+      smtp:
+        auth: true
+        starttls:
+          enable: true
+          required: true
+        connectiontimeout: 5000
+        timeout: 5000
+        writetimeout: 5000
