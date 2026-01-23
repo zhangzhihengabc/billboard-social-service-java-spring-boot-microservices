@@ -1,21 +1,23 @@
 package com.billboard.social.graph.service;
-import com.billboard.social.common.dto.UserSummary;
 
+import com.billboard.social.common.dto.PageResponse;
+import com.billboard.social.common.dto.UserSummary;
 import com.billboard.social.common.client.UserServiceClient;
 import com.billboard.social.graph.dto.request.SocialRequests.*;
 import com.billboard.social.graph.dto.response.SocialResponses.*;
 import com.billboard.social.graph.entity.Block;
 import com.billboard.social.graph.event.SocialEventPublisher;
-import com.billboard.social.common.exception.ResourceNotFoundException;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.graph.repository.BlockRepository;
 import com.billboard.social.graph.repository.FollowRepository;
 import com.billboard.social.graph.repository.FriendshipRepository;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -40,51 +42,51 @@ public class BlockService {
     private int maxBlocked;
 
     @Transactional
-    @CacheEvict(value = {"blockedIds", "friends", "followStats"}, allEntries = true)
+    @CacheEvict(value = {"blockedIds", "friends", "friendIds", "followStats"}, allEntries = true)
     public BlockResponse blockUser(UUID blockerId, BlockRequest request) {
+        if (request.getUserId() == null) {
+            throw new ValidationException("User ID is required");
+        }
+
         UUID blockedId = request.getUserId();
 
-        // Validate not self
         if (blockerId.equals(blockedId)) {
             throw new ValidationException("Cannot block yourself");
         }
 
-        // Check if already blocked
         if (blockRepository.existsByBlockerIdAndBlockedId(blockerId, blockedId)) {
             throw new ValidationException("User already blocked");
         }
 
-        // Check max blocked limit
         long blockedCount = blockRepository.countByBlockerId(blockerId);
         if (blockedCount >= maxBlocked) {
             throw new ValidationException("Maximum blocked users limit reached");
         }
 
-        // Remove any existing friendship
         friendshipRepository.findBetweenUsers(blockerId, blockedId)
-            .ifPresent(f -> {
-                f.softDelete();
-                friendshipRepository.save(f);
-            });
+                .ifPresent(friendshipRepository::delete);
 
-        // Remove any follow relationships
         followRepository.findByFollowerIdAndFollowingId(blockerId, blockedId)
-            .ifPresent(followRepository::delete);
+                .ifPresent(followRepository::delete);
         followRepository.findByFollowerIdAndFollowingId(blockedId, blockerId)
-            .ifPresent(followRepository::delete);
+                .ifPresent(followRepository::delete);
 
         Block block = Block.builder()
-            .blockerId(blockerId)
-            .blockedId(blockedId)
-            .reason(request.getReason())
-            .blockMessages(request.getBlockMessages() != null ? request.getBlockMessages() : true)
-            .blockPosts(request.getBlockPosts() != null ? request.getBlockPosts() : true)
-            .blockComments(request.getBlockComments() != null ? request.getBlockComments() : true)
-            .build();
+                .blockerId(blockerId)
+                .blockedId(blockedId)
+                .reason(request.getReason())
+                .blockMessages(request.getBlockMessages() != null ? request.getBlockMessages() : true)
+                .blockPosts(request.getBlockPosts() != null ? request.getBlockPosts() : true)
+                .blockComments(request.getBlockComments() != null ? request.getBlockComments() : true)
+                .build();
 
-        block = blockRepository.save(block);
+        try {
+            block = blockRepository.save(block);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("Race condition detected for block from {} to {}: {}", blockerId, blockedId, e.getMessage());
+            throw new ValidationException("User already blocked");
+        }
 
-        // Publish event
         eventPublisher.publishUserBlocked(block);
 
         log.info("User {} blocked {}", blockerId, blockedId);
@@ -95,21 +97,20 @@ public class BlockService {
     @CacheEvict(value = "blockedIds", allEntries = true)
     public void unblockUser(UUID blockerId, UUID blockedId) {
         Block block = blockRepository.findByBlockerIdAndBlockedId(blockerId, blockedId)
-            .orElseThrow(() -> new ResourceNotFoundException("Block relationship not found"));
+                .orElseThrow(() -> new ValidationException("Block relationship not found"));
 
         blockRepository.delete(block);
 
-        // Publish event
         eventPublisher.publishUserUnblocked(blockerId, blockedId);
 
         log.info("User {} unblocked {}", blockerId, blockedId);
     }
 
     @Transactional(readOnly = true)
-    public Page<BlockResponse> getBlockedUsers(UUID userId, int page, int size) {
+    public PageResponse<BlockResponse> getBlockedUsers(UUID userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Block> blocks = blockRepository.findByBlockerId(userId, pageRequest);
-        return blocks.map(this::mapToBlockResponse);
+        return PageResponse.from(blocks, this::mapToBlockResponse);
     }
 
     @Transactional(readOnly = true)
@@ -129,14 +130,39 @@ public class BlockService {
     }
 
     private BlockResponse mapToBlockResponse(Block block) {
-        UserSummary userSummary = userServiceClient.getUserSummary(block.getBlockedId());
+        UserSummary userSummary = fetchUserSummaryWithFallback(block.getBlockedId());
 
         return BlockResponse.builder()
-            .id(block.getId())
-            .blockedId(block.getBlockedId())
-            .reason(block.getReason())
-            .createdAt(block.getCreatedAt())
-            .blockedUser(userSummary)
-            .build();
+                .id(block.getId())
+                .blockedId(block.getBlockedId())
+                .reason(block.getReason())
+                .createdAt(block.getCreatedAt())
+                .blockedUser(userSummary)
+                .build();
+    }
+
+    private UserSummary fetchUserSummaryWithFallback(UUID userId) {
+        try {
+            UserSummary summary = userServiceClient.getUserSummary(userId);
+            if (summary != null) {
+                return summary;
+            }
+            log.warn("User summary returned null for userId: {}", userId);
+        } catch (FeignException.NotFound e) {
+            log.warn("User not found in identity-service: {}", userId);
+        } catch (FeignException e) {
+            log.warn("Identity service unavailable for userId {}: Status {}", userId, e.status());
+        } catch (Exception e) {
+            log.warn("Failed to fetch user summary for userId {}: {} - {}",
+                    userId, e.getClass().getSimpleName(), e.getMessage());
+        }
+
+        return UserSummary.builder()
+                .id(userId)
+                .username("Unknown")
+                .displayName("Unknown User")
+                .avatarUrl(null)
+                .isVerified(false)
+                .build();
     }
 }

@@ -21,8 +21,6 @@ import java.util.UUID;
         @Index(name = "idx_member_role", columnList = "role")
     }
 )
-@SQLDelete(sql = "UPDATE group_members SET deleted_at = NOW() WHERE id = ? AND version = ?")
-@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 @NoArgsConstructor

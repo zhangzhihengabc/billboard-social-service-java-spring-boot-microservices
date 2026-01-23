@@ -18,8 +18,6 @@ import java.util.UUID;
     @Index(name = "idx_group_type", columnList = "group_type"),
     @Index(name = "idx_group_category", columnList = "category_id")
 })
-@SQLDelete(sql = "UPDATE groups SET deleted_at = NOW() WHERE id = ? AND version = ?")
-@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 @NoArgsConstructor

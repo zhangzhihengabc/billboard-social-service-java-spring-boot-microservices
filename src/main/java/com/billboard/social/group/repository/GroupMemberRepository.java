@@ -6,6 +6,7 @@ import com.billboard.social.group.entity.enums.MemberStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -20,6 +21,10 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, UUID> 
     Optional<GroupMember> findByGroupIdAndUserId(UUID groupId, UUID userId);
 
     boolean existsByGroupIdAndUserId(UUID groupId, UUID userId);
+
+    @Modifying
+    @Query("DELETE FROM GroupMember m WHERE m.group.id = :groupId")
+    void deleteByGroupId(@Param("groupId") UUID groupId);
 
     boolean existsByGroupIdAndUserIdAndStatus(UUID groupId, UUID userId, MemberStatus status);
 
@@ -47,6 +52,18 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, UUID> 
 
     @Query("SELECT COUNT(m) FROM GroupMember m WHERE m.group.id = :groupId AND m.status = 'PENDING'")
     long countPendingMembers(@Param("groupId") UUID groupId);
+
+    @Query("SELECT m FROM GroupMember m WHERE m.group.id = :groupId AND m.status = 'BANNED'")
+    Page<GroupMember> findBannedMembers(@Param("groupId") UUID groupId, Pageable pageable);
+
+    @Query("SELECT COUNT(m) FROM GroupMember m WHERE m.group.id = :groupId AND m.status = 'BANNED'")
+    long countBannedMembers(@Param("groupId") UUID groupId);
+
+    @Query("SELECT COUNT(m) FROM GroupMember m WHERE m.group.id = :groupId AND m.role IN ('ADMIN', 'OWNER')")
+    long countAdmins(@Param("groupId") UUID groupId);
+
+    @Query("SELECT COUNT(m) FROM GroupMember m WHERE m.group.id = :groupId AND m.role = 'MODERATOR'")
+    long countModerators(@Param("groupId") UUID groupId);
 
     @Query("SELECT m FROM GroupMember m WHERE m.userId = :userId AND m.status = 'APPROVED'")
     Page<GroupMember> findMembershipsByUser(@Param("userId") UUID userId, Pageable pageable);

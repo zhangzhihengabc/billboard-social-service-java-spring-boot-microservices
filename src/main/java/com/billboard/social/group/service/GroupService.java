@@ -1,6 +1,8 @@
 package com.billboard.social.group.service;
 
+import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.client.UserServiceClient;
+import com.billboard.social.common.security.InputValidator;
 import com.billboard.social.group.dto.request.GroupRequests.*;
 import com.billboard.social.group.dto.response.GroupResponses.*;
 import com.billboard.social.group.entity.Group;
@@ -9,7 +11,6 @@ import com.billboard.social.group.entity.enums.GroupType;
 import com.billboard.social.group.entity.enums.MemberRole;
 import com.billboard.social.group.entity.enums.MemberStatus;
 import com.billboard.social.group.event.GroupEventPublisher;
-import com.billboard.social.common.exception.ResourceNotFoundException;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.common.exception.ForbiddenException;
 import com.billboard.social.group.repository.GroupCategoryRepository;
@@ -20,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -27,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.Normalizer;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -50,49 +53,60 @@ public class GroupService {
 
     @Transactional
     public GroupResponse createGroup(UUID userId, CreateGroupRequest request) {
-        // Check user group limit
+        // Validate and sanitize name
+        String validatedName = InputValidator.validateName(request.getName(), "Group name");
+
         long userGroupCount = groupRepository.countGroupsByMember(userId);
         if (userGroupCount >= maxUserGroups) {
             throw new ValidationException("Maximum group limit reached");
         }
 
-        String slug = generateSlug(request.getName());
+        String slug = generateSlug(validatedName);
+
+        // Validate and sanitize optional text fields
+        String validatedDescription = InputValidator.validateText(request.getDescription(), "Description", 2000);
+        String validatedLocation = InputValidator.validateText(request.getLocation(), "Location", 200);
+        String validatedWebsite = InputValidator.validateText(request.getWebsite(), "Website", 500);
+        String validatedRules = InputValidator.validateText(request.getRules(), "Rules", 5000);
 
         Group group = Group.builder()
-            .name(request.getName())
-            .slug(slug)
-            .description(request.getDescription())
-            .groupType(request.getGroupType())
-            .ownerId(userId)
-            .categoryId(request.getCategoryId())
-            .location(request.getLocation())
-            .website(request.getWebsite())
-            .rules(request.getRules())
-            .allowMemberPosts(request.getAllowMemberPosts())
-            .requirePostApproval(request.getRequirePostApproval())
-            .requireJoinApproval(request.getRequireJoinApproval())
-            .allowMemberInvites(request.getAllowMemberInvites())
-            .build();
+                .name(validatedName)
+                .slug(slug)
+                .description(validatedDescription)
+                .groupType(request.getGroupType() != null ? request.getGroupType() : GroupType.PUBLIC)
+                .ownerId(userId)
+                .categoryId(request.getCategoryId())
+                .location(validatedLocation)
+                .website(validatedWebsite)
+                .rules(validatedRules)
+                .allowMemberPosts(request.getAllowMemberPosts() != null ? request.getAllowMemberPosts() : true)
+                .requirePostApproval(request.getRequirePostApproval() != null ? request.getRequirePostApproval() : false)
+                .requireJoinApproval(request.getRequireJoinApproval() != null ? request.getRequireJoinApproval() : false)
+                .allowMemberInvites(request.getAllowMemberInvites() != null ? request.getAllowMemberInvites() : true)
+                .build();
 
-        group = groupRepository.save(group);
+        try {
+            group = groupRepository.save(group);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("Race condition detected for group creation with slug {}: {}", slug, e.getMessage());
+            throw new ValidationException("A group with this name already exists");
+        }
 
-        // Add creator as owner
         GroupMember owner = GroupMember.builder()
-            .group(group)
-            .userId(userId)
-            .role(MemberRole.OWNER)
-            .status(MemberStatus.APPROVED)
-            .build();
+                .group(group)
+                .userId(userId)
+                .role(MemberRole.OWNER)
+                .status(MemberStatus.APPROVED)
+                .build();
         owner.approve(userId);
         memberRepository.save(owner);
 
-        // Update category count
         if (request.getCategoryId() != null) {
             categoryRepository.findById(request.getCategoryId())
-                .ifPresent(cat -> {
-                    cat.setGroupCount(cat.getGroupCount() + 1);
-                    categoryRepository.save(cat);
-                });
+                    .ifPresent(cat -> {
+                        cat.setGroupCount(cat.getGroupCount() + 1);
+                        categoryRepository.save(cat);
+                    });
         }
 
         eventPublisher.publishGroupCreated(group);
@@ -105,16 +119,18 @@ public class GroupService {
     @CacheEvict(value = "groups", key = "#groupId")
     public GroupResponse updateGroup(UUID userId, UUID groupId, UpdateGroupRequest request) {
         Group group = groupRepository.findById(groupId)
-            .orElseThrow(() -> new ResourceNotFoundException("Group", "id", groupId));
+                .orElseThrow(() -> new ValidationException("Group not found with id: " + groupId));
 
         checkAdminAccess(userId, groupId);
 
         if (request.getName() != null) {
-            group.setName(request.getName());
-            group.setSlug(generateSlug(request.getName()));
+            String validatedName = InputValidator.validateName(request.getName(), "Group name");
+            group.setName(validatedName);
+            group.setSlug(generateSlug(validatedName));
         }
         if (request.getDescription() != null) {
-            group.setDescription(request.getDescription());
+            String validatedDescription = InputValidator.validateText(request.getDescription(), "Description", 2000);
+            group.setDescription(validatedDescription);
         }
         if (request.getGroupType() != null) {
             group.setGroupType(request.getGroupType());
@@ -123,13 +139,16 @@ public class GroupService {
             group.setCategoryId(request.getCategoryId());
         }
         if (request.getLocation() != null) {
-            group.setLocation(request.getLocation());
+            String validatedLocation = InputValidator.validateText(request.getLocation(), "Location", 200);
+            group.setLocation(validatedLocation);
         }
         if (request.getWebsite() != null) {
-            group.setWebsite(request.getWebsite());
+            String validatedWebsite = InputValidator.validateText(request.getWebsite(), "Website", 500);
+            group.setWebsite(validatedWebsite);
         }
         if (request.getRules() != null) {
-            group.setRules(request.getRules());
+            String validatedRules = InputValidator.validateText(request.getRules(), "Rules", 5000);
+            group.setRules(validatedRules);
         }
         if (request.getAllowMemberPosts() != null) {
             group.setAllowMemberPosts(request.getAllowMemberPosts());
@@ -144,7 +163,12 @@ public class GroupService {
             group.setAllowMemberInvites(request.getAllowMemberInvites());
         }
 
-        group = groupRepository.save(group);
+        try {
+            group = groupRepository.save(group);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("Slug conflict during group update {}: {}", groupId, e.getMessage());
+            throw new ValidationException("A group with this name already exists");
+        }
 
         log.info("Group {} updated by user {}", groupId, userId);
         return mapToGroupResponse(group, userId);
@@ -154,14 +178,22 @@ public class GroupService {
     @CacheEvict(value = "groups", key = "#groupId")
     public void deleteGroup(UUID userId, UUID groupId) {
         Group group = groupRepository.findById(groupId)
-            .orElseThrow(() -> new ResourceNotFoundException("Group", "id", groupId));
+                .orElseThrow(() -> new ValidationException("Group not found with id: " + groupId));
 
         if (!group.getOwnerId().equals(userId)) {
             throw new ForbiddenException("Only the owner can delete the group");
         }
 
-        group.softDelete();
-        groupRepository.save(group);
+        if (group.getCategoryId() != null) {
+            categoryRepository.findById(group.getCategoryId())
+                    .ifPresent(cat -> {
+                        cat.setGroupCount(Math.max(0, cat.getGroupCount() - 1));
+                        categoryRepository.save(cat);
+                    });
+        }
+
+        memberRepository.deleteByGroupId(groupId);
+        groupRepository.delete(group);
 
         eventPublisher.publishGroupDeleted(group);
 
@@ -172,9 +204,8 @@ public class GroupService {
     @Cacheable(value = "groups", key = "#groupId")
     public GroupResponse getGroup(UUID groupId, UUID currentUserId) {
         Group group = groupRepository.findById(groupId)
-            .orElseThrow(() -> new ResourceNotFoundException("Group", "id", groupId));
+                .orElseThrow(() -> new ValidationException("Group not found with id: " + groupId));
 
-        // Check visibility for private/secret groups
         if (group.getGroupType() == GroupType.PRIVATE || group.getGroupType() == GroupType.SECRET) {
             if (currentUserId == null || !isMember(groupId, currentUserId)) {
                 throw new ForbiddenException("This group is private");
@@ -186,8 +217,15 @@ public class GroupService {
 
     @Transactional(readOnly = true)
     public GroupResponse getGroupBySlug(String slug, UUID currentUserId) {
-        Group group = groupRepository.findBySlug(slug)
-            .orElseThrow(() -> new ResourceNotFoundException("Slug Not Found"));
+        if (slug == null || slug.isBlank()) {
+            throw new ValidationException("Slug is required");
+        }
+
+        // Sanitize slug - remove null bytes
+        String sanitizedSlug = slug.replace("\u0000", "").trim();
+
+        Group group = groupRepository.findBySlug(sanitizedSlug)
+                .orElseThrow(() -> new ValidationException("Group not found with slug: " + sanitizedSlug));
 
         if (group.getGroupType() == GroupType.PRIVATE || group.getGroupType() == GroupType.SECRET) {
             if (currentUserId == null || !isMember(group.getId(), currentUserId)) {
@@ -199,38 +237,83 @@ public class GroupService {
     }
 
     @Transactional(readOnly = true)
-    public Page<GroupSummaryResponse> searchGroups(String query, int page, int size) {
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "memberCount"));
-        Page<Group> groups = groupRepository.searchGroups(query, pageRequest);
-        return groups.map(this::mapToGroupSummary);
+    public PageResponse<GroupSummaryResponse> searchGroups(String query, int page, int size) {
+        // Sanitize search query
+        String sanitizedQuery = InputValidator.sanitizeSearchQuery(query);
+
+        // Return empty results if query is empty after sanitization
+        if (sanitizedQuery.isEmpty()) {
+            return PageResponse.empty(page, size, "memberCount", "DESC");
+        }
+
+        // In-memory search for safety (avoids SQL injection and special char issues)
+        List<Group> allPublicGroups = groupRepository.findByGroupTypeOrderByMemberCountDesc(GroupType.PUBLIC);
+        String lowerQuery = sanitizedQuery.toLowerCase();
+
+        List<Group> filtered = allPublicGroups.stream()
+                .filter(g -> (g.getName() != null && g.getName().toLowerCase().contains(lowerQuery)) ||
+                        (g.getDescription() != null && g.getDescription().toLowerCase().contains(lowerQuery)))
+                .toList();
+
+        // Manual pagination
+        int start = page * size;
+        int end = Math.min(start + size, filtered.size());
+
+        List<Group> pageContent = start < filtered.size()
+                ? filtered.subList(start, end)
+                : List.of();
+
+        int totalPages = filtered.isEmpty() ? 0 : (int) Math.ceil((double) filtered.size() / size);
+
+        return PageResponse.<GroupSummaryResponse>builder()
+                .content(pageContent.stream().map(this::mapToGroupSummary).toList())
+                .page(page)
+                .size(size)
+                .totalElements((long) filtered.size())
+                .totalPages(totalPages)
+                .first(page == 0)
+                .last(page >= totalPages - 1 || totalPages == 0)
+                .empty(pageContent.isEmpty())
+                .sort(PageResponse.SortInfo.builder()
+                        .empty(false)
+                        .sorted(true)
+                        .unsorted(false)
+                        .sortBy("memberCount")
+                        .direction("DESC")
+                        .build())
+                .build();
     }
 
     @Transactional(readOnly = true)
-    public Page<GroupSummaryResponse> getPopularGroups(int page, int size) {
+    public PageResponse<GroupSummaryResponse> getPopularGroups(int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<Group> groups = groupRepository.findPopularGroups(pageRequest);
-        return groups.map(this::mapToGroupSummary);
+        return PageResponse.from(groups, this::mapToGroupSummary);
     }
 
     @Transactional(readOnly = true)
-    public Page<GroupSummaryResponse> getFeaturedGroups(int page, int size) {
+    public PageResponse<GroupSummaryResponse> getFeaturedGroups(int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<Group> groups = groupRepository.findFeaturedGroups(pageRequest);
-        return groups.map(this::mapToGroupSummary);
+        return PageResponse.from(groups, this::mapToGroupSummary);
     }
 
     @Transactional(readOnly = true)
-    public Page<GroupSummaryResponse> getGroupsByCategory(UUID categoryId, int page, int size) {
+    public PageResponse<GroupSummaryResponse> getGroupsByCategory(UUID categoryId, int page, int size) {
+        if (categoryId == null) {
+            throw new ValidationException("Category ID is required");
+        }
+
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<Group> groups = groupRepository.findByCategoryIdOrderByPopularity(categoryId, pageRequest);
-        return groups.map(this::mapToGroupSummary);
+        return PageResponse.from(groups, this::mapToGroupSummary);
     }
 
     @Transactional(readOnly = true)
-    public Page<MembershipResponse> getUserGroups(UUID userId, int page, int size) {
+    public PageResponse<MembershipResponse> getUserGroups(UUID userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "joinedAt"));
         Page<GroupMember> memberships = memberRepository.findMembershipsByUser(userId, pageRequest);
-        return memberships.map(this::mapToMembershipResponse);
+        return PageResponse.from(memberships, this::mapToMembershipResponse);
     }
 
     private boolean isMember(UUID groupId, UUID userId) {
@@ -239,7 +322,7 @@ public class GroupService {
 
     private void checkAdminAccess(UUID userId, UUID groupId) {
         GroupMember member = memberRepository.findByGroupIdAndUserId(groupId, userId)
-            .orElseThrow(() -> new ForbiddenException("You are not a member of this group"));
+                .orElseThrow(() -> new ForbiddenException("You are not a member of this group"));
 
         if (!member.isAdmin()) {
             throw new ForbiddenException("Admin access required");
@@ -251,8 +334,12 @@ public class GroupService {
         String normalized = Normalizer.normalize(noWhitespace, Normalizer.Form.NFD);
         String slug = NONLATIN.matcher(normalized).replaceAll("");
         slug = slug.toLowerCase(Locale.ENGLISH).replaceAll("-+", "-").replaceAll("^-|-$", "");
-        
-        // Ensure uniqueness
+
+        // Handle empty slug (if input was all special characters)
+        if (slug.isEmpty()) {
+            slug = "group-" + System.currentTimeMillis();
+        }
+
         String baseSlug = slug;
         int counter = 1;
         while (groupRepository.existsBySlug(slug)) {
@@ -263,41 +350,41 @@ public class GroupService {
 
     private GroupResponse mapToGroupResponse(Group group, UUID currentUserId) {
         GroupResponse.GroupResponseBuilder builder = GroupResponse.builder()
-            .id(group.getId())
-            .name(group.getName())
-            .slug(group.getSlug())
-            .description(group.getDescription())
-            .groupType(group.getGroupType())
-            .ownerId(group.getOwnerId())
-            .categoryId(group.getCategoryId())
-            .coverImageUrl(group.getCoverImageUrl())
-            .iconUrl(group.getIconUrl())
-            .location(group.getLocation())
-            .website(group.getWebsite())
-            .rules(group.getRules())
-            .memberCount(group.getMemberCount())
-            .postCount(group.getPostCount())
-            .isVerified(group.getIsVerified())
-            .isFeatured(group.getIsFeatured())
-            .allowMemberPosts(group.getAllowMemberPosts())
-            .requirePostApproval(group.getRequirePostApproval())
-            .requireJoinApproval(group.getRequireJoinApproval())
-            .allowMemberInvites(group.getAllowMemberInvites())
-            .createdAt(group.getCreatedAt());
+                .id(group.getId())
+                .name(group.getName())
+                .slug(group.getSlug())
+                .description(group.getDescription())
+                .groupType(group.getGroupType())
+                .ownerId(group.getOwnerId())
+                .categoryId(group.getCategoryId())
+                .coverImageUrl(group.getCoverImageUrl())
+                .iconUrl(group.getIconUrl())
+                .location(group.getLocation())
+                .website(group.getWebsite())
+                .rules(group.getRules())
+                .memberCount(group.getMemberCount())
+                .postCount(group.getPostCount())
+                .isVerified(group.getIsVerified())
+                .isFeatured(group.getIsFeatured())
+                .allowMemberPosts(group.getAllowMemberPosts())
+                .requirePostApproval(group.getRequirePostApproval())
+                .requireJoinApproval(group.getRequireJoinApproval())
+                .allowMemberInvites(group.getAllowMemberInvites())
+                .createdAt(group.getCreatedAt());
 
         if (group.getCategoryId() != null) {
             categoryRepository.findById(group.getCategoryId())
-                .ifPresent(cat -> builder.categoryName(cat.getName()));
+                    .ifPresent(cat -> builder.categoryName(cat.getName()));
         }
 
         if (currentUserId != null) {
             memberRepository.findByGroupIdAndUserId(group.getId(), currentUserId)
-                .ifPresent(member -> {
-                    builder.isMember(member.isApproved());
-                    builder.isAdmin(member.isAdmin());
-                    builder.isPending(member.isPending());
-                    builder.userRole(member.getRole());
-                });
+                    .ifPresent(member -> {
+                        builder.isMember(member.isApproved());
+                        builder.isAdmin(member.isAdmin());
+                        builder.isPending(member.isPending());
+                        builder.userRole(member.getRole());
+                    });
         }
 
         return builder.build();
@@ -305,28 +392,28 @@ public class GroupService {
 
     private GroupSummaryResponse mapToGroupSummary(Group group) {
         return GroupSummaryResponse.builder()
-            .id(group.getId())
-            .name(group.getName())
-            .slug(group.getSlug())
-            .groupType(group.getGroupType())
-            .iconUrl(group.getIconUrl())
-            .memberCount(group.getMemberCount())
-            .isVerified(group.getIsVerified())
-            .build();
+                .id(group.getId())
+                .name(group.getName())
+                .slug(group.getSlug())
+                .groupType(group.getGroupType())
+                .iconUrl(group.getIconUrl())
+                .memberCount(group.getMemberCount())
+                .isVerified(group.getIsVerified())
+                .build();
     }
 
     private MembershipResponse mapToMembershipResponse(GroupMember member) {
         Group group = member.getGroup();
         return MembershipResponse.builder()
-            .groupId(group.getId())
-            .groupName(group.getName())
-            .groupSlug(group.getSlug())
-            .groupIconUrl(group.getIconUrl())
-            .groupType(group.getGroupType())
-            .role(member.getRole())
-            .status(member.getStatus())
-            .joinedAt(member.getJoinedAt())
-            .notificationsEnabled(member.getNotificationsEnabled())
-            .build();
+                .groupId(group.getId())
+                .groupName(group.getName())
+                .groupSlug(group.getSlug())
+                .groupIconUrl(group.getIconUrl())
+                .groupType(group.getGroupType())
+                .role(member.getRole())
+                .status(member.getStatus())
+                .joinedAt(member.getJoinedAt())
+                .notificationsEnabled(member.getNotificationsEnabled())
+                .build();
     }
 }

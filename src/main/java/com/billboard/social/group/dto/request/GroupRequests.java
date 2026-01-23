@@ -70,8 +70,27 @@ public class GroupRequests {
     @AllArgsConstructor
     public static class InviteMemberRequest {
         private UUID userId;
+
+        @Size(max = 255, message = "Email cannot exceed 255 characters")
+        private String email;
+
         @Size(max = 500, message = "Message cannot exceed 500 characters")
         private String message;
+
+        private Integer expirationDays;  // null = default (7 days)
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CreateInviteLinkRequest {
+        @Size(max = 500, message = "Message cannot exceed 500 characters")
+        private String message;
+
+        private Integer expirationDays;  // null = default (7 days)
+
+        private Integer maxUses;  // null = unlimited
     }
 
     @Data

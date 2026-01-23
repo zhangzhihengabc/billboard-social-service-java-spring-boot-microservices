@@ -26,6 +26,8 @@ public interface GroupRepository extends JpaRepository<Group, UUID> {
 
     Page<Group> findByCategoryId(UUID categoryId, Pageable pageable);
 
+    List<Group> findByGroupTypeOrderByMemberCountDesc(GroupType groupType);
+
     @Query("SELECT g FROM Group g WHERE g.groupType IN ('PUBLIC', 'CLOSED') " +
            "AND (LOWER(g.name) LIKE LOWER(CONCAT('%', :query, '%')) " +
            "OR LOWER(g.description) LIKE LOWER(CONCAT('%', :query, '%')))")

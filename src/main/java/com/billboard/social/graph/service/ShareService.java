@@ -1,14 +1,17 @@
 package com.billboard.social.graph.service;
-import com.billboard.social.common.dto.UserSummary;
 
+import com.billboard.social.common.dto.PageResponse;
+import com.billboard.social.common.dto.UserSummary;
 import com.billboard.social.common.client.UserServiceClient;
 import com.billboard.social.graph.dto.request.SocialRequests.*;
 import com.billboard.social.graph.dto.response.SocialResponses.*;
 import com.billboard.social.graph.entity.Share;
 import com.billboard.social.graph.entity.enums.ContentType;
 import com.billboard.social.graph.event.SocialEventPublisher;
+import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.graph.repository.BlockRepository;
 import com.billboard.social.graph.repository.ShareRepository;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -31,27 +34,32 @@ public class ShareService {
 
     @Transactional
     public ShareResponse share(UUID userId, ShareRequest request) {
-        // Check if private share to blocked user
-        if (request.getTargetUserId() != null && 
-            blockRepository.isBlockedEitherWay(userId, request.getTargetUserId())) {
-            throw new IllegalArgumentException("Cannot share to this user");
+        if (request.getContentId() == null) {
+            throw new ValidationException("Content ID is required");
+        }
+        if (request.getContentType() == null) {
+            throw new ValidationException("Content type is required");
+        }
+
+        if (request.getTargetUserId() != null &&
+                blockRepository.isBlockedEitherWay(userId, request.getTargetUserId())) {
+            throw new ValidationException("Cannot share to this user");
         }
 
         Share share = Share.builder()
-            .userId(userId)
-            .contentType(request.getContentType())
-            .contentId(request.getContentId())
-            .contentOwnerId(request.getContentOwnerId())
-            .targetUserId(request.getTargetUserId())
-            .message(request.getMessage())
-            .shareToFeed(request.getShareToFeed())
-            .shareToStory(request.getShareToStory())
-            .isPrivateShare(request.getIsPrivateShare())
-            .build();
+                .userId(userId)
+                .contentType(request.getContentType())
+                .contentId(request.getContentId())
+                .contentOwnerId(request.getContentOwnerId())
+                .targetUserId(request.getTargetUserId())
+                .message(request.getMessage())
+                .shareToFeed(request.getShareToFeed() != null ? request.getShareToFeed() : true)
+                .shareToStory(request.getShareToStory() != null ? request.getShareToStory() : false)
+                .isPrivateShare(request.getIsPrivateShare() != null ? request.getIsPrivateShare() : false)
+                .build();
 
         share = shareRepository.save(share);
 
-        // Publish event
         eventPublisher.publishContentShared(share);
 
         log.info("User {} shared {} {}", userId, request.getContentType(), request.getContentId());
@@ -59,17 +67,17 @@ public class ShareService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ShareResponse> getSharesByContent(ContentType contentType, UUID contentId, int page, int size) {
+    public PageResponse<ShareResponse> getSharesByContent(ContentType contentType, UUID contentId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Share> shares = shareRepository.findByContentTypeAndContentId(contentType, contentId, pageRequest);
-        return shares.map(this::mapToShareResponse);
+        return PageResponse.from(shares, this::mapToShareResponse);
     }
 
     @Transactional(readOnly = true)
-    public Page<ShareResponse> getSharesByUser(UUID userId, int page, int size) {
+    public PageResponse<ShareResponse> getSharesByUser(UUID userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Share> shares = shareRepository.findByUserId(userId, pageRequest);
-        return shares.map(this::mapToShareResponse);
+        return PageResponse.from(shares, this::mapToShareResponse);
     }
 
     @Transactional(readOnly = true)
@@ -78,20 +86,45 @@ public class ShareService {
     }
 
     private ShareResponse mapToShareResponse(Share share) {
-        UserSummary userSummary = userServiceClient.getUserSummary(share.getUserId());
+        UserSummary userSummary = fetchUserSummaryWithFallback(share.getUserId());
 
         return ShareResponse.builder()
-            .id(share.getId())
-            .userId(share.getUserId())
-            .contentType(share.getContentType())
-            .contentId(share.getContentId())
-            .targetUserId(share.getTargetUserId())
-            .message(share.getMessage())
-            .shareToFeed(share.getShareToFeed())
-            .shareToStory(share.getShareToStory())
-            .isPrivateShare(share.getIsPrivateShare())
-            .createdAt(share.getCreatedAt())
-            .user(userSummary)
-            .build();
+                .id(share.getId())
+                .userId(share.getUserId())
+                .contentType(share.getContentType())
+                .contentId(share.getContentId())
+                .targetUserId(share.getTargetUserId())
+                .message(share.getMessage())
+                .shareToFeed(share.getShareToFeed())
+                .shareToStory(share.getShareToStory())
+                .isPrivateShare(share.getIsPrivateShare())
+                .createdAt(share.getCreatedAt())
+                .user(userSummary)
+                .build();
+    }
+
+    private UserSummary fetchUserSummaryWithFallback(UUID userId) {
+        try {
+            UserSummary summary = userServiceClient.getUserSummary(userId);
+            if (summary != null) {
+                return summary;
+            }
+            log.warn("User summary returned null for userId: {}", userId);
+        } catch (FeignException.NotFound e) {
+            log.warn("User not found in identity-service: {}", userId);
+        } catch (FeignException e) {
+            log.warn("Identity service unavailable for userId {}: Status {}", userId, e.status());
+        } catch (Exception e) {
+            log.warn("Failed to fetch user summary for userId {}: {} - {}",
+                    userId, e.getClass().getSimpleName(), e.getMessage());
+        }
+
+        return UserSummary.builder()
+                .id(userId)
+                .username("Unknown")
+                .displayName("Unknown User")
+                .avatarUrl(null)
+                .isVerified(false)
+                .build();
     }
 }

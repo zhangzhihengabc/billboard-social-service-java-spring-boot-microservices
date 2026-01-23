@@ -15,8 +15,6 @@ import java.util.UUID;
     @Index(name = "idx_poke_poked", columnList = "poked_id"),
     @Index(name = "idx_poke_active", columnList = "is_active")
 })
-@SQLDelete(sql = "UPDATE pokes SET deleted_at = NOW() WHERE id = ? AND version = ?")
-@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 @NoArgsConstructor

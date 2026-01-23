@@ -15,8 +15,6 @@ import java.util.UUID;
     @Index(name = "idx_share_content", columnList = "content_type, content_id"),
     @Index(name = "idx_share_target", columnList = "target_user_id")
 })
-@SQLDelete(sql = "UPDATE shares SET deleted_at = NOW() WHERE id = ? AND version = ?")
-@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 @NoArgsConstructor

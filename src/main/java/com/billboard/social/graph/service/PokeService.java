@@ -1,17 +1,19 @@
 package com.billboard.social.graph.service;
-import com.billboard.social.common.dto.UserSummary;
 
+import com.billboard.social.common.dto.PageResponse;
+import com.billboard.social.common.dto.UserSummary;
 import com.billboard.social.common.client.UserServiceClient;
 import com.billboard.social.graph.dto.request.SocialRequests.*;
 import com.billboard.social.graph.dto.response.SocialResponses.*;
 import com.billboard.social.graph.entity.Poke;
 import com.billboard.social.graph.event.SocialEventPublisher;
-import com.billboard.social.common.exception.ResourceNotFoundException;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.graph.repository.BlockRepository;
 import com.billboard.social.graph.repository.PokeRepository;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -32,21 +34,22 @@ public class PokeService {
 
     @Transactional
     public PokeResponse poke(UUID pokerId, PokeRequest request) {
+        if (request.getUserId() == null) {
+            throw new ValidationException("User ID is required");
+        }
+
         UUID pokedId = request.getUserId();
 
-        // Validate not self
         if (pokerId.equals(pokedId)) {
             throw new ValidationException("Cannot poke yourself");
         }
 
-        // Check if blocked
         if (blockRepository.isBlockedEitherWay(pokerId, pokedId)) {
             throw new ValidationException("Cannot poke this user");
         }
 
-        // Check if there's already an active poke
         var existingPoke = pokeRepository.findByPokerIdAndPokedId(pokerId, pokedId);
-        
+
         Poke poke;
         if (existingPoke.isPresent()) {
             poke = existingPoke.get();
@@ -55,12 +58,17 @@ public class PokeService {
             log.info("User {} poked {} again (count: {})", pokerId, pokedId, poke.getPokeCount());
         } else {
             poke = Poke.builder()
-                .pokerId(pokerId)
-                .pokedId(pokedId)
-                .build();
-            poke = pokeRepository.save(poke);
+                    .pokerId(pokerId)
+                    .pokedId(pokedId)
+                    .build();
 
-            // Publish event
+            try {
+                poke = pokeRepository.save(poke);
+            } catch (DataIntegrityViolationException e) {
+                log.warn("Race condition detected for poke from {} to {}: {}", pokerId, pokedId, e.getMessage());
+                throw new ValidationException("Poke already exists");
+            }
+
             eventPublisher.publishUserPoked(poke);
 
             log.info("User {} poked {}", pokerId, pokedId);
@@ -72,7 +80,7 @@ public class PokeService {
     @Transactional
     public PokeResponse pokeBack(UUID userId, UUID pokeId) {
         Poke poke = pokeRepository.findById(pokeId)
-            .orElseThrow(() -> new ResourceNotFoundException("Poke", "id", pokeId));
+                .orElseThrow(() -> new ValidationException("Poke not found with id: " + pokeId));
 
         if (!poke.getPokedId().equals(userId)) {
             throw new ValidationException("Cannot poke back on this poke");
@@ -83,34 +91,44 @@ public class PokeService {
         }
 
         poke.pokeBack();
-        poke = pokeRepository.save(poke);
+        pokeRepository.save(poke);
 
-        // Create a new poke in the opposite direction
         Poke newPoke = Poke.builder()
-            .pokerId(userId)
-            .pokedId(poke.getPokerId())
-            .build();
-        newPoke = pokeRepository.save(newPoke);
+                .pokerId(userId)
+                .pokedId(poke.getPokerId())
+                .build();
 
-        // Publish event
+        try {
+            newPoke = pokeRepository.save(newPoke);
+        } catch (DataIntegrityViolationException e) {
+            var existing = pokeRepository.findByPokerIdAndPokedId(userId, poke.getPokerId());
+            if (existing.isPresent()) {
+                newPoke = existing.get();
+                newPoke.incrementPokeCount();
+                newPoke = pokeRepository.save(newPoke);
+            } else {
+                throw new ValidationException("Failed to create poke back");
+            }
+        }
+
         eventPublisher.publishUserPoked(newPoke);
 
         log.info("User {} poked back {}", userId, poke.getPokerId());
-        return mapToPokeResponse(newPoke);
+        return mapToPokeResponse(poke);
     }
 
     @Transactional(readOnly = true)
-    public Page<PokeResponse> getReceivedPokes(UUID userId, int page, int size) {
+    public PageResponse<PokeResponse> getReceivedPokes(UUID userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Poke> pokes = pokeRepository.findActivePokesForUser(userId, pageRequest);
-        return pokes.map(this::mapToPokeResponse);
+        return PageResponse.from(pokes, this::mapToPokeResponse);
     }
 
     @Transactional(readOnly = true)
-    public Page<PokeResponse> getSentPokes(UUID userId, int page, int size) {
+    public PageResponse<PokeResponse> getSentPokes(UUID userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Poke> pokes = pokeRepository.findPokesSentByUser(userId, pageRequest);
-        return pokes.map(this::mapToPokeResponse);
+        return PageResponse.from(pokes, this::mapToPokeResponse);
     }
 
     @Transactional(readOnly = true)
@@ -121,10 +139,14 @@ public class PokeService {
     @Transactional
     public void dismissPoke(UUID userId, UUID pokeId) {
         Poke poke = pokeRepository.findById(pokeId)
-            .orElseThrow(() -> new ResourceNotFoundException("Poke", "id", pokeId));
+                .orElseThrow(() -> new ValidationException("Poke not found with id: " + pokeId));
 
         if (!poke.getPokedId().equals(userId)) {
             throw new ValidationException("Cannot dismiss this poke");
+        }
+
+        if (!poke.getIsActive()) {
+            throw new ValidationException("Poke is already dismissed");
         }
 
         poke.deactivate();
@@ -134,17 +156,42 @@ public class PokeService {
     }
 
     private PokeResponse mapToPokeResponse(Poke poke) {
-        UserSummary userSummary = userServiceClient.getUserSummary(poke.getPokerId());
+        UserSummary userSummary = fetchUserSummaryWithFallback(poke.getPokerId());
 
         return PokeResponse.builder()
-            .id(poke.getId())
-            .pokerId(poke.getPokerId())
-            .pokedId(poke.getPokedId())
-            .isActive(poke.getIsActive())
-            .pokeCount(poke.getPokeCount())
-            .pokedBackAt(poke.getPokedBackAt())
-            .createdAt(poke.getCreatedAt())
-            .poker(userSummary)
-            .build();
+                .id(poke.getId())
+                .pokerId(poke.getPokerId())
+                .pokedId(poke.getPokedId())
+                .isActive(poke.getIsActive())
+                .pokeCount(poke.getPokeCount())
+                .pokedBackAt(poke.getPokedBackAt())
+                .createdAt(poke.getCreatedAt())
+                .poker(userSummary)
+                .build();
+    }
+
+    private UserSummary fetchUserSummaryWithFallback(UUID userId) {
+        try {
+            UserSummary summary = userServiceClient.getUserSummary(userId);
+            if (summary != null) {
+                return summary;
+            }
+            log.warn("User summary returned null for userId: {}", userId);
+        } catch (FeignException.NotFound e) {
+            log.warn("User not found in identity-service: {}", userId);
+        } catch (FeignException e) {
+            log.warn("Identity service unavailable for userId {}: Status {}", userId, e.status());
+        } catch (Exception e) {
+            log.warn("Failed to fetch user summary for userId {}: {} - {}",
+                    userId, e.getClass().getSimpleName(), e.getMessage());
+        }
+
+        return UserSummary.builder()
+                .id(userId)
+                .username("Unknown")
+                .displayName("Unknown User")
+                .avatarUrl(null)
+                .isVerified(false)
+                .build();
     }
 }

@@ -16,8 +16,6 @@ import java.util.UUID;
         @Index(name = "idx_block_blocked", columnList = "blocked_id")
     }
 )
-@SQLDelete(sql = "UPDATE blocks SET deleted_at = NOW() WHERE id = ? AND version = ?")
-@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 @NoArgsConstructor

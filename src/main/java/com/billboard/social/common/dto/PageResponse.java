@@ -127,4 +127,47 @@ public class PageResponse<T> {
                 .sort(SortInfo.from(page.getSort()))
                 .build();
     }
+
+    /**
+     * Creates an empty PageResponse with sort information.
+     * Use this when returning empty results for filtered/searched data.
+     *
+     * @param page      Current page number
+     * @param size      Page size
+     * @param sortBy    Sort field name
+     * @param direction Sort direction (ASC/DESC)
+     * @return Empty PageResponse with proper sort info
+     */
+    public static <T> PageResponse<T> empty(int page, int size, String sortBy, String direction) {
+        SortInfo sortInfo = SortInfo.builder()
+                .empty(sortBy == null)
+                .sorted(sortBy != null)
+                .unsorted(sortBy == null)
+                .sortBy(sortBy)
+                .direction(direction)
+                .build();
+
+        return PageResponse.<T>builder()
+                .content(List.of())
+                .page(page)
+                .size(size)
+                .totalElements(0L)
+                .totalPages(0)
+                .first(true)
+                .last(true)
+                .empty(true)
+                .sort(sortInfo)
+                .build();
+    }
+
+    /**
+     * Creates an empty PageResponse without sort information.
+     *
+     * @param page Current page number
+     * @param size Page size
+     * @return Empty PageResponse
+     */
+    public static <T> PageResponse<T> empty(int page, int size) {
+        return empty(page, size, null, null);
+    }
 }

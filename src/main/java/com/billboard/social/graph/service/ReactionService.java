@@ -1,6 +1,7 @@
 package com.billboard.social.graph.service;
-import com.billboard.social.common.dto.UserSummary;
 
+import com.billboard.social.common.dto.PageResponse;
+import com.billboard.social.common.dto.UserSummary;
 import com.billboard.social.common.client.UserServiceClient;
 import com.billboard.social.graph.dto.request.SocialRequests.*;
 import com.billboard.social.graph.dto.response.SocialResponses.*;
@@ -8,10 +9,12 @@ import com.billboard.social.graph.entity.Reaction;
 import com.billboard.social.graph.entity.enums.ContentType;
 import com.billboard.social.graph.entity.enums.ReactionType;
 import com.billboard.social.graph.event.SocialEventPublisher;
-import com.billboard.social.common.exception.ResourceNotFoundException;
+import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.graph.repository.ReactionRepository;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -34,34 +37,47 @@ public class ReactionService {
 
     @Transactional
     public ReactionResponse react(UUID userId, ReactionRequest request) {
-        // Check if user already reacted
+        if (request.getContentId() == null) {
+            throw new ValidationException("Content ID is required");
+        }
+        if (request.getContentType() == null) {
+            throw new ValidationException("Content type is required");
+        }
+        if (request.getReactionType() == null) {
+            throw new ValidationException("Reaction type is required");
+        }
+
         var existingReaction = reactionRepository.findByUserIdAndContentTypeAndContentId(
-            userId, request.getContentType(), request.getContentId());
+                userId, request.getContentType(), request.getContentId());
 
         Reaction reaction;
         if (existingReaction.isPresent()) {
-            // Update existing reaction
             reaction = existingReaction.get();
             reaction.changeReaction(request.getReactionType());
             reaction = reactionRepository.save(reaction);
-            log.info("User {} changed reaction on {} {} to {}", 
-                userId, request.getContentType(), request.getContentId(), request.getReactionType());
+            log.info("User {} changed reaction on {} {} to {}",
+                    userId, request.getContentType(), request.getContentId(), request.getReactionType());
         } else {
-            // Create new reaction
             reaction = Reaction.builder()
-                .userId(userId)
-                .contentType(request.getContentType())
-                .contentId(request.getContentId())
-                .contentOwnerId(request.getContentOwnerId())
-                .reactionType(request.getReactionType())
-                .build();
-            reaction = reactionRepository.save(reaction);
+                    .userId(userId)
+                    .contentType(request.getContentType())
+                    .contentId(request.getContentId())
+                    .contentOwnerId(request.getContentOwnerId())
+                    .reactionType(request.getReactionType())
+                    .build();
 
-            // Publish event
+            try {
+                reaction = reactionRepository.save(reaction);
+            } catch (DataIntegrityViolationException e) {
+                log.warn("Race condition detected for reaction from {} on {} {}: {}",
+                        userId, request.getContentType(), request.getContentId(), e.getMessage());
+                throw new ValidationException("Reaction already exists");
+            }
+
             eventPublisher.publishReactionAdded(reaction);
 
-            log.info("User {} reacted with {} on {} {}", 
-                userId, request.getReactionType(), request.getContentType(), request.getContentId());
+            log.info("User {} reacted with {} on {} {}",
+                    userId, request.getReactionType(), request.getContentType(), request.getContentId());
         }
 
         return mapToReactionResponse(reaction);
@@ -70,30 +86,29 @@ public class ReactionService {
     @Transactional
     public void removeReaction(UUID userId, ContentType contentType, UUID contentId) {
         Reaction reaction = reactionRepository.findByUserIdAndContentTypeAndContentId(userId, contentType, contentId)
-            .orElseThrow(() -> new ResourceNotFoundException("Reaction not found"));
+                .orElseThrow(() -> new ValidationException("Reaction not found"));
 
         reactionRepository.delete(reaction);
 
-        // Publish event
         eventPublisher.publishReactionRemoved(reaction);
 
         log.info("User {} removed reaction from {} {}", userId, contentType, contentId);
     }
 
     @Transactional(readOnly = true)
-    public Page<ReactionResponse> getReactions(ContentType contentType, UUID contentId, int page, int size) {
+    public PageResponse<ReactionResponse> getReactions(ContentType contentType, UUID contentId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Reaction> reactions = reactionRepository.findByContentTypeAndContentId(contentType, contentId, pageRequest);
-        return reactions.map(this::mapToReactionResponse);
+        return PageResponse.from(reactions, this::mapToReactionResponse);
     }
 
     @Transactional(readOnly = true)
-    public Page<ReactionResponse> getReactionsByType(ContentType contentType, UUID contentId, 
-                                                      ReactionType reactionType, int page, int size) {
+    public PageResponse<ReactionResponse> getReactionsByType(ContentType contentType, UUID contentId,
+                                                             ReactionType reactionType, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Reaction> reactions = reactionRepository.findByContentAndReactionType(
-            contentType, contentId, reactionType, pageRequest);
-        return reactions.map(this::mapToReactionResponse);
+                contentType, contentId, reactionType, pageRequest);
+        return PageResponse.from(reactions, this::mapToReactionResponse);
     }
 
     @Transactional(readOnly = true)
@@ -118,13 +133,13 @@ public class ReactionService {
         }
 
         return ReactionStatsResponse.builder()
-            .contentType(contentType)
-            .contentId(contentId)
-            .totalCount(totalCount)
-            .countByType(countByTypeMap)
-            .userReacted(userReacted)
-            .userReactionType(userReactionType)
-            .build();
+                .contentType(contentType)
+                .contentId(contentId)
+                .totalCount(totalCount)
+                .countByType(countByTypeMap)
+                .userReacted(userReacted)
+                .userReactionType(userReactionType)
+                .build();
     }
 
     @Transactional(readOnly = true)
@@ -133,16 +148,41 @@ public class ReactionService {
     }
 
     private ReactionResponse mapToReactionResponse(Reaction reaction) {
-        UserSummary userSummary = userServiceClient.getUserSummary(reaction.getUserId());
+        UserSummary userSummary = fetchUserSummaryWithFallback(reaction.getUserId());
 
         return ReactionResponse.builder()
-            .id(reaction.getId())
-            .userId(reaction.getUserId())
-            .contentType(reaction.getContentType())
-            .contentId(reaction.getContentId())
-            .reactionType(reaction.getReactionType())
-            .createdAt(reaction.getCreatedAt())
-            .user(userSummary)
-            .build();
+                .id(reaction.getId())
+                .userId(reaction.getUserId())
+                .contentType(reaction.getContentType())
+                .contentId(reaction.getContentId())
+                .reactionType(reaction.getReactionType())
+                .createdAt(reaction.getCreatedAt())
+                .user(userSummary)
+                .build();
+    }
+
+    private UserSummary fetchUserSummaryWithFallback(UUID userId) {
+        try {
+            UserSummary summary = userServiceClient.getUserSummary(userId);
+            if (summary != null) {
+                return summary;
+            }
+            log.warn("User summary returned null for userId: {}", userId);
+        } catch (FeignException.NotFound e) {
+            log.warn("User not found in identity-service: {}", userId);
+        } catch (FeignException e) {
+            log.warn("Identity service unavailable for userId {}: Status {}", userId, e.status());
+        } catch (Exception e) {
+            log.warn("Failed to fetch user summary for userId {}: {} - {}",
+                    userId, e.getClass().getSimpleName(), e.getMessage());
+        }
+
+        return UserSummary.builder()
+                .id(userId)
+                .username("Unknown")
+                .displayName("Unknown User")
+                .avatarUrl(null)
+                .isVerified(false)
+                .build();
     }
 }

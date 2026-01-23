@@ -19,8 +19,6 @@ import java.util.UUID;
         @Index(name = "idx_reaction_type", columnList = "reaction_type")
     }
 )
-@SQLDelete(sql = "UPDATE reactions SET deleted_at = NOW() WHERE id = ? AND version = ?")
-@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 @NoArgsConstructor

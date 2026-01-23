@@ -18,8 +18,6 @@ import java.util.UUID;
         @Index(name = "idx_invitation_status", columnList = "status")
     }
 )
-@SQLDelete(sql = "UPDATE group_invitations SET deleted_at = NOW() WHERE id = ? AND version = ?")
-@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 @NoArgsConstructor
