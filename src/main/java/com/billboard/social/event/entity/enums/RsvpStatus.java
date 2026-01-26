@@ -5,5 +5,6 @@ public enum RsvpStatus {
     MAYBE,
     NOT_GOING,
     INVITED,
-    WAITLIST
+    WAITLIST,
+    CHECKED_IN
 }

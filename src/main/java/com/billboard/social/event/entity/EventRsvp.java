@@ -19,8 +19,6 @@ import java.util.UUID;
         @Index(name = "idx_rsvp_status", columnList = "status")
     }
 )
-@SQLDelete(sql = "UPDATE event_rsvps SET deleted_at = NOW() WHERE id = ? AND version = ?")
-@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 @NoArgsConstructor

@@ -22,8 +22,6 @@ import java.util.UUID;
     @Index(name = "idx_event_group", columnList = "group_id"),
     @Index(name = "idx_event_category", columnList = "category_id")
 })
-@SQLDelete(sql = "UPDATE events SET deleted_at = NOW() WHERE id = ? AND version = ?")
-@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -167,6 +165,10 @@ public class Event extends BaseEntity {
     @Column(name = "show_guest_list")
     @Builder.Default
     private Boolean showGuestList = true;
+
+    @Column(name = "accepting_rsvps")
+    @Builder.Default
+    private Boolean acceptingRsvps = true;
 
     @Column(name = "allow_comments")
     @Builder.Default

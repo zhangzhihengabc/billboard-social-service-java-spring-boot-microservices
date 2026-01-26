@@ -45,7 +45,7 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
 
     @Query("SELECT e FROM Event e WHERE e.startTime BETWEEN :start AND :end " +
            "AND e.visibility = 'PUBLIC' AND e.status = 'PUBLISHED'")
-    Page<Event> findEventsBetween(@Param("start") LocalDateTime start, 
+    Page<Event> findEventsBetween(@Param("start") LocalDateTime start,
                                    @Param("end") LocalDateTime end, Pageable pageable);
 
     @Query("SELECT e FROM Event e JOIN EventRsvp r ON e.id = r.event.id " +
@@ -65,4 +65,6 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     Page<Event> findEventsHostedOrCohosted(@Param("userId") UUID userId, Pageable pageable);
 
     long countByHostId(UUID hostId);
+
+    long countByCategoryId(UUID categoryId);
 }

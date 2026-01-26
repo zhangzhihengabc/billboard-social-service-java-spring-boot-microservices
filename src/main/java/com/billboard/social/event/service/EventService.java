@@ -1,9 +1,11 @@
 package com.billboard.social.event.service;
+
+import com.billboard.social.common.dto.PageResponse;
+import com.billboard.social.common.dto.UserSummary;
 import com.billboard.social.common.exception.ForbiddenException;
 import com.billboard.social.common.exception.ValidationException;
-import com.billboard.social.common.exception.ResourceNotFoundException;
-
 import com.billboard.social.common.client.UserServiceClient;
+import com.billboard.social.common.security.InputValidator;
 import com.billboard.social.event.dto.request.EventRequests.*;
 import com.billboard.social.event.dto.response.EventResponses.*;
 import com.billboard.social.event.entity.*;
@@ -45,54 +47,137 @@ public class EventService {
     private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
     private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
 
+    // ==================== CREATE ====================
+
     @Transactional
     public EventResponse createEvent(UUID userId, CreateEventRequest request) {
+        if (request == null) {
+            throw new ValidationException("Request body is required");
+        }
+
+        // Validate inputs
+        if (request.getTitle() != null) {
+            InputValidator.validateName(request.getTitle(), "Title");
+        }
+        if (request.getDescription() != null) {
+            InputValidator.validateText(request.getDescription(), "Description", 10000);
+        }
+        if (request.getVenueName() != null) {
+            InputValidator.validateText(request.getVenueName(), "Venue name", 200);
+        }
+        if (request.getAddress() != null) {
+            InputValidator.validateText(request.getAddress(), "Address", 500);
+        }
+
+        // Validate category if provided
+        if (request.getCategoryId() != null) {
+            categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new ValidationException("Category not found with id: " + request.getCategoryId()));
+        }
+
+        // Check user event limit
         long userEventCount = eventRepository.countByHostId(userId);
         if (userEventCount >= maxUserEvents) {
-            throw new ValidationException("Maximum event limit reached");
+            throw new ValidationException("Maximum event limit reached (" + maxUserEvents + ")");
         }
 
         String slug = generateSlug(request.getTitle());
 
         Event event = Event.builder()
-            .title(request.getTitle()).slug(slug).description(request.getDescription())
-            .hostId(userId).groupId(request.getGroupId()).categoryId(request.getCategoryId())
-            .eventType(request.getEventType()).visibility(request.getVisibility()).status(EventStatus.DRAFT)
-            .coverImageUrl(request.getCoverImageUrl()).startTime(request.getStartTime()).endTime(request.getEndTime())
-            .timezone(request.getTimezone()).isAllDay(request.getIsAllDay()).venueName(request.getVenueName())
-            .address(request.getAddress()).city(request.getCity()).country(request.getCountry())
-            .latitude(request.getLatitude()).longitude(request.getLongitude()).onlineUrl(request.getOnlineUrl())
-            .onlinePlatform(request.getOnlinePlatform()).maxAttendees(request.getMaxAttendees())
-            .isTicketed(request.getIsTicketed()).ticketPrice(request.getTicketPrice())
-            .ticketCurrency(request.getTicketCurrency()).recurrenceType(request.getRecurrenceType())
-            .recurrenceEndDate(request.getRecurrenceEndDate()).allowGuests(request.getAllowGuests())
-            .guestsPerRsvp(request.getGuestsPerRsvp()).showGuestList(request.getShowGuestList())
-            .allowComments(request.getAllowComments()).requireApproval(request.getRequireApproval())
-            .build();
+                .title(request.getTitle())
+                .slug(slug)
+                .description(request.getDescription())
+                .hostId(userId)
+                .groupId(request.getGroupId())
+                .categoryId(request.getCategoryId())
+                .eventType(request.getEventType() != null ? request.getEventType() : EventType.IN_PERSON)
+                .visibility(request.getVisibility() != null ? request.getVisibility() : EventVisibility.PUBLIC)
+                .status(EventStatus.DRAFT)
+                .coverImageUrl(request.getCoverImageUrl())
+                .startTime(request.getStartTime())
+                .endTime(request.getEndTime())
+                .timezone(request.getTimezone() != null ? request.getTimezone() : "UTC")
+                .isAllDay(request.getIsAllDay() != null ? request.getIsAllDay() : false)
+                .venueName(request.getVenueName())
+                .address(request.getAddress())
+                .city(request.getCity())
+                .country(request.getCountry())
+                .latitude(request.getLatitude())
+                .longitude(request.getLongitude())
+                .onlineUrl(request.getOnlineUrl())
+                .onlinePlatform(request.getOnlinePlatform())
+                .maxAttendees(request.getMaxAttendees())
+                .isTicketed(request.getIsTicketed() != null ? request.getIsTicketed() : false)
+                .ticketPrice(request.getTicketPrice())
+                .ticketCurrency(request.getTicketCurrency())
+                .recurrenceType(request.getRecurrenceType() != null ? request.getRecurrenceType() : RecurrenceType.NONE)
+                .recurrenceEndDate(request.getRecurrenceEndDate())
+                .allowGuests(request.getAllowGuests() != null ? request.getAllowGuests() : true)
+                .guestsPerRsvp(request.getGuestsPerRsvp() != null ? request.getGuestsPerRsvp() : 1)
+                .showGuestList(request.getShowGuestList() != null ? request.getShowGuestList() : true)
+                .allowComments(request.getAllowComments() != null ? request.getAllowComments() : true)
+                .requireApproval(request.getRequireApproval() != null ? request.getRequireApproval() : false)
+                .build();
 
         event = eventRepository.save(event);
 
-        EventRsvp hostRsvp = EventRsvp.builder().event(event).userId(userId).status(RsvpStatus.GOING).build();
+        // Auto-RSVP host as GOING
+        EventRsvp hostRsvp = EventRsvp.builder()
+                .event(event)
+                .userId(userId)
+                .status(RsvpStatus.GOING)
+                .build();
         hostRsvp.respond(RsvpStatus.GOING);
         rsvpRepository.save(hostRsvp);
+
         event.incrementGoingCount();
-        eventRepository.save(event);
+        event = eventRepository.save(event);
 
         eventPublisher.publishEventCreated(event);
         log.info("Event {} created by user {}", event.getId(), userId);
+
         return mapToEventResponse(event, userId);
     }
+
+    // ==================== UPDATE ====================
 
     @Transactional
     @CacheEvict(value = "events", key = "#eventId")
     public EventResponse updateEvent(UUID userId, UUID eventId, UpdateEventRequest request) {
-        Event event = eventRepository.findById(eventId)
-            .orElseThrow(() -> new ResourceNotFoundException("Event", "id", eventId));
+        if (request == null) {
+            throw new ValidationException("Request body is required");
+        }
+
+        Event event = findEventById(eventId);
         checkEditAccess(userId, event);
 
-        if (request.getTitle() != null) { event.setTitle(request.getTitle()); event.setSlug(generateSlug(request.getTitle())); }
-        if (request.getDescription() != null) event.setDescription(request.getDescription());
-        if (request.getCategoryId() != null) event.setCategoryId(request.getCategoryId());
+        // Validate and update fields
+        if (request.getTitle() != null) {
+            InputValidator.validateName(request.getTitle(), "Title");
+            event.setTitle(request.getTitle());
+            event.setSlug(generateSlug(request.getTitle()));
+        }
+        if (request.getDescription() != null) {
+            InputValidator.validateText(request.getDescription(), "Description", 10000);
+            event.setDescription(request.getDescription());
+        }
+        if (request.getVenueName() != null) {
+            InputValidator.validateText(request.getVenueName(), "Venue name", 200);
+            event.setVenueName(request.getVenueName());
+        }
+        if (request.getAddress() != null) {
+            InputValidator.validateText(request.getAddress(), "Address", 500);
+            event.setAddress(request.getAddress());
+        }
+        if (request.getAcceptingRsvps() != null) {
+            event.setAcceptingRsvps(request.getAcceptingRsvps());
+        }
+
+        if (request.getCategoryId() != null) {
+            categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new ValidationException("Category not found with id: " + request.getCategoryId()));
+            event.setCategoryId(request.getCategoryId());
+        }
         if (request.getEventType() != null) event.setEventType(request.getEventType());
         if (request.getVisibility() != null) event.setVisibility(request.getVisibility());
         if (request.getStatus() != null) event.setStatus(request.getStatus());
@@ -101,8 +186,6 @@ public class EventService {
         if (request.getEndTime() != null) event.setEndTime(request.getEndTime());
         if (request.getTimezone() != null) event.setTimezone(request.getTimezone());
         if (request.getIsAllDay() != null) event.setIsAllDay(request.getIsAllDay());
-        if (request.getVenueName() != null) event.setVenueName(request.getVenueName());
-        if (request.getAddress() != null) event.setAddress(request.getAddress());
         if (request.getCity() != null) event.setCity(request.getCity());
         if (request.getCountry() != null) event.setCountry(request.getCountry());
         if (request.getMaxAttendees() != null) event.setMaxAttendees(request.getMaxAttendees());
@@ -110,149 +193,299 @@ public class EventService {
 
         event = eventRepository.save(event);
         eventPublisher.publishEventUpdated(event);
+
+        log.info("Event {} updated by user {}", eventId, userId);
         return mapToEventResponse(event, userId);
     }
+
+    // ==================== PUBLISH / CANCEL / DELETE ====================
 
     @Transactional
     @CacheEvict(value = "events", key = "#eventId")
     public EventResponse publishEvent(UUID userId, UUID eventId) {
-        Event event = eventRepository.findById(eventId)
-            .orElseThrow(() -> new ResourceNotFoundException("Event", "id", eventId));
+        Event event = findEventById(eventId);
         checkEditAccess(userId, event);
-        if (event.getStatus() != EventStatus.DRAFT) throw new ValidationException("Only draft events can be published");
+
+        if (event.getStatus() != EventStatus.DRAFT) {
+            throw new ValidationException("Only draft events can be published");
+        }
+
         event.setStatus(EventStatus.PUBLISHED);
         event = eventRepository.save(event);
+
         eventPublisher.publishEventPublished(event);
+        log.info("Event {} published by user {}", eventId, userId);
+
         return mapToEventResponse(event, userId);
     }
 
     @Transactional
     @CacheEvict(value = "events", key = "#eventId")
     public EventResponse cancelEvent(UUID userId, UUID eventId, String reason) {
-        Event event = eventRepository.findById(eventId)
-            .orElseThrow(() -> new ResourceNotFoundException("Event", "id", eventId));
-        if (!event.getHostId().equals(userId)) throw new ForbiddenException("Only host can cancel");
+        Event event = findEventById(eventId);
+
+        if (!event.getHostId().equals(userId)) {
+            throw new ForbiddenException("Only host can cancel the event");
+        }
+
+        // Validate reason if provided
+        if (reason != null && !reason.isBlank()) {
+            InputValidator.validateText(reason, "Reason", 500);
+        }
+
         event.setStatus(EventStatus.CANCELLED);
         event = eventRepository.save(event);
+
         eventPublisher.publishEventCancelled(event, reason);
+        log.info("Event {} cancelled by user {} for reason: {}", eventId, userId, reason);
+
         return mapToEventResponse(event, userId);
     }
 
     @Transactional
     @CacheEvict(value = "events", key = "#eventId")
     public void deleteEvent(UUID userId, UUID eventId) {
-        Event event = eventRepository.findById(eventId)
-            .orElseThrow(() -> new ResourceNotFoundException("Event", "id", eventId));
-        if (!event.getHostId().equals(userId)) throw new ForbiddenException("Only host can delete");
-        event.softDelete();
-        eventRepository.save(event);
+        Event event = findEventById(eventId);
+
+        if (!event.getHostId().equals(userId)) {
+            throw new ForbiddenException("Only host can delete the event");
+        }
+
+        // Delete all related data first (cascading handled by JPA, but explicit for clarity)
+        rsvpRepository.deleteByEventId(eventId);
+        coHostRepository.deleteByEventId(eventId);
+
+        // Hard delete the event
+        eventRepository.delete(event);
+
         eventPublisher.publishEventDeleted(event);
+        log.info("Event {} hard-deleted by user {}", eventId, userId);
     }
+
+    // ==================== GET EVENT ====================
 
     @Transactional(readOnly = true)
     @Cacheable(value = "events", key = "#eventId")
     public EventResponse getEvent(UUID eventId, UUID currentUserId) {
-        Event event = eventRepository.findById(eventId)
-            .orElseThrow(() -> new ResourceNotFoundException("Event", "id", eventId));
+        Event event = findEventById(eventId);
         checkViewAccess(currentUserId, event);
         return mapToEventResponse(event, currentUserId);
     }
 
     @Transactional(readOnly = true)
     public EventResponse getEventBySlug(String slug, UUID currentUserId) {
-        Event event = eventRepository.findBySlug(slug)
-            .orElseThrow(() -> new ResourceNotFoundException("Slug Not Found"));
+        if (slug == null || slug.isBlank()) {
+            throw new ValidationException("Slug is required");
+        }
+
+        String sanitizedSlug = InputValidator.sanitizeSearchQuery(slug);
+        if (sanitizedSlug.isBlank()) {
+            throw new ValidationException("Invalid slug format");
+        }
+
+        Event event = eventRepository.findBySlug(sanitizedSlug)
+                .orElseThrow(() -> new ValidationException("Event not found with slug: " + sanitizedSlug));
+
         checkViewAccess(currentUserId, event);
         return mapToEventResponse(event, currentUserId);
     }
 
+    // ==================== LIST EVENTS (with PageResponse) ====================
+
     @Transactional(readOnly = true)
-    public Page<EventSummaryResponse> getUpcomingEvents(int page, int size) {
-        return eventRepository.findUpcomingPublicEvents(LocalDateTime.now(), PageRequest.of(page, size))
-            .map(this::mapToEventSummary);
+    public PageResponse<EventSummaryResponse> getUpcomingEvents(int page, int size) {
+        Page<Event> events = eventRepository.findUpcomingPublicEvents(
+                LocalDateTime.now(),
+                PageRequest.of(page, size));
+        return PageResponse.from(events, this::mapToEventSummary);
     }
 
     @Transactional(readOnly = true)
-    public Page<EventSummaryResponse> searchEvents(String query, int page, int size) {
-        return eventRepository.searchEvents(query, PageRequest.of(page, size)).map(this::mapToEventSummary);
+    public PageResponse<EventSummaryResponse> searchEvents(String query, int page, int size) {
+        String sanitizedQuery = InputValidator.sanitizeSearchQuery(query);
+        if (sanitizedQuery.isEmpty()) {
+            return PageResponse.<EventSummaryResponse>builder()
+                    .content(Collections.emptyList())
+                    .page(page)
+                    .size(size)
+                    .totalElements(0)
+                    .totalPages(0)
+                    .first(true)
+                    .last(true)
+                    .empty(true)
+                    .build();
+        }
+
+        Page<Event> events = eventRepository.searchEvents(sanitizedQuery, PageRequest.of(page, size));
+        return PageResponse.from(events, this::mapToEventSummary);
     }
 
     @Transactional(readOnly = true)
-    public Page<EventSummaryResponse> getPopularEvents(int page, int size) {
-        return eventRepository.findPopularEvents(LocalDateTime.now(), PageRequest.of(page, size))
-            .map(this::mapToEventSummary);
+    public PageResponse<EventSummaryResponse> getPopularEvents(int page, int size) {
+        Page<Event> events = eventRepository.findPopularEvents(
+                LocalDateTime.now(),
+                PageRequest.of(page, size));
+        return PageResponse.from(events, this::mapToEventSummary);
     }
 
     @Transactional(readOnly = true)
-    public Page<EventSummaryResponse> getUserUpcomingEvents(UUID userId, int page, int size) {
-        return eventRepository.findUserUpcomingEvents(userId, LocalDateTime.now(), PageRequest.of(page, size))
-            .map(this::mapToEventSummary);
+    public PageResponse<EventSummaryResponse> getUserUpcomingEvents(UUID userId, int page, int size) {
+        Page<Event> events = eventRepository.findUserUpcomingEvents(
+                userId,
+                LocalDateTime.now(),
+                PageRequest.of(page, size));
+        return PageResponse.from(events, this::mapToEventSummary);
     }
 
     @Transactional(readOnly = true)
-    public Page<EventSummaryResponse> getHostedEvents(UUID userId, int page, int size) {
-        return eventRepository.findEventsHostedOrCohosted(userId, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "startTime")))
-            .map(this::mapToEventSummary);
+    public PageResponse<EventSummaryResponse> getHostedEvents(UUID userId, int page, int size) {
+        Page<Event> events = eventRepository.findEventsHostedOrCohosted(
+                userId,
+                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "startTime")));
+        return PageResponse.from(events, this::mapToEventSummary);
+    }
+
+    // ==================== PRIVATE HELPERS ====================
+
+    private Event findEventById(UUID eventId) {
+        if (eventId == null) {
+            throw new ValidationException("Event ID is required");
+        }
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new ValidationException("Event not found with id: " + eventId));
     }
 
     private void checkEditAccess(UUID userId, Event event) {
-        if (event.getHostId().equals(userId)) return;
+        if (event.getHostId().equals(userId)) {
+            return;
+        }
         Optional<EventCoHost> coHost = coHostRepository.findByEventIdAndUserId(event.getId(), userId);
-        if (coHost.isPresent() && coHost.get().getCanEdit()) return;
-        throw new ForbiddenException("No edit permission");
+        if (coHost.isPresent() && coHost.get().getCanEdit()) {
+            return;
+        }
+        throw new ForbiddenException("No edit permission for this event");
     }
 
     private void checkViewAccess(UUID userId, Event event) {
-        if (event.getVisibility() == EventVisibility.PUBLIC) return;
-        if (userId != null && (event.getHostId().equals(userId) || 
-            rsvpRepository.existsByEventIdAndUserId(event.getId(), userId) ||
-            coHostRepository.existsByEventIdAndUserId(event.getId(), userId))) return;
-        throw new ForbiddenException("No view permission");
+        if (event.getVisibility() == EventVisibility.PUBLIC) {
+            return;
+        }
+        if (userId != null) {
+            if (event.getHostId().equals(userId)) return;
+            if (rsvpRepository.existsByEventIdAndUserId(event.getId(), userId)) return;
+            if (coHostRepository.existsByEventIdAndUserId(event.getId(), userId)) return;
+        }
+        throw new ForbiddenException("No view permission for this event");
     }
 
     private String generateSlug(String input) {
+        if (input == null || input.isBlank()) {
+            return UUID.randomUUID().toString().substring(0, 8);
+        }
+
         String noWhitespace = WHITESPACE.matcher(input).replaceAll("-");
         String normalized = Normalizer.normalize(noWhitespace, Normalizer.Form.NFD);
-        String slug = NONLATIN.matcher(normalized).replaceAll("").toLowerCase(Locale.ENGLISH)
-            .replaceAll("-+", "-").replaceAll("^-|-$", "");
+        String slug = NONLATIN.matcher(normalized).replaceAll("")
+                .toLowerCase(Locale.ENGLISH)
+                .replaceAll("-+", "-")
+                .replaceAll("^-|-$", "");
+
+        if (slug.isEmpty()) {
+            slug = UUID.randomUUID().toString().substring(0, 8);
+        }
+
         String baseSlug = slug;
         int counter = 1;
-        while (eventRepository.existsBySlug(slug)) slug = baseSlug + "-" + counter++;
+        while (eventRepository.existsBySlug(slug)) {
+            slug = baseSlug + "-" + counter++;
+        }
         return slug;
     }
 
     private EventResponse mapToEventResponse(Event event, UUID currentUserId) {
         EventResponse.EventResponseBuilder builder = EventResponse.builder()
-            .id(event.getId()).title(event.getTitle()).slug(event.getSlug()).description(event.getDescription())
-            .hostId(event.getHostId()).groupId(event.getGroupId()).categoryId(event.getCategoryId())
-            .eventType(event.getEventType()).visibility(event.getVisibility()).status(event.getStatus())
-            .coverImageUrl(event.getCoverImageUrl()).startTime(event.getStartTime()).endTime(event.getEndTime())
-            .timezone(event.getTimezone()).isAllDay(event.getIsAllDay()).venueName(event.getVenueName())
-            .address(event.getAddress()).city(event.getCity()).country(event.getCountry())
-            .maxAttendees(event.getMaxAttendees()).goingCount(event.getGoingCount()).maybeCount(event.getMaybeCount())
-            .invitedCount(event.getInvitedCount()).isTicketed(event.getIsTicketed()).ticketPrice(event.getTicketPrice())
-            .ticketCurrency(event.getTicketCurrency()).recurrenceType(event.getRecurrenceType())
-            .allowGuests(event.getAllowGuests()).showGuestList(event.getShowGuestList()).createdAt(event.getCreatedAt());
+                .id(event.getId())
+                .acceptingRsvps(event.getAcceptingRsvps())
+                .title(event.getTitle())
+                .slug(event.getSlug())
+                .description(event.getDescription())
+                .hostId(event.getHostId())
+                .groupId(event.getGroupId())
+                .categoryId(event.getCategoryId())
+                .eventType(event.getEventType())
+                .visibility(event.getVisibility())
+                .status(event.getStatus())
+                .coverImageUrl(event.getCoverImageUrl())
+                .startTime(event.getStartTime())
+                .endTime(event.getEndTime())
+                .timezone(event.getTimezone())
+                .isAllDay(event.getIsAllDay())
+                .venueName(event.getVenueName())
+                .address(event.getAddress())
+                .city(event.getCity())
+                .country(event.getCountry())
+                .maxAttendees(event.getMaxAttendees())
+                .goingCount(event.getGoingCount())
+                .maybeCount(event.getMaybeCount())
+                .invitedCount(event.getInvitedCount())
+                .isTicketed(event.getIsTicketed())
+                .ticketPrice(event.getTicketPrice())
+                .ticketCurrency(event.getTicketCurrency())
+                .recurrenceType(event.getRecurrenceType())
+                .allowGuests(event.getAllowGuests())
+                .showGuestList(event.getShowGuestList())
+                .createdAt(event.getCreatedAt());
 
-        if (event.getCategoryId() != null) categoryRepository.findById(event.getCategoryId())
-            .ifPresent(cat -> builder.categoryName(cat.getName()));
-        builder.host(userServiceClient.getUserSummary(event.getHostId()));
-        builder.coHosts(coHostRepository.findByEventId(event.getId()).stream()
-            .map(ch -> userServiceClient.getUserSummary(ch.getUserId())).collect(Collectors.toList()));
+        // Category name
+        if (event.getCategoryId() != null) {
+            categoryRepository.findById(event.getCategoryId())
+                    .ifPresent(cat -> builder.categoryName(cat.getName()));
+        }
+
+        // Host info (with Feign fallback)
+        builder.host(fetchUserSummary(event.getHostId()));
+
+        // Co-hosts (with Feign fallback)
+        List<UserSummary> coHosts = coHostRepository.findByEventId(event.getId()).stream()
+                .map(ch -> fetchUserSummary(ch.getUserId()))
+                .collect(Collectors.toList());
+        builder.coHosts(coHosts);
+
+        // Current user context
         if (currentUserId != null) {
             builder.isHost(event.getHostId().equals(currentUserId));
             builder.isCoHost(coHostRepository.existsByEventIdAndUserId(event.getId(), currentUserId));
-            rsvpRepository.findByEventIdAndUserId(event.getId(), currentUserId)
-                .ifPresent(rsvp -> builder.userRsvpStatus(rsvp.getStatus()));
         }
         return builder.build();
     }
 
     private EventSummaryResponse mapToEventSummary(Event event) {
-        return EventSummaryResponse.builder().id(event.getId()).title(event.getTitle()).slug(event.getSlug())
-            .coverImageUrl(event.getCoverImageUrl()).startTime(event.getStartTime()).endTime(event.getEndTime())
-            .venueName(event.getVenueName()).city(event.getCity()).eventType(event.getEventType())
-            .goingCount(event.getGoingCount()).isTicketed(event.getIsTicketed()).ticketPrice(event.getTicketPrice())
-            .ticketCurrency(event.getTicketCurrency()).build();
+        return EventSummaryResponse.builder()
+                .id(event.getId())
+                .title(event.getTitle())
+                .slug(event.getSlug())
+                .coverImageUrl(event.getCoverImageUrl())
+                .startTime(event.getStartTime())
+                .endTime(event.getEndTime())
+                .venueName(event.getVenueName())
+                .city(event.getCity())
+                .eventType(event.getEventType())
+                .goingCount(event.getGoingCount())
+                .isTicketed(event.getIsTicketed())
+                .ticketPrice(event.getTicketPrice())
+                .ticketCurrency(event.getTicketCurrency())
+                .build();
+    }
+
+    private UserSummary fetchUserSummary(UUID userId) {
+        try {
+            return userServiceClient.getUserSummary(userId);
+        } catch (Exception e) {
+            log.warn("Failed to fetch user summary for {}: {}", userId, e.getMessage());
+            return UserSummary.builder()
+                    .id(userId)
+                    .username("Unknown")
+                    .build();
+        }
     }
 }
