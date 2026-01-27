@@ -173,7 +173,9 @@ public class FriendshipService {
     @Cacheable(value = "friends", key = "#userId + '_' + #page + '_' + #size")
     public PageResponse<FriendResponse> getFriends(UUID userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "acceptedAt"));
+        log.info("Fetching friends for user {} - page: {}, size: {}", userId, page, size);
         Page<Friendship> friendships = friendshipRepository.findAcceptedFriendships(userId, pageRequest);
+        log.info("Found {} friends for user {} on page {}", friendships.getTotalElements(), userId, page);
         return PageResponse.from(friendships, f -> mapToFriendResponse(f, userId));
     }
 
