@@ -239,7 +239,7 @@ public class GroupMemberService {
         }
 
         GroupMember admin = memberRepository.findByGroupIdAndUserId(groupId, adminId).get();
-        if (member.getRole().ordinal() >= admin.getRole().ordinal() && admin.getRole() != MemberRole.OWNER) {
+        if (member.getRole().ordinal() <= admin.getRole().ordinal() && admin.getRole() != MemberRole.OWNER) {
             throw new ForbiddenException("Cannot remove member with equal or higher role");
         }
 
@@ -458,7 +458,7 @@ public class GroupMemberService {
         }
 
         GroupMember admin = memberRepository.findByGroupIdAndUserId(groupId, adminId).get();
-        if (member.getRole().ordinal() >= admin.getRole().ordinal()) {
+        if (member.getRole().ordinal() <= admin.getRole().ordinal()) {
             throw new ForbiddenException("Cannot ban member with equal or higher role");
         }
 
