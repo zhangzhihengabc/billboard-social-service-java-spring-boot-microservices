@@ -50,7 +50,7 @@ eureka:
     prefer-ip-address: true
 
 jwt:
-  secret: ${JWT_SECRET:your-256-bit-secret-key-here-make-it-long-enough}
+  secret: ${JWT_SECRET:dGhpc2lzYXZlcnlsb25nc2VjcmV0a2V5Zm9yand0dG9rZW4=}
   expiration: 86400000
 
 app:

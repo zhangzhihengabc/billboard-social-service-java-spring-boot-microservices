@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,7 +25,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     Claims claims = getClaimsFromToken(jwt);
 
                     UUID userId = UUID.fromString(claims.getSubject());
-                    String username = claims.get("username", String.class);
+                    String username = claims.get("name", String.class);
                     String email = claims.get("email", String.class);
 
                     @SuppressWarnings("unchecked")
@@ -103,11 +103,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return null;
     }
 
+    /**
+     * Get signing key using Base64 decoding (matches SSO service)
+     */
+    private SecretKey getSigningKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
     private boolean validateToken(String token) {
         try {
-            SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
             Jwts.parser()
-                    .verifyWith(key)
+                    .verifyWith(getSigningKey())
                     .build()
                     .parseSignedClaims(token);
             return true;
@@ -117,9 +124,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private Claims getClaimsFromToken(String token) {
-        SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
         return Jwts.parser()
-                .verifyWith(key)
+                .verifyWith(getSigningKey())  // CHANGED: use getSigningKey()
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();

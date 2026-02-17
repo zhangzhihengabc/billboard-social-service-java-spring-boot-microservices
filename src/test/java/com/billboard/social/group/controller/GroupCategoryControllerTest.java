@@ -39,7 +39,7 @@ class GroupCategoryControllerTest {
     private static final UUID USER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
     private static final UUID CATEGORY_ID = UUID.fromString("22222222-2222-2222-2222-222222222222");
     private static final UUID PARENT_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
-    private static final String BASE_URL = "/api/v1/groups/categories";
+    private static final String BASE_URL = "/groups/categories";
 
     @Autowired
     private MockMvc mockMvc;
@@ -87,7 +87,7 @@ class GroupCategoryControllerTest {
     // ==================== CREATE CATEGORY ====================
 
     @Nested
-    @DisplayName("POST /api/v1/groups/categories - createCategory")
+    @DisplayName("POST /groups/categories - createCategory")
     class CreateCategoryTests {
 
         @Test
@@ -229,7 +229,7 @@ class GroupCategoryControllerTest {
     // ==================== GET CATEGORY ====================
 
     @Nested
-    @DisplayName("GET /api/v1/groups/categories/{categoryId} - getCategory")
+    @DisplayName("GET /groups/categories/{categoryId} - getCategory")
     class GetCategoryTests {
 
         @Test
@@ -326,7 +326,7 @@ class GroupCategoryControllerTest {
     // ==================== UPDATE CATEGORY ====================
 
     @Nested
-    @DisplayName("PUT /api/v1/groups/categories/{categoryId} - updateCategory")
+    @DisplayName("PUT /groups/categories/{categoryId} - updateCategory")
     class UpdateCategoryTests {
 
         @Test
@@ -447,7 +447,7 @@ class GroupCategoryControllerTest {
     // ==================== DELETE CATEGORY ====================
 
     @Nested
-    @DisplayName("DELETE /api/v1/groups/categories/{categoryId} - deleteCategory")
+    @DisplayName("DELETE /groups/categories/{categoryId} - deleteCategory")
     class DeleteCategoryTests {
 
         @Test
@@ -504,7 +504,7 @@ class GroupCategoryControllerTest {
     // ==================== GET ALL CATEGORIES (PAGINATED) ====================
 
     @Nested
-    @DisplayName("GET /api/v1/groups/categories - getAllCategories")
+    @DisplayName("GET /groups/categories - getAllCategories")
     class GetAllCategoriesTests {
 
         @Test
@@ -664,7 +664,7 @@ class GroupCategoryControllerTest {
     // ==================== GET ALL CATEGORIES LIST (NON-PAGINATED) ====================
 
     @Nested
-    @DisplayName("GET /api/v1/groups/categories/list - getAllCategoriesList")
+    @DisplayName("GET /groups/categories/list - getAllCategoriesList")
     class GetAllCategoriesListTests {
 
         @Test
@@ -710,7 +710,7 @@ class GroupCategoryControllerTest {
     // ==================== GET ROOT CATEGORIES ====================
 
     @Nested
-    @DisplayName("GET /api/v1/groups/categories/root - getRootCategories")
+    @DisplayName("GET /groups/categories/root - getRootCategories")
     class GetRootCategoriesTests {
 
         @Test
@@ -793,7 +793,7 @@ class GroupCategoryControllerTest {
     // ==================== GET SUBCATEGORIES ====================
 
     @Nested
-    @DisplayName("GET /api/v1/groups/categories/{parentId}/subcategories - getSubcategories")
+    @DisplayName("GET /groups/categories/{parentId}/subcategories - getSubcategories")
     class GetSubcategoriesTests {
 
         @Test
@@ -903,7 +903,7 @@ class GroupCategoryControllerTest {
     // ==================== SEARCH CATEGORIES ====================
 
     @Nested
-    @DisplayName("GET /api/v1/groups/categories/search - searchCategories")
+    @DisplayName("GET /groups/categories/search - searchCategories")
     class SearchCategoriesTests {
 
         @Test
