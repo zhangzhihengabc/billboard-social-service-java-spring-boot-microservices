@@ -129,15 +129,6 @@ public class SocialResponses {
         @Schema(description = "Friend's username", example = "johndoe", nullable = true)
         private String username;
 
-        @Schema(description = "Friend's display name", example = "John Doe", nullable = true)
-        private String displayName;
-
-        @Schema(description = "Friend's avatar URL", example = "https://example.com/avatar.jpg", nullable = true)
-        private String avatarUrl;
-
-        @Schema(description = "Whether the friend is verified", example = "false", nullable = true)
-        private Boolean isVerified;
-
         @Schema(description = "Number of mutual friends", example = "5", nullable = true)
         private Integer mutualFriendsCount;
 

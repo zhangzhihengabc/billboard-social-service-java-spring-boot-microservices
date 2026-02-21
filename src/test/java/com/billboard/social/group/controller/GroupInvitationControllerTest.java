@@ -85,7 +85,7 @@ class GroupInvitationControllerTest {
                 .inviter(UserSummary.builder()
                         .id(USER_ID)
                         .username("testuser")
-                        .displayName("Test User")
+                        .email("test@gmail.com")
                         .build())
                 .build();
 

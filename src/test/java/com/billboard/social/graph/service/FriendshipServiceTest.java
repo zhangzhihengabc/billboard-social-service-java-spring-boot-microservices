@@ -74,9 +74,7 @@ class FriendshipServiceTest {
         testUserSummary = UserSummary.builder()
                 .id(FRIEND_ID)
                 .username("friend")
-                .displayName("Friend User")
-                .avatarUrl("https://example.com/avatar.jpg")
-                .isVerified(false)
+                .email("test@gmail.com")
                 .build();
     }
 
@@ -1022,9 +1020,6 @@ class FriendshipServiceTest {
             PageResponse<FriendResponse> response = friendshipService.getFriends(USER_ID, 0, 20);
 
             assertThat(response.getContent().get(0).getUsername()).isEqualTo("friend");
-            assertThat(response.getContent().get(0).getDisplayName()).isEqualTo("Friend User");
-            assertThat(response.getContent().get(0).getAvatarUrl()).isEqualTo("https://example.com/avatar.jpg");
-            assertThat(response.getContent().get(0).getIsVerified()).isFalse();
         }
 
         @Test
@@ -1037,9 +1032,6 @@ class FriendshipServiceTest {
 
             assertThat(response.getContent().get(0).getFriendId()).isEqualTo(FRIEND_ID);
             assertThat(response.getContent().get(0).getUsername()).isEqualTo("Unknown");
-            assertThat(response.getContent().get(0).getDisplayName()).isEqualTo("Unknown User");
-            assertThat(response.getContent().get(0).getAvatarUrl()).isNull();
-            assertThat(response.getContent().get(0).getIsVerified()).isFalse();
         }
 
         @Test
@@ -1153,9 +1145,6 @@ class FriendshipServiceTest {
             FriendResponse friendResponse = response.getContent().get(0);
             assertThat(friendResponse.getFriendId()).isEqualTo(FRIEND_ID);
             assertThat(friendResponse.getUsername()).isEqualTo("friend");
-            assertThat(friendResponse.getDisplayName()).isEqualTo("Friend User");
-            assertThat(friendResponse.getAvatarUrl()).isEqualTo("https://example.com/avatar.jpg");
-            assertThat(friendResponse.getIsVerified()).isFalse();
             assertThat(friendResponse.getMutualFriendsCount()).isEqualTo(10);
             assertThat(friendResponse.getFriendsSince()).isNotNull();
         }

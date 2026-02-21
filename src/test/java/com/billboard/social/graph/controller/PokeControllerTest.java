@@ -67,13 +67,13 @@ class PokeControllerTest {
         UserSummary pokerSummary = UserSummary.builder()
                 .id(USER_ID)
                 .username("testuser")
-                .displayName("Test User")
+                .email("test@gmail.com")
                 .build();
 
         UserSummary pokedSummary = UserSummary.builder()
                 .id(TARGET_USER_ID)
                 .username("targetuser")
-                .displayName("Target User")
+                .email("test@gmail.com")
                 .build();
 
         testPokeResponse = PokeResponse.builder()

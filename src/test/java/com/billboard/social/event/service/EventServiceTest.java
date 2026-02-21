@@ -108,7 +108,7 @@ class EventServiceTest {
         testUserSummary = UserSummary.builder()
                 .id(USER_ID)
                 .username("testuser")
-                .displayName("Test User")
+                .email("test@gmail.com")
                 .build();
     }
 

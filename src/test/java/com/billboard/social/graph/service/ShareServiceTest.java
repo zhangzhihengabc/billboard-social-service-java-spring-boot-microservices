@@ -75,9 +75,7 @@ class ShareServiceTest {
         testUserSummary = UserSummary.builder()
                 .id(USER_ID)
                 .username("testuser")
-                .displayName("Test User")
-                .avatarUrl("https://example.com/avatar.jpg")
-                .isVerified(false)
+                .email("test@gmail.com")
                 .build();
     }
 
@@ -661,7 +659,6 @@ class ShareServiceTest {
 
             assertThat(response.getContent().get(0).getUser()).isNotNull();
             assertThat(response.getContent().get(0).getUser().getUsername()).isEqualTo("testuser");
-            assertThat(response.getContent().get(0).getUser().getDisplayName()).isEqualTo("Test User");
         }
 
         @Test
@@ -675,9 +672,6 @@ class ShareServiceTest {
             assertThat(response.getContent().get(0).getUser()).isNotNull();
             assertThat(response.getContent().get(0).getUser().getId()).isEqualTo(USER_ID);
             assertThat(response.getContent().get(0).getUser().getUsername()).isEqualTo("Unknown");
-            assertThat(response.getContent().get(0).getUser().getDisplayName()).isEqualTo("Unknown User");
-            assertThat(response.getContent().get(0).getUser().getAvatarUrl()).isNull();
-            assertThat(response.getContent().get(0).getUser().getIsVerified()).isFalse();
         }
 
         @Test

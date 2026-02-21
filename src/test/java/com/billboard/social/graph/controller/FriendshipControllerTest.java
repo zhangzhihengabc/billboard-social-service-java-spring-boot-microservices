@@ -79,9 +79,6 @@ class FriendshipControllerTest {
         testFriendResponse = FriendResponse.builder()
                 .friendId(FRIEND_ID)
                 .username("friend")
-                .displayName("Friend User")
-                .avatarUrl("https://example.com/avatar.jpg")
-                .isVerified(false)
                 .mutualFriendsCount(3)
                 .friendsSince(LocalDateTime.now())
                 .build();

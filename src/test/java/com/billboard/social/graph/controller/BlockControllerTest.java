@@ -72,7 +72,7 @@ class BlockControllerTest {
         UserSummary blockedUserSummary = UserSummary.builder()
                 .id(BLOCKED_USER_ID)
                 .username("blockeduser")
-                .displayName("Blocked User")
+                .email("test@gmail.com")
                 .build();
 
         testBlockResponse = BlockResponse.builder()

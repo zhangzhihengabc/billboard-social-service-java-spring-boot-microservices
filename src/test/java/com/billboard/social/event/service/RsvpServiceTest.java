@@ -100,7 +100,7 @@ class RsvpServiceTest {
         testUserSummary = UserSummary.builder()
                 .id(USER_ID)
                 .username("testuser")
-                .displayName("Test User")
+                .email("test@gmail.com")
                 .build();
     }
 
@@ -1274,7 +1274,7 @@ class RsvpServiceTest {
             UserSummary coHostSummary = UserSummary.builder()
                     .id(OTHER_USER_ID)
                     .username("cohost")
-                    .displayName("Co Host User")
+                    .email("test@gmail.com")
                     .build();
 
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));

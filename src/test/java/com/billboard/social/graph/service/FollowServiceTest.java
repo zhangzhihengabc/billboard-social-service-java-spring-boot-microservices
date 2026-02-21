@@ -72,9 +72,7 @@ class FollowServiceTest {
         testUserSummary = UserSummary.builder()
                 .id(TARGET_USER_ID)
                 .username("targetuser")
-                .displayName("Target User")
-                .avatarUrl("https://example.com/avatar.jpg")
-                .isVerified(false)
+                .email("test@gmail.com")
                 .build();
     }
 
@@ -829,7 +827,6 @@ class FollowServiceTest {
 
             assertThat(response.getUser()).isNotNull();
             assertThat(response.getUser().getUsername()).isEqualTo("targetuser");
-            assertThat(response.getUser().getDisplayName()).isEqualTo("Target User");
         }
 
         @Test
@@ -847,9 +844,6 @@ class FollowServiceTest {
             assertThat(response.getUser()).isNotNull();
             assertThat(response.getUser().getId()).isEqualTo(TARGET_USER_ID);
             assertThat(response.getUser().getUsername()).isEqualTo("Unknown");
-            assertThat(response.getUser().getDisplayName()).isEqualTo("Unknown User");
-            assertThat(response.getUser().getAvatarUrl()).isNull();
-            assertThat(response.getUser().getIsVerified()).isFalse();
         }
     }
 

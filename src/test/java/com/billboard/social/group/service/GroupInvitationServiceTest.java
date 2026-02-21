@@ -6,7 +6,6 @@ import com.billboard.social.common.dto.UserSummary;
 import com.billboard.social.common.exception.ForbiddenException;
 import com.billboard.social.common.exception.ResourceNotFoundException;
 import com.billboard.social.common.exception.ValidationException;
-import com.billboard.social.common.service.EmailService;
 import com.billboard.social.group.dto.request.GroupRequests.CreateInviteLinkRequest;
 import com.billboard.social.group.dto.request.GroupRequests.InviteMemberRequest;
 import com.billboard.social.group.dto.response.GroupResponses.GroupMemberResponse;
@@ -50,9 +49,6 @@ class GroupInvitationServiceTest {
 
     @Mock
     private UserServiceClient userServiceClient;
-
-    @Mock
-    private EmailService emailService;
 
     @InjectMocks
     private GroupInvitationService invitationService;
@@ -128,14 +124,12 @@ class GroupInvitationServiceTest {
         inviterSummary = UserSummary.builder()
                 .id(INVITER_ID)
                 .username("inviter")
-                .displayName("Inviter User")
                 .email("inviter@example.com")
                 .build();
 
         inviteeSummary = UserSummary.builder()
                 .id(INVITEE_ID)
                 .username("invitee")
-                .displayName("Invitee User")
                 .email("invitee@example.com")
                 .build();
     }
@@ -173,7 +167,6 @@ class GroupInvitationServiceTest {
             assertThat(response).isNotNull();
             assertThat(response.getGroupId()).isEqualTo(GROUP_ID);
             assertThat(response.getInviteeId()).isEqualTo(INVITEE_ID);
-            verify(emailService).sendGroupInvitationEmail(anyString(), anyString(), anyString(), anyString(), anyString());
         }
 
         @Test
@@ -393,7 +386,6 @@ class GroupInvitationServiceTest {
             InvitationResponse response = invitationService.inviteMember(INVITER_ID, GROUP_ID, request);
 
             assertThat(response).isNotNull();
-            verify(emailService, never()).sendGroupInvitationEmail(any(), any(), any(), any(), any());
         }
 
         @Test
@@ -417,35 +409,6 @@ class GroupInvitationServiceTest {
             });
             when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
 
-            InvitationResponse response = invitationService.inviteMember(INVITER_ID, GROUP_ID, request);
-
-            assertThat(response).isNotNull();
-            verify(emailService, never()).sendGroupInvitationEmail(any(), any(), any(), any(), any());
-        }
-
-        @Test
-        @DisplayName("Success - email sending fails (logs but continues)")
-        void inviteMember_EmailSendingFails() {
-            InviteMemberRequest request = InviteMemberRequest.builder()
-                    .userId(INVITEE_ID)
-                    .build();
-
-            when(groupRepository.findById(GROUP_ID)).thenReturn(Optional.of(testGroup));
-            when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITER_ID)).thenReturn(Optional.of(inviterMember));
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
-            when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
-            when(invitationRepository.findByGroupIdAndInviteeId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
-            when(invitationRepository.save(any(GroupInvitation.class))).thenAnswer(invocation -> {
-                GroupInvitation saved = invocation.getArgument(0);
-                saved.setId(INVITATION_ID);
-                saved.setCreatedAt(LocalDateTime.now());
-                return saved;
-            });
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
-            doThrow(new RuntimeException("Email service unavailable"))
-                    .when(emailService).sendGroupInvitationEmail(any(), any(), any(), any(), any());
-
-            // Should not throw - email failure is logged but doesn't fail invitation
             InvitationResponse response = invitationService.inviteMember(INVITER_ID, GROUP_ID, request);
 
             assertThat(response).isNotNull();

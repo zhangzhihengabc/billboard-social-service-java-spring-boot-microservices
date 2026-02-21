@@ -71,7 +71,7 @@ class FollowControllerTest {
         UserSummary targetUserSummary = UserSummary.builder()
                 .id(TARGET_USER_ID)
                 .username("targetuser")
-                .displayName("Target User")
+                .email("test@gmail.com")
                 .build();
 
         testFollowResponse = FollowResponse.builder()

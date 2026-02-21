@@ -79,9 +79,7 @@ class BlockServiceTest {
         testUserSummary = UserSummary.builder()
                 .id(BLOCKED_USER_ID)
                 .username("blockeduser")
-                .displayName("Blocked User")
-                .avatarUrl("https://example.com/avatar.jpg")
-                .isVerified(false)
+                .email("test@gmail.com")
                 .build();
     }
 
@@ -578,7 +576,6 @@ class BlockServiceTest {
 
             assertThat(response.getContent().get(0).getBlockedUser()).isNotNull();
             assertThat(response.getContent().get(0).getBlockedUser().getUsername()).isEqualTo("Unknown");
-            assertThat(response.getContent().get(0).getBlockedUser().getDisplayName()).isEqualTo("Unknown User");
         }
 
         @Test
@@ -626,7 +623,6 @@ class BlockServiceTest {
             assertThat(response.getContent().get(0).getBlockedUser()).isNotNull();
             assertThat(response.getContent().get(0).getBlockedUser().getUsername()).isEqualTo("Unknown");
             assertThat(response.getContent().get(0).getBlockedUser().getId()).isEqualTo(BLOCKED_USER_ID);
-            assertThat(response.getContent().get(0).getBlockedUser().getIsVerified()).isFalse();
         }
     }
 

@@ -68,9 +68,7 @@ class PokeServiceTest {
         testUserSummary = UserSummary.builder()
                 .id(USER_ID)
                 .username("testuser")
-                .displayName("Test User")
-                .avatarUrl("https://example.com/avatar.jpg")
-                .isVerified(false)
+                .email("test@gmail.com")
                 .build();
     }
 
@@ -579,7 +577,6 @@ class PokeServiceTest {
 
             assertThat(response.getContent().get(0).getPoker()).isNotNull();
             assertThat(response.getContent().get(0).getPoker().getUsername()).isEqualTo("testuser");
-            assertThat(response.getContent().get(0).getPoker().getDisplayName()).isEqualTo("Test User");
         }
 
         @Test
@@ -593,9 +590,6 @@ class PokeServiceTest {
             assertThat(response.getContent().get(0).getPoker()).isNotNull();
             assertThat(response.getContent().get(0).getPoker().getId()).isEqualTo(USER_ID);
             assertThat(response.getContent().get(0).getPoker().getUsername()).isEqualTo("Unknown");
-            assertThat(response.getContent().get(0).getPoker().getDisplayName()).isEqualTo("Unknown User");
-            assertThat(response.getContent().get(0).getPoker().getAvatarUrl()).isNull();
-            assertThat(response.getContent().get(0).getPoker().getIsVerified()).isFalse();
         }
 
         @Test
