@@ -263,9 +263,6 @@ public class FriendshipService {
         return FriendResponse.builder()
                 .friendId(friendId)
                 .username(userSummary.getUsername())
-                .displayName(userSummary.getDisplayName())
-                .avatarUrl(userSummary.getAvatarUrl())
-                .isVerified(userSummary.getIsVerified())
                 .mutualFriendsCount(friendship.getMutualFriendsCount())
                 .friendsSince(friendship.getAcceptedAt())
                 .build();
@@ -290,9 +287,7 @@ public class FriendshipService {
         return UserSummary.builder()
                 .id(userId)
                 .username("Unknown")
-                .displayName("Unknown User")
-                .avatarUrl(null)
-                .isVerified(false)
+                .email("unknown@gmail.com")
                 .build();
     }
 }

@@ -122,9 +122,7 @@ public class ShareService {
         return UserSummary.builder()
                 .id(userId)
                 .username("Unknown")
-                .displayName("Unknown User")
-                .avatarUrl(null)
-                .isVerified(false)
+                .email("unknown@gmail.com")
                 .build();
     }
 }

@@ -21,15 +21,6 @@ public class UserSummary {
     @Schema(description = "Username", example = "johndoe")
     private String username;
 
-    @Schema(description = "Display name", example = "John Doe", nullable = true)
-    private String displayName;
-
-    @Schema(description = "Avatar URL", example = "https://example.com/avatar.jpg", nullable = true)
-    private String avatarUrl;
-
-    @Schema(description = "Whether the user is verified", example = "false")
-    private Boolean isVerified;
-
     @Schema(description = "Email address", example = "myemail@gmail.com")
     private String email;
 }

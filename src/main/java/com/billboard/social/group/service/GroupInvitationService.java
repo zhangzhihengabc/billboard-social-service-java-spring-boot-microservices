@@ -7,7 +7,6 @@ import com.billboard.social.common.exception.ForbiddenException;
 import com.billboard.social.common.exception.ResourceNotFoundException;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.common.security.InputValidator;
-import com.billboard.social.common.service.EmailService;
 import com.billboard.social.group.dto.request.GroupRequests.*;
 import com.billboard.social.group.dto.response.GroupResponses.*;
 import com.billboard.social.group.entity.Group;
@@ -41,7 +40,6 @@ public class GroupInvitationService {
     private final GroupMemberRepository memberRepository;
     private final GroupInvitationRepository invitationRepository;
     private final UserServiceClient userServiceClient;
-    private final EmailService emailService;
 
     @Value("${app.group.invitation.default-expiration-days:7}")
     private int defaultExpirationDays;
@@ -136,30 +134,10 @@ public class GroupInvitationService {
 
         invitation = invitationRepository.save(invitation);
 
-        // Send invitation email (for both cases)
-        if (inviteeEmail != null && !inviteeEmail.isBlank()) {
-            UserSummary inviter = fetchUserSummary(inviterId);
-            sendInvitationEmail(inviteeEmail, inviter.getUsername(), group.getName(),
-                    invitation.getInviteCode(), request.getMessage());
-        }
-
         log.info("User {} invited {} to group {}", inviterId,
                 inviteeId != null ? inviteeId : inviteeEmail, groupId);
 
         return mapToInvitationResponse(invitation);
-    }
-
-    /**
-     * Send invitation email asynchronously
-     */
-    private void sendInvitationEmail(String toEmail, String inviterName, String groupName,
-                                     String inviteCode, String message) {
-        try {
-            emailService.sendGroupInvitationEmail(toEmail, inviterName, groupName, inviteCode, message);
-        } catch (Exception e) {
-            log.error("Failed to send invitation email to {}: {}", toEmail, e.getMessage());
-            // Don't fail the invitation if email fails
-        }
     }
 
     // ==================== CREATE INVITE LINK ====================

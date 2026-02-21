@@ -16,7 +16,7 @@ public class UserServiceClientFallback implements UserServiceClient {
         return UserSummary.builder()
             .id(userId)
             .username("unknown")
-            .displayName("Unknown User")
+            .email("unknown@gmail.com")
             .build();
     }
 }
