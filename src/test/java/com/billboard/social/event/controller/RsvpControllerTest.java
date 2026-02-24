@@ -106,7 +106,7 @@ class RsvpControllerTest {
     // ==================== RSVP ====================
 
     @Nested
-    @DisplayName("POST /events/{eventId}/rsvp - rsvp")
+    @DisplayName("POST /api/v1/events/{eventId}/rsvp - rsvp")
     class RsvpTests {
 
         @Test
@@ -121,7 +121,7 @@ class RsvpControllerTest {
             when(rsvpService.rsvp(eq(USER_ID), eq(EVENT_ID), any(RsvpRequest.class)))
                     .thenReturn(testRsvpResponse);
 
-            mockMvc.perform(post("/events/{eventId}/rsvp", EVENT_ID)
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp", EVENT_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -140,7 +140,7 @@ class RsvpControllerTest {
             when(rsvpService.rsvp(eq(USER_ID), eq(EVENT_ID), any(RsvpRequest.class)))
                     .thenReturn(testRsvpResponse);
 
-            mockMvc.perform(post("/events/{eventId}/rsvp", EVENT_ID)
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp", EVENT_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -158,7 +158,7 @@ class RsvpControllerTest {
             when(rsvpService.rsvp(eq(USER_ID), eq(EVENT_ID), any(RsvpRequest.class)))
                     .thenReturn(testRsvpResponse);
 
-            mockMvc.perform(post("/events/{eventId}/rsvp", EVENT_ID)
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp", EVENT_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -172,7 +172,7 @@ class RsvpControllerTest {
                     .guestCount(2)
                     .build();
 
-            mockMvc.perform(post("/events/{eventId}/rsvp", EVENT_ID)
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp", EVENT_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -188,7 +188,7 @@ class RsvpControllerTest {
                     .guestCount(-1)
                     .build();
 
-            mockMvc.perform(post("/events/{eventId}/rsvp", EVENT_ID)
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp", EVENT_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -204,7 +204,7 @@ class RsvpControllerTest {
                     .guestCount(11)
                     .build();
 
-            mockMvc.perform(post("/events/{eventId}/rsvp", EVENT_ID)
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp", EVENT_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -220,7 +220,7 @@ class RsvpControllerTest {
                     .note("a".repeat(501))
                     .build();
 
-            mockMvc.perform(post("/events/{eventId}/rsvp", EVENT_ID)
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp", EVENT_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -235,7 +235,7 @@ class RsvpControllerTest {
                     .status(RsvpStatus.GOING)
                     .build();
 
-            mockMvc.perform(post("/events/{eventId}/rsvp", "invalid-uuid")
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp", "invalid-uuid")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -253,7 +253,7 @@ class RsvpControllerTest {
             when(rsvpService.rsvp(eq(USER_ID), eq(EVENT_ID), any(RsvpRequest.class)))
                     .thenThrow(new ValidationException("Event not found"));
 
-            mockMvc.perform(post("/events/{eventId}/rsvp", EVENT_ID)
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp", EVENT_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -269,7 +269,7 @@ class RsvpControllerTest {
             when(rsvpService.rsvp(eq(USER_ID), eq(EVENT_ID), any(RsvpRequest.class)))
                     .thenThrow(new ValidationException("Event is at capacity"));
 
-            mockMvc.perform(post("/events/{eventId}/rsvp", EVENT_ID)
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp", EVENT_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -278,7 +278,7 @@ class RsvpControllerTest {
         @Test
         @DisplayName("Missing request body - returns 400")
         void rsvp_MissingBody() throws Exception {
-            mockMvc.perform(post("/events/{eventId}/rsvp", EVENT_ID)
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp", EVENT_ID)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
@@ -288,7 +288,7 @@ class RsvpControllerTest {
         @Test
         @DisplayName("Malformed JSON - returns 400")
         void rsvp_MalformedJson() throws Exception {
-            mockMvc.perform(post("/events/{eventId}/rsvp", EVENT_ID)
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp", EVENT_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"status\": }"))
                     .andExpect(status().isBadRequest());
@@ -300,7 +300,7 @@ class RsvpControllerTest {
     // ==================== CANCEL RSVP ====================
 
     @Nested
-    @DisplayName("DELETE /events/{eventId}/rsvp - cancelRsvp")
+    @DisplayName("DELETE /api/v1/events/{eventId}/rsvp - cancelRsvp")
     class CancelRsvpTests {
 
         @Test
@@ -308,7 +308,7 @@ class RsvpControllerTest {
         void cancelRsvp_Success() throws Exception {
             doNothing().when(rsvpService).cancelRsvp(USER_ID, EVENT_ID);
 
-            mockMvc.perform(delete("/events/{eventId}/rsvp", EVENT_ID))
+            mockMvc.perform(delete("/api/v1/events/{eventId}/rsvp", EVENT_ID))
                     .andExpect(status().isNoContent());
 
             verify(rsvpService).cancelRsvp(USER_ID, EVENT_ID);
@@ -320,7 +320,7 @@ class RsvpControllerTest {
             doThrow(new ValidationException("RSVP not found"))
                     .when(rsvpService).cancelRsvp(USER_ID, EVENT_ID);
 
-            mockMvc.perform(delete("/events/{eventId}/rsvp", EVENT_ID))
+            mockMvc.perform(delete("/api/v1/events/{eventId}/rsvp", EVENT_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -330,14 +330,14 @@ class RsvpControllerTest {
             doThrow(new ValidationException("Host cannot cancel their RSVP"))
                     .when(rsvpService).cancelRsvp(USER_ID, EVENT_ID);
 
-            mockMvc.perform(delete("/events/{eventId}/rsvp", EVENT_ID))
+            mockMvc.perform(delete("/api/v1/events/{eventId}/rsvp", EVENT_ID))
                     .andExpect(status().isBadRequest());
         }
 
         @Test
         @DisplayName("Invalid event ID - returns 400")
         void cancelRsvp_InvalidEventId() throws Exception {
-            mockMvc.perform(delete("/events/{eventId}/rsvp", "invalid-uuid"))
+            mockMvc.perform(delete("/api/v1/events/{eventId}/rsvp", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(rsvpService);
@@ -347,7 +347,7 @@ class RsvpControllerTest {
     // ==================== GET ATTENDEES ====================
 
     @Nested
-    @DisplayName("GET /events/{eventId}/rsvp/attendees - getAttendees")
+    @DisplayName("GET /api/v1/events/{eventId}/rsvp/attendees - getAttendees")
     class GetAttendeesTests {
 
         @Test
@@ -363,7 +363,7 @@ class RsvpControllerTest {
 
             when(rsvpService.getAttendees(EVENT_ID, null, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/attendees", EVENT_ID))
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/attendees", EVENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)))
                     .andExpect(jsonPath("$.totalElements").value(1));
@@ -382,7 +382,7 @@ class RsvpControllerTest {
 
             when(rsvpService.getAttendees(EVENT_ID, RsvpStatus.GOING, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/attendees", EVENT_ID)
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/attendees", EVENT_ID)
                             .param("status", "GOING"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content[0].status").value("GOING"));
@@ -402,7 +402,7 @@ class RsvpControllerTest {
 
             when(rsvpService.getAttendees(EVENT_ID, RsvpStatus.MAYBE, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/attendees", EVENT_ID)
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/attendees", EVENT_ID)
                             .param("status", "MAYBE"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content[0].status").value("MAYBE"));
@@ -422,7 +422,7 @@ class RsvpControllerTest {
 
             when(rsvpService.getAttendees(EVENT_ID, RsvpStatus.NOT_GOING, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/attendees", EVENT_ID)
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/attendees", EVENT_ID)
                             .param("status", "NOT_GOING"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content[0].status").value("NOT_GOING"));
@@ -441,7 +441,7 @@ class RsvpControllerTest {
 
             when(rsvpService.getAttendees(EVENT_ID, null, 5, 10)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/attendees", EVENT_ID)
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/attendees", EVENT_ID)
                             .param("page", "5")
                             .param("size", "10"))
                     .andExpect(status().isOk())
@@ -462,7 +462,7 @@ class RsvpControllerTest {
 
             when(rsvpService.getAttendees(EVENT_ID, null, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/attendees", EVENT_ID))
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/attendees", EVENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(0)));
         }
@@ -470,7 +470,7 @@ class RsvpControllerTest {
         @Test
         @DisplayName("Page below minimum - returns 400")
         void getAttendees_PageBelowMin() throws Exception {
-            mockMvc.perform(get("/events/{eventId}/rsvp/attendees", EVENT_ID)
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/attendees", EVENT_ID)
                             .param("page", "-1"))
                     .andExpect(status().isBadRequest());
 
@@ -480,7 +480,7 @@ class RsvpControllerTest {
         @Test
         @DisplayName("Page above maximum - returns 400")
         void getAttendees_PageAboveMax() throws Exception {
-            mockMvc.perform(get("/events/{eventId}/rsvp/attendees", EVENT_ID)
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/attendees", EVENT_ID)
                             .param("page", "1001"))
                     .andExpect(status().isBadRequest());
 
@@ -490,7 +490,7 @@ class RsvpControllerTest {
         @Test
         @DisplayName("Size below minimum - returns 400")
         void getAttendees_SizeBelowMin() throws Exception {
-            mockMvc.perform(get("/events/{eventId}/rsvp/attendees", EVENT_ID)
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/attendees", EVENT_ID)
                             .param("size", "0"))
                     .andExpect(status().isBadRequest());
 
@@ -500,7 +500,7 @@ class RsvpControllerTest {
         @Test
         @DisplayName("Size above maximum - returns 400")
         void getAttendees_SizeAboveMax() throws Exception {
-            mockMvc.perform(get("/events/{eventId}/rsvp/attendees", EVENT_ID)
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/attendees", EVENT_ID)
                             .param("size", "101"))
                     .andExpect(status().isBadRequest());
 
@@ -510,7 +510,7 @@ class RsvpControllerTest {
         @Test
         @DisplayName("Invalid event ID - returns 400")
         void getAttendees_InvalidEventId() throws Exception {
-            mockMvc.perform(get("/events/{eventId}/rsvp/attendees", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/attendees", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(rsvpService);
@@ -529,7 +529,7 @@ class RsvpControllerTest {
 
             when(rsvpService.getAttendees(EVENT_ID, null, 1000, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/attendees", EVENT_ID)
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/attendees", EVENT_ID)
                             .param("page", "1000"))
                     .andExpect(status().isOk());
         }
@@ -547,7 +547,7 @@ class RsvpControllerTest {
 
             when(rsvpService.getAttendees(EVENT_ID, null, 0, 100)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/attendees", EVENT_ID)
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/attendees", EVENT_ID)
                             .param("size", "100"))
                     .andExpect(status().isOk());
         }
@@ -556,7 +556,7 @@ class RsvpControllerTest {
     // ==================== GET GOING ATTENDEES ====================
 
     @Nested
-    @DisplayName("GET /events/{eventId}/rsvp/going - getGoingAttendees")
+    @DisplayName("GET /api/v1/events/{eventId}/rsvp/going - getGoingAttendees")
     class GetGoingAttendeesTests {
 
         @Test
@@ -572,7 +572,7 @@ class RsvpControllerTest {
 
             when(rsvpService.getGoingAttendees(EVENT_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/going", EVENT_ID))
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/going", EVENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)));
         }
@@ -590,7 +590,7 @@ class RsvpControllerTest {
 
             when(rsvpService.getGoingAttendees(EVENT_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/going", EVENT_ID))
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/going", EVENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(0)));
         }
@@ -608,7 +608,7 @@ class RsvpControllerTest {
 
             when(rsvpService.getGoingAttendees(EVENT_ID, 2, 50)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/going", EVENT_ID)
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/going", EVENT_ID)
                             .param("page", "2")
                             .param("size", "50"))
                     .andExpect(status().isOk());
@@ -617,7 +617,7 @@ class RsvpControllerTest {
         @Test
         @DisplayName("Page above maximum - returns 400")
         void getGoingAttendees_PageAboveMax() throws Exception {
-            mockMvc.perform(get("/events/{eventId}/rsvp/going", EVENT_ID)
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/going", EVENT_ID)
                             .param("page", "1001"))
                     .andExpect(status().isBadRequest());
 
@@ -627,7 +627,7 @@ class RsvpControllerTest {
         @Test
         @DisplayName("Size below minimum - returns 400")
         void getGoingAttendees_SizeBelowMin() throws Exception {
-            mockMvc.perform(get("/events/{eventId}/rsvp/going", EVENT_ID)
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/going", EVENT_ID)
                             .param("size", "0"))
                     .andExpect(status().isBadRequest());
 
@@ -637,7 +637,7 @@ class RsvpControllerTest {
         @Test
         @DisplayName("Invalid event ID - returns 400")
         void getGoingAttendees_InvalidEventId() throws Exception {
-            mockMvc.perform(get("/events/{eventId}/rsvp/going", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/going", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(rsvpService);
@@ -647,7 +647,7 @@ class RsvpControllerTest {
     // ==================== GET CHECKED-IN ATTENDEES ====================
 
     @Nested
-    @DisplayName("GET /events/{eventId}/rsvp/checked-in - getCheckedInAttendees")
+    @DisplayName("GET /api/v1/events/{eventId}/rsvp/checked-in - getCheckedInAttendees")
     class GetCheckedInAttendeesTests {
 
         @Test
@@ -664,7 +664,7 @@ class RsvpControllerTest {
 
             when(rsvpService.getCheckedInAttendees(EVENT_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/checked-in", EVENT_ID))
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/checked-in", EVENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)));
         }
@@ -682,7 +682,7 @@ class RsvpControllerTest {
 
             when(rsvpService.getCheckedInAttendees(EVENT_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/checked-in", EVENT_ID))
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/checked-in", EVENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(0)));
         }
@@ -700,7 +700,7 @@ class RsvpControllerTest {
 
             when(rsvpService.getCheckedInAttendees(EVENT_ID, 3, 25)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/checked-in", EVENT_ID)
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/checked-in", EVENT_ID)
                             .param("page", "3")
                             .param("size", "25"))
                     .andExpect(status().isOk());
@@ -709,7 +709,7 @@ class RsvpControllerTest {
         @Test
         @DisplayName("Size above maximum - returns 400")
         void getCheckedInAttendees_SizeAboveMax() throws Exception {
-            mockMvc.perform(get("/events/{eventId}/rsvp/checked-in", EVENT_ID)
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/checked-in", EVENT_ID)
                             .param("size", "101"))
                     .andExpect(status().isBadRequest());
 
@@ -719,7 +719,7 @@ class RsvpControllerTest {
         @Test
         @DisplayName("Invalid event ID - returns 400")
         void getCheckedInAttendees_InvalidEventId() throws Exception {
-            mockMvc.perform(get("/events/{eventId}/rsvp/checked-in", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/checked-in", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(rsvpService);
@@ -729,7 +729,7 @@ class RsvpControllerTest {
     // ==================== GET GOING USER IDS ====================
 
     @Nested
-    @DisplayName("GET /events/{eventId}/rsvp/going/ids - getGoingUserIds")
+    @DisplayName("GET /api/v1/events/{eventId}/rsvp/going/ids - getGoingUserIds")
     class GetGoingUserIdsTests {
 
         @Test
@@ -739,7 +739,7 @@ class RsvpControllerTest {
 
             when(rsvpService.getGoingUserIds(EVENT_ID)).thenReturn(userIds);
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/going/ids", EVENT_ID))
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/going/ids", EVENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(2)))
                     .andExpect(jsonPath("$[0]").value(USER_ID.toString()))
@@ -751,7 +751,7 @@ class RsvpControllerTest {
         void getGoingUserIds_Empty() throws Exception {
             when(rsvpService.getGoingUserIds(EVENT_ID)).thenReturn(Collections.emptyList());
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/going/ids", EVENT_ID))
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/going/ids", EVENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(0)));
         }
@@ -759,7 +759,7 @@ class RsvpControllerTest {
         @Test
         @DisplayName("Invalid event ID - returns 400")
         void getGoingUserIds_InvalidEventId() throws Exception {
-            mockMvc.perform(get("/events/{eventId}/rsvp/going/ids", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/going/ids", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(rsvpService);
@@ -771,7 +771,7 @@ class RsvpControllerTest {
             when(rsvpService.getGoingUserIds(EVENT_ID))
                     .thenThrow(new ValidationException("Event not found"));
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/going/ids", EVENT_ID))
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/going/ids", EVENT_ID))
                     .andExpect(status().isBadRequest());
         }
     }
@@ -779,7 +779,7 @@ class RsvpControllerTest {
     // ==================== CHECK-IN ====================
 
     @Nested
-    @DisplayName("POST /events/{eventId}/rsvp/{userId}/check-in - checkIn")
+    @DisplayName("POST /api/v1/events/{eventId}/rsvp/{userId}/check-in - checkIn")
     class CheckInTests {
 
         @Test
@@ -789,7 +789,7 @@ class RsvpControllerTest {
 
             when(rsvpService.checkIn(USER_ID, EVENT_ID, OTHER_USER_ID)).thenReturn(testRsvpResponse);
 
-            mockMvc.perform(post("/events/{eventId}/rsvp/{userId}/check-in", EVENT_ID, OTHER_USER_ID))
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp/{userId}/check-in", EVENT_ID, OTHER_USER_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.checkedInAt").isNotEmpty());
 
@@ -802,7 +802,7 @@ class RsvpControllerTest {
             when(rsvpService.checkIn(USER_ID, EVENT_ID, OTHER_USER_ID))
                     .thenThrow(new ValidationException("RSVP not found"));
 
-            mockMvc.perform(post("/events/{eventId}/rsvp/{userId}/check-in", EVENT_ID, OTHER_USER_ID))
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp/{userId}/check-in", EVENT_ID, OTHER_USER_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -812,7 +812,7 @@ class RsvpControllerTest {
             when(rsvpService.checkIn(USER_ID, EVENT_ID, OTHER_USER_ID))
                     .thenThrow(new ValidationException("User is not marked as GOING"));
 
-            mockMvc.perform(post("/events/{eventId}/rsvp/{userId}/check-in", EVENT_ID, OTHER_USER_ID))
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp/{userId}/check-in", EVENT_ID, OTHER_USER_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -822,14 +822,14 @@ class RsvpControllerTest {
             when(rsvpService.checkIn(USER_ID, EVENT_ID, OTHER_USER_ID))
                     .thenThrow(new ForbiddenException("No permission to manage RSVPs"));
 
-            mockMvc.perform(post("/events/{eventId}/rsvp/{userId}/check-in", EVENT_ID, OTHER_USER_ID))
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp/{userId}/check-in", EVENT_ID, OTHER_USER_ID))
                     .andExpect(status().isForbidden());
         }
 
         @Test
         @DisplayName("Invalid event ID - returns 400")
         void checkIn_InvalidEventId() throws Exception {
-            mockMvc.perform(post("/events/{eventId}/rsvp/{userId}/check-in", "invalid-uuid", OTHER_USER_ID))
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp/{userId}/check-in", "invalid-uuid", OTHER_USER_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(rsvpService);
@@ -838,7 +838,7 @@ class RsvpControllerTest {
         @Test
         @DisplayName("Invalid user ID - returns 400")
         void checkIn_InvalidUserId() throws Exception {
-            mockMvc.perform(post("/events/{eventId}/rsvp/{userId}/check-in", EVENT_ID, "invalid-uuid"))
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp/{userId}/check-in", EVENT_ID, "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(rsvpService);
@@ -848,7 +848,7 @@ class RsvpControllerTest {
     // ==================== UNDO CHECK-IN ====================
 
     @Nested
-    @DisplayName("DELETE /events/{eventId}/rsvp/{userId}/check-in - undoCheckIn")
+    @DisplayName("DELETE /api/v1/events/{eventId}/rsvp/{userId}/check-in - undoCheckIn")
     class UndoCheckInTests {
 
         @Test
@@ -858,7 +858,7 @@ class RsvpControllerTest {
 
             when(rsvpService.undoCheckIn(USER_ID, EVENT_ID, OTHER_USER_ID)).thenReturn(testRsvpResponse);
 
-            mockMvc.perform(delete("/events/{eventId}/rsvp/{userId}/check-in", EVENT_ID, OTHER_USER_ID))
+            mockMvc.perform(delete("/api/v1/events/{eventId}/rsvp/{userId}/check-in", EVENT_ID, OTHER_USER_ID))
                     .andExpect(status().isOk());
 
             verify(rsvpService).undoCheckIn(USER_ID, EVENT_ID, OTHER_USER_ID);
@@ -870,7 +870,7 @@ class RsvpControllerTest {
             when(rsvpService.undoCheckIn(USER_ID, EVENT_ID, OTHER_USER_ID))
                     .thenThrow(new ValidationException("RSVP not found"));
 
-            mockMvc.perform(delete("/events/{eventId}/rsvp/{userId}/check-in", EVENT_ID, OTHER_USER_ID))
+            mockMvc.perform(delete("/api/v1/events/{eventId}/rsvp/{userId}/check-in", EVENT_ID, OTHER_USER_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -880,7 +880,7 @@ class RsvpControllerTest {
             when(rsvpService.undoCheckIn(USER_ID, EVENT_ID, OTHER_USER_ID))
                     .thenThrow(new ValidationException("User is not checked in"));
 
-            mockMvc.perform(delete("/events/{eventId}/rsvp/{userId}/check-in", EVENT_ID, OTHER_USER_ID))
+            mockMvc.perform(delete("/api/v1/events/{eventId}/rsvp/{userId}/check-in", EVENT_ID, OTHER_USER_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -890,14 +890,14 @@ class RsvpControllerTest {
             when(rsvpService.undoCheckIn(USER_ID, EVENT_ID, OTHER_USER_ID))
                     .thenThrow(new ForbiddenException("No permission to manage RSVPs"));
 
-            mockMvc.perform(delete("/events/{eventId}/rsvp/{userId}/check-in", EVENT_ID, OTHER_USER_ID))
+            mockMvc.perform(delete("/api/v1/events/{eventId}/rsvp/{userId}/check-in", EVENT_ID, OTHER_USER_ID))
                     .andExpect(status().isForbidden());
         }
 
         @Test
         @DisplayName("Invalid event ID - returns 400")
         void undoCheckIn_InvalidEventId() throws Exception {
-            mockMvc.perform(delete("/events/{eventId}/rsvp/{userId}/check-in", "invalid-uuid", OTHER_USER_ID))
+            mockMvc.perform(delete("/api/v1/events/{eventId}/rsvp/{userId}/check-in", "invalid-uuid", OTHER_USER_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(rsvpService);
@@ -906,7 +906,7 @@ class RsvpControllerTest {
         @Test
         @DisplayName("Invalid user ID - returns 400")
         void undoCheckIn_InvalidUserId() throws Exception {
-            mockMvc.perform(delete("/events/{eventId}/rsvp/{userId}/check-in", EVENT_ID, "invalid-uuid"))
+            mockMvc.perform(delete("/api/v1/events/{eventId}/rsvp/{userId}/check-in", EVENT_ID, "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(rsvpService);
@@ -916,7 +916,7 @@ class RsvpControllerTest {
     // ==================== MY RSVP STATUS ====================
 
     @Nested
-    @DisplayName("GET /events/{eventId}/rsvp/my-status - getMyRsvpStatus")
+    @DisplayName("GET /api/v1/events/{eventId}/rsvp/my-status - getMyRsvpStatus")
     class GetMyRsvpStatusTests {
 
         @Test
@@ -924,7 +924,7 @@ class RsvpControllerTest {
         void getMyRsvpStatus_Success() throws Exception {
             when(rsvpService.getMyRsvpStatus(USER_ID, EVENT_ID)).thenReturn(testRsvpResponse);
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/my-status", EVENT_ID))
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/my-status", EVENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.userId").value(USER_ID.toString()))
                     .andExpect(jsonPath("$.status").value("GOING"));
@@ -936,14 +936,14 @@ class RsvpControllerTest {
             when(rsvpService.getMyRsvpStatus(USER_ID, EVENT_ID))
                     .thenThrow(new ValidationException("RSVP not found"));
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/my-status", EVENT_ID))
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/my-status", EVENT_ID))
                     .andExpect(status().isBadRequest());
         }
 
         @Test
         @DisplayName("Invalid event ID - returns 400")
         void getMyRsvpStatus_InvalidEventId() throws Exception {
-            mockMvc.perform(get("/events/{eventId}/rsvp/my-status", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/my-status", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(rsvpService);
@@ -953,7 +953,7 @@ class RsvpControllerTest {
     // ==================== ADD CO-HOST ====================
 
     @Nested
-    @DisplayName("POST /events/{eventId}/rsvp/co-hosts - addCoHost")
+    @DisplayName("POST /api/v1/events/{eventId}/rsvp/co-hosts - addCoHost")
     class AddCoHostTests {
 
         @Test
@@ -966,7 +966,7 @@ class RsvpControllerTest {
             when(rsvpService.addCoHost(eq(USER_ID), eq(EVENT_ID), any(AddCoHostRequest.class)))
                     .thenReturn(testCoHostResponse);
 
-            mockMvc.perform(post("/events/{eventId}/rsvp/co-hosts", EVENT_ID)
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp/co-hosts", EVENT_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -979,7 +979,7 @@ class RsvpControllerTest {
         void addCoHost_MissingUserId() throws Exception {
             AddCoHostRequest request = AddCoHostRequest.builder().build();
 
-            mockMvc.perform(post("/events/{eventId}/rsvp/co-hosts", EVENT_ID)
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp/co-hosts", EVENT_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -997,7 +997,7 @@ class RsvpControllerTest {
             when(rsvpService.addCoHost(eq(USER_ID), eq(EVENT_ID), any(AddCoHostRequest.class)))
                     .thenThrow(new ValidationException("User is already a co-host"));
 
-            mockMvc.perform(post("/events/{eventId}/rsvp/co-hosts", EVENT_ID)
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp/co-hosts", EVENT_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -1013,7 +1013,7 @@ class RsvpControllerTest {
             when(rsvpService.addCoHost(eq(USER_ID), eq(EVENT_ID), any(AddCoHostRequest.class)))
                     .thenThrow(new ForbiddenException("Only host can manage co-hosts"));
 
-            mockMvc.perform(post("/events/{eventId}/rsvp/co-hosts", EVENT_ID)
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp/co-hosts", EVENT_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isForbidden());
@@ -1026,7 +1026,7 @@ class RsvpControllerTest {
                     .userId(OTHER_USER_ID)
                     .build();
 
-            mockMvc.perform(post("/events/{eventId}/rsvp/co-hosts", "invalid-uuid")
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp/co-hosts", "invalid-uuid")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -1037,7 +1037,7 @@ class RsvpControllerTest {
         @Test
         @DisplayName("Missing request body - returns 400")
         void addCoHost_MissingBody() throws Exception {
-            mockMvc.perform(post("/events/{eventId}/rsvp/co-hosts", EVENT_ID)
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp/co-hosts", EVENT_ID)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
@@ -1047,7 +1047,7 @@ class RsvpControllerTest {
         @Test
         @DisplayName("Malformed JSON - returns 400")
         void addCoHost_MalformedJson() throws Exception {
-            mockMvc.perform(post("/events/{eventId}/rsvp/co-hosts", EVENT_ID)
+            mockMvc.perform(post("/api/v1/events/{eventId}/rsvp/co-hosts", EVENT_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"userId\": }"))
                     .andExpect(status().isBadRequest());
@@ -1059,7 +1059,7 @@ class RsvpControllerTest {
     // ==================== REMOVE CO-HOST ====================
 
     @Nested
-    @DisplayName("DELETE /events/{eventId}/rsvp/co-hosts/{userId} - removeCoHost")
+    @DisplayName("DELETE /api/v1/events/{eventId}/rsvp/co-hosts/{userId} - removeCoHost")
     class RemoveCoHostTests {
 
         @Test
@@ -1067,7 +1067,7 @@ class RsvpControllerTest {
         void removeCoHost_Success() throws Exception {
             doNothing().when(rsvpService).removeCoHost(USER_ID, EVENT_ID, OTHER_USER_ID);
 
-            mockMvc.perform(delete("/events/{eventId}/rsvp/co-hosts/{userId}", EVENT_ID, OTHER_USER_ID))
+            mockMvc.perform(delete("/api/v1/events/{eventId}/rsvp/co-hosts/{userId}", EVENT_ID, OTHER_USER_ID))
                     .andExpect(status().isNoContent());
 
             verify(rsvpService).removeCoHost(USER_ID, EVENT_ID, OTHER_USER_ID);
@@ -1079,7 +1079,7 @@ class RsvpControllerTest {
             doThrow(new ValidationException("Co-host not found"))
                     .when(rsvpService).removeCoHost(USER_ID, EVENT_ID, OTHER_USER_ID);
 
-            mockMvc.perform(delete("/events/{eventId}/rsvp/co-hosts/{userId}", EVENT_ID, OTHER_USER_ID))
+            mockMvc.perform(delete("/api/v1/events/{eventId}/rsvp/co-hosts/{userId}", EVENT_ID, OTHER_USER_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -1089,14 +1089,14 @@ class RsvpControllerTest {
             doThrow(new ForbiddenException("Only host can manage co-hosts"))
                     .when(rsvpService).removeCoHost(USER_ID, EVENT_ID, OTHER_USER_ID);
 
-            mockMvc.perform(delete("/events/{eventId}/rsvp/co-hosts/{userId}", EVENT_ID, OTHER_USER_ID))
+            mockMvc.perform(delete("/api/v1/events/{eventId}/rsvp/co-hosts/{userId}", EVENT_ID, OTHER_USER_ID))
                     .andExpect(status().isForbidden());
         }
 
         @Test
         @DisplayName("Invalid event ID - returns 400")
         void removeCoHost_InvalidEventId() throws Exception {
-            mockMvc.perform(delete("/events/{eventId}/rsvp/co-hosts/{userId}", "invalid-uuid", OTHER_USER_ID))
+            mockMvc.perform(delete("/api/v1/events/{eventId}/rsvp/co-hosts/{userId}", "invalid-uuid", OTHER_USER_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(rsvpService);
@@ -1105,7 +1105,7 @@ class RsvpControllerTest {
         @Test
         @DisplayName("Invalid user ID - returns 400")
         void removeCoHost_InvalidUserId() throws Exception {
-            mockMvc.perform(delete("/events/{eventId}/rsvp/co-hosts/{userId}", EVENT_ID, "invalid-uuid"))
+            mockMvc.perform(delete("/api/v1/events/{eventId}/rsvp/co-hosts/{userId}", EVENT_ID, "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(rsvpService);
@@ -1115,7 +1115,7 @@ class RsvpControllerTest {
     // ==================== GET CO-HOSTS ====================
 
     @Nested
-    @DisplayName("GET /events/{eventId}/rsvp/co-hosts - getCoHosts")
+    @DisplayName("GET /api/v1/events/{eventId}/rsvp/co-hosts - getCoHosts")
     class GetCoHostsTests {
 
         @Test
@@ -1123,7 +1123,7 @@ class RsvpControllerTest {
         void getCoHosts_Success() throws Exception {
             when(rsvpService.getCoHosts(EVENT_ID)).thenReturn(List.of(testCoHostResponse));
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/co-hosts", EVENT_ID))
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/co-hosts", EVENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(1)))
                     .andExpect(jsonPath("$[0].id").value(COHOST_ID.toString()));
@@ -1134,7 +1134,7 @@ class RsvpControllerTest {
         void getCoHosts_Empty() throws Exception {
             when(rsvpService.getCoHosts(EVENT_ID)).thenReturn(Collections.emptyList());
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/co-hosts", EVENT_ID))
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/co-hosts", EVENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(0)));
         }
@@ -1151,7 +1151,7 @@ class RsvpControllerTest {
 
             when(rsvpService.getCoHosts(EVENT_ID)).thenReturn(List.of(testCoHostResponse, secondCoHost));
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/co-hosts", EVENT_ID))
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/co-hosts", EVENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(2)));
         }
@@ -1162,14 +1162,14 @@ class RsvpControllerTest {
             when(rsvpService.getCoHosts(EVENT_ID))
                     .thenThrow(new ValidationException("Event not found"));
 
-            mockMvc.perform(get("/events/{eventId}/rsvp/co-hosts", EVENT_ID))
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/co-hosts", EVENT_ID))
                     .andExpect(status().isBadRequest());
         }
 
         @Test
         @DisplayName("Invalid event ID - returns 400")
         void getCoHosts_InvalidEventId() throws Exception {
-            mockMvc.perform(get("/events/{eventId}/rsvp/co-hosts", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/events/{eventId}/rsvp/co-hosts", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(rsvpService);

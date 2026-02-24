@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/reactions")
+@RequestMapping("/api/v1/reactions")
 @RequiredArgsConstructor
 @Validated
 @Tag(name = "Reactions", description = "Content reactions (likes, loves, etc.)")

@@ -50,15 +50,11 @@ class BlockControllerTest {
     @MockBean
     private BlockService blockService;
 
-    @MockBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    private UserPrincipal userPrincipal;
     private BlockResponse testBlockResponse;
 
     @BeforeEach
     void setUp() {
-        userPrincipal = UserPrincipal.builder()
+        UserPrincipal userPrincipal = UserPrincipal.builder()
                 .id(USER_ID)
                 .username("testuser")
                 .email("test@example.com")
@@ -105,7 +101,7 @@ class BlockControllerTest {
             when(blockService.blockUser(eq(USER_ID), any(BlockRequest.class)))
                     .thenReturn(testBlockResponse);
 
-            mockMvc.perform(post("/blocks")
+            mockMvc.perform(post("/api/v1/blocks")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -118,7 +114,7 @@ class BlockControllerTest {
         void blockUser_MissingUserId() throws Exception {
             BlockRequest request = BlockRequest.builder().build();
 
-            mockMvc.perform(post("/blocks")
+            mockMvc.perform(post("/api/v1/blocks")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -136,7 +132,7 @@ class BlockControllerTest {
             when(blockService.blockUser(eq(USER_ID), any(BlockRequest.class)))
                     .thenThrow(new ValidationException("Cannot block yourself"));
 
-            mockMvc.perform(post("/blocks")
+            mockMvc.perform(post("/api/v1/blocks")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())
@@ -153,7 +149,7 @@ class BlockControllerTest {
             when(blockService.blockUser(eq(USER_ID), any(BlockRequest.class)))
                     .thenThrow(new ValidationException("User is already blocked"));
 
-            mockMvc.perform(post("/blocks")
+            mockMvc.perform(post("/api/v1/blocks")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())
@@ -170,7 +166,7 @@ class BlockControllerTest {
             when(blockService.blockUser(eq(USER_ID), any(BlockRequest.class)))
                     .thenThrow(new ValidationException("Maximum block limit reached"));
 
-            mockMvc.perform(post("/blocks")
+            mockMvc.perform(post("/api/v1/blocks")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())
@@ -187,7 +183,7 @@ class BlockControllerTest {
             when(blockService.blockUser(eq(USER_ID), any(BlockRequest.class)))
                     .thenThrow(new ValidationException("User not found"));
 
-            mockMvc.perform(post("/blocks")
+            mockMvc.perform(post("/api/v1/blocks")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -196,7 +192,7 @@ class BlockControllerTest {
         @Test
         @DisplayName("Missing request body - returns 400")
         void blockUser_MissingBody() throws Exception {
-            mockMvc.perform(post("/blocks")
+            mockMvc.perform(post("/api/v1/blocks")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
@@ -206,7 +202,7 @@ class BlockControllerTest {
         @Test
         @DisplayName("Malformed JSON - returns 400")
         void blockUser_MalformedJson() throws Exception {
-            mockMvc.perform(post("/blocks")
+            mockMvc.perform(post("/api/v1/blocks")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"userId\": }"))
                     .andExpect(status().isBadRequest());
@@ -226,7 +222,7 @@ class BlockControllerTest {
         void unblockUser_Success() throws Exception {
             doNothing().when(blockService).unblockUser(USER_ID, BLOCKED_USER_ID);
 
-            mockMvc.perform(delete("/blocks/{userId}", BLOCKED_USER_ID))
+            mockMvc.perform(delete("/api/v1/blocks/{userId}", BLOCKED_USER_ID))
                     .andExpect(status().isNoContent());
 
             verify(blockService).unblockUser(USER_ID, BLOCKED_USER_ID);
@@ -238,7 +234,7 @@ class BlockControllerTest {
             doThrow(new ValidationException("Block relationship not found"))
                     .when(blockService).unblockUser(USER_ID, BLOCKED_USER_ID);
 
-            mockMvc.perform(delete("/blocks/{userId}", BLOCKED_USER_ID))
+            mockMvc.perform(delete("/api/v1/blocks/{userId}", BLOCKED_USER_ID))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Block relationship not found"));
         }
@@ -246,7 +242,7 @@ class BlockControllerTest {
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void unblockUser_InvalidUuid() throws Exception {
-            mockMvc.perform(delete("/blocks/{userId}", "invalid-uuid"))
+            mockMvc.perform(delete("/api/v1/blocks/{userId}", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(blockService);
@@ -272,7 +268,7 @@ class BlockControllerTest {
 
             when(blockService.getBlockedUsers(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/blocks"))
+            mockMvc.perform(get("/api/v1/blocks"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)))
                     .andExpect(jsonPath("$.content[0].id").value(BLOCK_ID.toString()))
@@ -292,7 +288,7 @@ class BlockControllerTest {
 
             when(blockService.getBlockedUsers(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/blocks"))
+            mockMvc.perform(get("/api/v1/blocks"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(0)))
                     .andExpect(jsonPath("$.totalElements").value(0));
@@ -311,7 +307,7 @@ class BlockControllerTest {
 
             when(blockService.getBlockedUsers(USER_ID, 5, 50)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/blocks")
+            mockMvc.perform(get("/api/v1/blocks")
                             .param("page", "5")
                             .param("size", "50"))
                     .andExpect(status().isOk())
@@ -322,7 +318,7 @@ class BlockControllerTest {
         @Test
         @DisplayName("Page below minimum - returns 400")
         void getBlockedUsers_PageBelowMin() throws Exception {
-            mockMvc.perform(get("/blocks")
+            mockMvc.perform(get("/api/v1/blocks")
                             .param("page", "-1"))
                     .andExpect(status().isBadRequest());
 
@@ -332,7 +328,7 @@ class BlockControllerTest {
         @Test
         @DisplayName("Page above maximum - returns 400")
         void getBlockedUsers_PageAboveMax() throws Exception {
-            mockMvc.perform(get("/blocks")
+            mockMvc.perform(get("/api/v1/blocks")
                             .param("page", "1001"))
                     .andExpect(status().isBadRequest());
 
@@ -342,7 +338,7 @@ class BlockControllerTest {
         @Test
         @DisplayName("Size below minimum - returns 400")
         void getBlockedUsers_SizeBelowMin() throws Exception {
-            mockMvc.perform(get("/blocks")
+            mockMvc.perform(get("/api/v1/blocks")
                             .param("size", "0"))
                     .andExpect(status().isBadRequest());
 
@@ -352,7 +348,7 @@ class BlockControllerTest {
         @Test
         @DisplayName("Size above maximum - returns 400")
         void getBlockedUsers_SizeAboveMax() throws Exception {
-            mockMvc.perform(get("/blocks")
+            mockMvc.perform(get("/api/v1/blocks")
                             .param("size", "101"))
                     .andExpect(status().isBadRequest());
 
@@ -372,7 +368,7 @@ class BlockControllerTest {
 
             when(blockService.getBlockedUsers(USER_ID, 1000, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/blocks")
+            mockMvc.perform(get("/api/v1/blocks")
                             .param("page", "1000"))
                     .andExpect(status().isOk());
         }
@@ -390,7 +386,7 @@ class BlockControllerTest {
 
             when(blockService.getBlockedUsers(USER_ID, 0, 100)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/blocks")
+            mockMvc.perform(get("/api/v1/blocks")
                             .param("size", "100"))
                     .andExpect(status().isOk());
         }
@@ -408,7 +404,7 @@ class BlockControllerTest {
 
             when(blockService.getBlockedUsers(USER_ID, 0, 1)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/blocks")
+            mockMvc.perform(get("/api/v1/blocks")
                             .param("size", "1"))
                     .andExpect(status().isOk());
         }
@@ -428,7 +424,7 @@ class BlockControllerTest {
 
             when(blockService.getBlockedUserIds(USER_ID)).thenReturn(ids);
 
-            mockMvc.perform(get("/blocks/ids"))
+            mockMvc.perform(get("/api/v1/blocks/ids"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(2)))
                     .andExpect(jsonPath("$[0]").value(BLOCKED_USER_ID.toString()))
@@ -440,7 +436,7 @@ class BlockControllerTest {
         void getBlockedUserIds_Empty() throws Exception {
             when(blockService.getBlockedUserIds(USER_ID)).thenReturn(Collections.emptyList());
 
-            mockMvc.perform(get("/blocks/ids"))
+            mockMvc.perform(get("/api/v1/blocks/ids"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(0)));
         }
@@ -452,7 +448,7 @@ class BlockControllerTest {
 
             when(blockService.getBlockedUserIds(USER_ID)).thenReturn(ids);
 
-            mockMvc.perform(get("/blocks/ids"))
+            mockMvc.perform(get("/api/v1/blocks/ids"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(1)));
         }
@@ -469,7 +465,7 @@ class BlockControllerTest {
         void isBlocked_ReturnsTrue() throws Exception {
             when(blockService.isBlocked(USER_ID, BLOCKED_USER_ID)).thenReturn(true);
 
-            mockMvc.perform(get("/blocks/check/{userId}", BLOCKED_USER_ID))
+            mockMvc.perform(get("/api/v1/blocks/check/{userId}", BLOCKED_USER_ID))
                     .andExpect(status().isOk())
                     .andExpect(content().string("true"));
         }
@@ -479,7 +475,7 @@ class BlockControllerTest {
         void isBlocked_ReturnsFalse() throws Exception {
             when(blockService.isBlocked(USER_ID, BLOCKED_USER_ID)).thenReturn(false);
 
-            mockMvc.perform(get("/blocks/check/{userId}", BLOCKED_USER_ID))
+            mockMvc.perform(get("/api/v1/blocks/check/{userId}", BLOCKED_USER_ID))
                     .andExpect(status().isOk())
                     .andExpect(content().string("false"));
         }
@@ -487,7 +483,7 @@ class BlockControllerTest {
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void isBlocked_InvalidUuid() throws Exception {
-            mockMvc.perform(get("/blocks/check/{userId}", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/blocks/check/{userId}", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(blockService);
@@ -498,7 +494,7 @@ class BlockControllerTest {
         void isBlocked_CheckSelf() throws Exception {
             when(blockService.isBlocked(USER_ID, USER_ID)).thenReturn(false);
 
-            mockMvc.perform(get("/blocks/check/{userId}", USER_ID))
+            mockMvc.perform(get("/api/v1/blocks/check/{userId}", USER_ID))
                     .andExpect(status().isOk())
                     .andExpect(content().string("false"));
         }

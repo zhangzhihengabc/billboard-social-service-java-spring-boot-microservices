@@ -108,7 +108,7 @@ class PokeControllerTest {
             when(pokeService.poke(eq(USER_ID), any(PokeRequest.class)))
                     .thenReturn(testPokeResponse);
 
-            mockMvc.perform(post("/pokes")
+            mockMvc.perform(post("/api/v1/pokes")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -129,7 +129,7 @@ class PokeControllerTest {
             when(pokeService.poke(eq(USER_ID), any(PokeRequest.class)))
                     .thenReturn(testPokeResponse);
 
-            mockMvc.perform(post("/pokes")
+            mockMvc.perform(post("/api/v1/pokes")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -142,7 +142,7 @@ class PokeControllerTest {
             PokeRequest request = PokeRequest.builder()
                     .build();
 
-            mockMvc.perform(post("/pokes")
+            mockMvc.perform(post("/api/v1/pokes")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -160,7 +160,7 @@ class PokeControllerTest {
             when(pokeService.poke(eq(USER_ID), any(PokeRequest.class)))
                     .thenThrow(new ValidationException("Cannot poke yourself"));
 
-            mockMvc.perform(post("/pokes")
+            mockMvc.perform(post("/api/v1/pokes")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())
@@ -177,7 +177,7 @@ class PokeControllerTest {
             when(pokeService.poke(eq(USER_ID), any(PokeRequest.class)))
                     .thenThrow(new ValidationException("Cannot poke a blocked user"));
 
-            mockMvc.perform(post("/pokes")
+            mockMvc.perform(post("/api/v1/pokes")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -193,7 +193,7 @@ class PokeControllerTest {
             when(pokeService.poke(eq(USER_ID), any(PokeRequest.class)))
                     .thenThrow(new ValidationException("Active poke already exists"));
 
-            mockMvc.perform(post("/pokes")
+            mockMvc.perform(post("/api/v1/pokes")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -209,7 +209,7 @@ class PokeControllerTest {
             when(pokeService.poke(eq(USER_ID), any(PokeRequest.class)))
                     .thenThrow(new ValidationException("User not found"));
 
-            mockMvc.perform(post("/pokes")
+            mockMvc.perform(post("/api/v1/pokes")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -218,7 +218,7 @@ class PokeControllerTest {
         @Test
         @DisplayName("Missing request body - returns 400")
         void poke_MissingBody() throws Exception {
-            mockMvc.perform(post("/pokes")
+            mockMvc.perform(post("/api/v1/pokes")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
@@ -228,7 +228,7 @@ class PokeControllerTest {
         @Test
         @DisplayName("Malformed JSON - returns 400")
         void poke_MalformedJson() throws Exception {
-            mockMvc.perform(post("/pokes")
+            mockMvc.perform(post("/api/v1/pokes")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"userId\": }"))
                     .andExpect(status().isBadRequest());
@@ -252,7 +252,7 @@ class PokeControllerTest {
 
             when(pokeService.pokeBack(USER_ID, POKE_ID)).thenReturn(testPokeResponse);
 
-            mockMvc.perform(post("/pokes/{pokeId}/poke-back", POKE_ID))
+            mockMvc.perform(post("/api/v1/pokes/{pokeId}/poke-back", POKE_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(POKE_ID.toString()))
                     .andExpect(jsonPath("$.isActive").value(true))
@@ -266,7 +266,7 @@ class PokeControllerTest {
             when(pokeService.pokeBack(USER_ID, POKE_ID))
                     .thenThrow(new ValidationException("Poke not found"));
 
-            mockMvc.perform(post("/pokes/{pokeId}/poke-back", POKE_ID))
+            mockMvc.perform(post("/api/v1/pokes/{pokeId}/poke-back", POKE_ID))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Poke not found"));
         }
@@ -277,7 +277,7 @@ class PokeControllerTest {
             when(pokeService.pokeBack(USER_ID, POKE_ID))
                     .thenThrow(new ValidationException("Only the poked user can poke back"));
 
-            mockMvc.perform(post("/pokes/{pokeId}/poke-back", POKE_ID))
+            mockMvc.perform(post("/api/v1/pokes/{pokeId}/poke-back", POKE_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -287,14 +287,14 @@ class PokeControllerTest {
             when(pokeService.pokeBack(USER_ID, POKE_ID))
                     .thenThrow(new ValidationException("Poke is not active"));
 
-            mockMvc.perform(post("/pokes/{pokeId}/poke-back", POKE_ID))
+            mockMvc.perform(post("/api/v1/pokes/{pokeId}/poke-back", POKE_ID))
                     .andExpect(status().isBadRequest());
         }
 
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void pokeBack_InvalidUuid() throws Exception {
-            mockMvc.perform(post("/pokes/{pokeId}/poke-back", "invalid-uuid"))
+            mockMvc.perform(post("/api/v1/pokes/{pokeId}/poke-back", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(pokeService);
@@ -320,7 +320,7 @@ class PokeControllerTest {
 
             when(pokeService.getReceivedPokes(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/pokes/received"))
+            mockMvc.perform(get("/api/v1/pokes/received"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)))
                     .andExpect(jsonPath("$.content[0].id").value(POKE_ID.toString()))
@@ -340,7 +340,7 @@ class PokeControllerTest {
 
             when(pokeService.getReceivedPokes(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/pokes/received"))
+            mockMvc.perform(get("/api/v1/pokes/received"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(0)));
         }
@@ -358,7 +358,7 @@ class PokeControllerTest {
 
             when(pokeService.getReceivedPokes(USER_ID, 5, 50)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/pokes/received")
+            mockMvc.perform(get("/api/v1/pokes/received")
                             .param("page", "5")
                             .param("size", "50"))
                     .andExpect(status().isOk())
@@ -369,7 +369,7 @@ class PokeControllerTest {
         @Test
         @DisplayName("Page below minimum - returns 400")
         void getReceivedPokes_PageBelowMin() throws Exception {
-            mockMvc.perform(get("/pokes/received")
+            mockMvc.perform(get("/api/v1/pokes/received")
                             .param("page", "-1"))
                     .andExpect(status().isBadRequest());
 
@@ -379,7 +379,7 @@ class PokeControllerTest {
         @Test
         @DisplayName("Page above maximum - returns 400")
         void getReceivedPokes_PageAboveMax() throws Exception {
-            mockMvc.perform(get("/pokes/received")
+            mockMvc.perform(get("/api/v1/pokes/received")
                             .param("page", "1001"))
                     .andExpect(status().isBadRequest());
 
@@ -389,7 +389,7 @@ class PokeControllerTest {
         @Test
         @DisplayName("Size below minimum - returns 400")
         void getReceivedPokes_SizeBelowMin() throws Exception {
-            mockMvc.perform(get("/pokes/received")
+            mockMvc.perform(get("/api/v1/pokes/received")
                             .param("size", "0"))
                     .andExpect(status().isBadRequest());
 
@@ -399,7 +399,7 @@ class PokeControllerTest {
         @Test
         @DisplayName("Size above maximum - returns 400")
         void getReceivedPokes_SizeAboveMax() throws Exception {
-            mockMvc.perform(get("/pokes/received")
+            mockMvc.perform(get("/api/v1/pokes/received")
                             .param("size", "101"))
                     .andExpect(status().isBadRequest());
 
@@ -419,7 +419,7 @@ class PokeControllerTest {
 
             when(pokeService.getReceivedPokes(USER_ID, 1000, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/pokes/received")
+            mockMvc.perform(get("/api/v1/pokes/received")
                             .param("page", "1000"))
                     .andExpect(status().isOk());
         }
@@ -437,7 +437,7 @@ class PokeControllerTest {
 
             when(pokeService.getReceivedPokes(USER_ID, 0, 1)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/pokes/received")
+            mockMvc.perform(get("/api/v1/pokes/received")
                             .param("size", "1"))
                     .andExpect(status().isOk());
         }
@@ -455,7 +455,7 @@ class PokeControllerTest {
 
             when(pokeService.getReceivedPokes(USER_ID, 0, 100)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/pokes/received")
+            mockMvc.perform(get("/api/v1/pokes/received")
                             .param("size", "100"))
                     .andExpect(status().isOk());
         }
@@ -480,7 +480,7 @@ class PokeControllerTest {
 
             when(pokeService.getSentPokes(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/pokes/sent"))
+            mockMvc.perform(get("/api/v1/pokes/sent"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)))
                     .andExpect(jsonPath("$.content[0].pokerId").value(USER_ID.toString()));
@@ -499,7 +499,7 @@ class PokeControllerTest {
 
             when(pokeService.getSentPokes(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/pokes/sent"))
+            mockMvc.perform(get("/api/v1/pokes/sent"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(0)));
         }
@@ -517,7 +517,7 @@ class PokeControllerTest {
 
             when(pokeService.getSentPokes(USER_ID, 3, 25)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/pokes/sent")
+            mockMvc.perform(get("/api/v1/pokes/sent")
                             .param("page", "3")
                             .param("size", "25"))
                     .andExpect(status().isOk());
@@ -526,7 +526,7 @@ class PokeControllerTest {
         @Test
         @DisplayName("Page above maximum - returns 400")
         void getSentPokes_PageAboveMax() throws Exception {
-            mockMvc.perform(get("/pokes/sent")
+            mockMvc.perform(get("/api/v1/pokes/sent")
                             .param("page", "1001"))
                     .andExpect(status().isBadRequest());
 
@@ -536,7 +536,7 @@ class PokeControllerTest {
         @Test
         @DisplayName("Size below minimum - returns 400")
         void getSentPokes_SizeBelowMin() throws Exception {
-            mockMvc.perform(get("/pokes/sent")
+            mockMvc.perform(get("/api/v1/pokes/sent")
                             .param("size", "0"))
                     .andExpect(status().isBadRequest());
 
@@ -555,7 +555,7 @@ class PokeControllerTest {
         void getActivePokesCount_Success() throws Exception {
             when(pokeService.getActivePokesCount(USER_ID)).thenReturn(5L);
 
-            mockMvc.perform(get("/pokes/count"))
+            mockMvc.perform(get("/api/v1/pokes/count"))
                     .andExpect(status().isOk())
                     .andExpect(content().string("5"));
         }
@@ -565,7 +565,7 @@ class PokeControllerTest {
         void getActivePokesCount_Zero() throws Exception {
             when(pokeService.getActivePokesCount(USER_ID)).thenReturn(0L);
 
-            mockMvc.perform(get("/pokes/count"))
+            mockMvc.perform(get("/api/v1/pokes/count"))
                     .andExpect(status().isOk())
                     .andExpect(content().string("0"));
         }
@@ -575,7 +575,7 @@ class PokeControllerTest {
         void getActivePokesCount_LargeCount() throws Exception {
             when(pokeService.getActivePokesCount(USER_ID)).thenReturn(100L);
 
-            mockMvc.perform(get("/pokes/count"))
+            mockMvc.perform(get("/api/v1/pokes/count"))
                     .andExpect(status().isOk())
                     .andExpect(content().string("100"));
         }
@@ -592,7 +592,7 @@ class PokeControllerTest {
         void dismissPoke_Success() throws Exception {
             doNothing().when(pokeService).dismissPoke(USER_ID, POKE_ID);
 
-            mockMvc.perform(delete("/pokes/{pokeId}/dismiss", POKE_ID))
+            mockMvc.perform(delete("/api/v1/pokes/{pokeId}/dismiss", POKE_ID))
                     .andExpect(status().isNoContent());
 
             verify(pokeService).dismissPoke(USER_ID, POKE_ID);
@@ -604,7 +604,7 @@ class PokeControllerTest {
             doThrow(new ValidationException("Poke not found"))
                     .when(pokeService).dismissPoke(USER_ID, POKE_ID);
 
-            mockMvc.perform(delete("/pokes/{pokeId}/dismiss", POKE_ID))
+            mockMvc.perform(delete("/api/v1/pokes/{pokeId}/dismiss", POKE_ID))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Poke not found"));
         }
@@ -615,7 +615,7 @@ class PokeControllerTest {
             doThrow(new ValidationException("Only the poked user can dismiss"))
                     .when(pokeService).dismissPoke(USER_ID, POKE_ID);
 
-            mockMvc.perform(delete("/pokes/{pokeId}/dismiss", POKE_ID))
+            mockMvc.perform(delete("/api/v1/pokes/{pokeId}/dismiss", POKE_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -625,14 +625,14 @@ class PokeControllerTest {
             doThrow(new ValidationException("Poke is already dismissed"))
                     .when(pokeService).dismissPoke(USER_ID, POKE_ID);
 
-            mockMvc.perform(delete("/pokes/{pokeId}/dismiss", POKE_ID))
+            mockMvc.perform(delete("/api/v1/pokes/{pokeId}/dismiss", POKE_ID))
                     .andExpect(status().isBadRequest());
         }
 
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void dismissPoke_InvalidUuid() throws Exception {
-            mockMvc.perform(delete("/pokes/{pokeId}/dismiss", "invalid-uuid"))
+            mockMvc.perform(delete("/api/v1/pokes/{pokeId}/dismiss", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(pokeService);

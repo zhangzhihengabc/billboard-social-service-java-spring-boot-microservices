@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/events/{eventId}/rsvp")
+@RequestMapping("/api/v1/events/{eventId}/rsvp")
 @RequiredArgsConstructor
 @Validated
 @SecurityRequirement(name = "bearerAuth")

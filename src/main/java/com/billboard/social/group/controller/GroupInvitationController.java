@@ -30,6 +30,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @Validated
+@RequestMapping("/api/v1")
 @SecurityRequirement(name = "bearerAuth")
 @Tag(name = "Group Invitations", description = "Group invitation management")
 public class GroupInvitationController {

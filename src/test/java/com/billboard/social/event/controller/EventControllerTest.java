@@ -129,7 +129,7 @@ class EventControllerTest {
     // ==================== CREATE EVENT ====================
 
     @Nested
-    @DisplayName("POST /events - createEvent")
+    @DisplayName("POST /api/v1/events - createEvent")
     class CreateEventTests {
 
         @Test
@@ -152,7 +152,7 @@ class EventControllerTest {
             when(eventService.createEvent(eq(USER_ID), any(CreateEventRequest.class)))
                     .thenReturn(testEventResponse);
 
-            mockMvc.perform(post("/events")
+            mockMvc.perform(post("/api/v1/events")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -172,7 +172,7 @@ class EventControllerTest {
                     // Missing title
                     .build();
 
-            mockMvc.perform(post("/events")
+            mockMvc.perform(post("/api/v1/events")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -185,7 +185,7 @@ class EventControllerTest {
         void createEvent_InvalidJson() throws Exception {
             setAuthentication(userPrincipal);
 
-            mockMvc.perform(post("/events")
+            mockMvc.perform(post("/api/v1/events")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"title\": }"))
                     .andExpect(status().isBadRequest());
@@ -206,7 +206,7 @@ class EventControllerTest {
             when(eventService.createEvent(eq(USER_ID), any(CreateEventRequest.class)))
                     .thenThrow(new ValidationException("Start time must be before end time"));
 
-            mockMvc.perform(post("/events")
+            mockMvc.perform(post("/api/v1/events")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())
@@ -217,7 +217,7 @@ class EventControllerTest {
     // ==================== UPDATE EVENT ====================
 
     @Nested
-    @DisplayName("PUT /events/{eventId} - updateEvent")
+    @DisplayName("PUT /api/v1/events/{eventId} - updateEvent")
     class UpdateEventTests {
 
         @Test
@@ -239,7 +239,7 @@ class EventControllerTest {
             when(eventService.updateEvent(eq(USER_ID), eq(EVENT_ID), any(UpdateEventRequest.class)))
                     .thenReturn(updatedResponse);
 
-            mockMvc.perform(put("/events/{eventId}", EVENT_ID)
+            mockMvc.perform(put("/api/v1/events/{eventId}", EVENT_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -260,7 +260,7 @@ class EventControllerTest {
             when(eventService.updateEvent(eq(USER_ID), eq(EVENT_ID), any(UpdateEventRequest.class)))
                     .thenThrow(new ValidationException("Event not found"));
 
-            mockMvc.perform(put("/events/{eventId}", EVENT_ID)
+            mockMvc.perform(put("/api/v1/events/{eventId}", EVENT_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())
@@ -279,7 +279,7 @@ class EventControllerTest {
             when(eventService.updateEvent(eq(USER_ID), eq(EVENT_ID), any(UpdateEventRequest.class)))
                     .thenThrow(new ForbiddenException("You don't have permission to edit this event"));
 
-            mockMvc.perform(put("/events/{eventId}", EVENT_ID)
+            mockMvc.perform(put("/api/v1/events/{eventId}", EVENT_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isForbidden());
@@ -294,7 +294,7 @@ class EventControllerTest {
                     .title("Updated Title")
                     .build();
 
-            mockMvc.perform(put("/events/{eventId}", "invalid-uuid")
+            mockMvc.perform(put("/api/v1/events/{eventId}", "invalid-uuid")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -306,7 +306,7 @@ class EventControllerTest {
     // ==================== DELETE EVENT ====================
 
     @Nested
-    @DisplayName("DELETE /events/{eventId} - deleteEvent")
+    @DisplayName("DELETE /api/v1/events/{eventId} - deleteEvent")
     class DeleteEventTests {
 
         @Test
@@ -316,7 +316,7 @@ class EventControllerTest {
 
             doNothing().when(eventService).deleteEvent(USER_ID, EVENT_ID);
 
-            mockMvc.perform(delete("/events/{eventId}", EVENT_ID))
+            mockMvc.perform(delete("/api/v1/events/{eventId}", EVENT_ID))
                     .andExpect(status().isNoContent());
 
             verify(eventService).deleteEvent(USER_ID, EVENT_ID);
@@ -330,7 +330,7 @@ class EventControllerTest {
             doThrow(new ValidationException("Event not found"))
                     .when(eventService).deleteEvent(USER_ID, EVENT_ID);
 
-            mockMvc.perform(delete("/events/{eventId}", EVENT_ID))
+            mockMvc.perform(delete("/api/v1/events/{eventId}", EVENT_ID))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Event not found"));
         }
@@ -343,7 +343,7 @@ class EventControllerTest {
             doThrow(new ForbiddenException("Only host can delete this event"))
                     .when(eventService).deleteEvent(USER_ID, EVENT_ID);
 
-            mockMvc.perform(delete("/events/{eventId}", EVENT_ID))
+            mockMvc.perform(delete("/api/v1/events/{eventId}", EVENT_ID))
                     .andExpect(status().isForbidden());
         }
 
@@ -352,7 +352,7 @@ class EventControllerTest {
         void deleteEvent_InvalidUuid() throws Exception {
             setAuthentication(userPrincipal);
 
-            mockMvc.perform(delete("/events/{eventId}", "invalid-uuid"))
+            mockMvc.perform(delete("/api/v1/events/{eventId}", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(eventService);
@@ -362,7 +362,7 @@ class EventControllerTest {
     // ==================== GET EVENT ====================
 
     @Nested
-    @DisplayName("GET /events/{eventId} - getEvent")
+    @DisplayName("GET /api/v1/events/{eventId} - getEvent")
     class GetEventTests {
 
         @Test
@@ -372,7 +372,7 @@ class EventControllerTest {
 
             when(eventService.getEvent(EVENT_ID, USER_ID)).thenReturn(testEventResponse);
 
-            mockMvc.perform(get("/events/{eventId}", EVENT_ID))
+            mockMvc.perform(get("/api/v1/events/{eventId}", EVENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(EVENT_ID.toString()))
                     .andExpect(jsonPath("$.title").value("Test Event"));
@@ -387,7 +387,7 @@ class EventControllerTest {
 
             when(eventService.getEvent(EVENT_ID, null)).thenReturn(testEventResponse);
 
-            mockMvc.perform(get("/events/{eventId}", EVENT_ID))
+            mockMvc.perform(get("/api/v1/events/{eventId}", EVENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(EVENT_ID.toString()));
 
@@ -402,7 +402,7 @@ class EventControllerTest {
             when(eventService.getEvent(EVENT_ID, USER_ID))
                     .thenThrow(new ValidationException("Event not found"));
 
-            mockMvc.perform(get("/events/{eventId}", EVENT_ID))
+            mockMvc.perform(get("/api/v1/events/{eventId}", EVENT_ID))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Event not found"));
         }
@@ -415,7 +415,7 @@ class EventControllerTest {
             when(eventService.getEvent(EVENT_ID, USER_ID))
                     .thenThrow(new ForbiddenException("You don't have permission to view this event"));
 
-            mockMvc.perform(get("/events/{eventId}", EVENT_ID))
+            mockMvc.perform(get("/api/v1/events/{eventId}", EVENT_ID))
                     .andExpect(status().isForbidden());
         }
 
@@ -424,7 +424,7 @@ class EventControllerTest {
         void getEvent_InvalidUuid() throws Exception {
             setAuthentication(userPrincipal);
 
-            mockMvc.perform(get("/events/{eventId}", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/events/{eventId}", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(eventService);
@@ -434,7 +434,7 @@ class EventControllerTest {
     // ==================== GET EVENT BY SLUG ====================
 
     @Nested
-    @DisplayName("GET /events/slug/{slug} - getEventBySlug")
+    @DisplayName("GET /api/v1/events/slug/{slug} - getEventBySlug")
     class GetEventBySlugTests {
 
         @Test
@@ -444,7 +444,7 @@ class EventControllerTest {
 
             when(eventService.getEventBySlug("test-event", USER_ID)).thenReturn(testEventResponse);
 
-            mockMvc.perform(get("/events/slug/{slug}", "test-event"))
+            mockMvc.perform(get("/api/v1/events/slug/{slug}", "test-event"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.slug").value("test-event"));
 
@@ -458,7 +458,7 @@ class EventControllerTest {
 
             when(eventService.getEventBySlug("test-event", null)).thenReturn(testEventResponse);
 
-            mockMvc.perform(get("/events/slug/{slug}", "test-event"))
+            mockMvc.perform(get("/api/v1/events/slug/{slug}", "test-event"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.slug").value("test-event"));
 
@@ -473,7 +473,7 @@ class EventControllerTest {
             when(eventService.getEventBySlug("nonexistent", USER_ID))
                     .thenThrow(new ValidationException("Event not found"));
 
-            mockMvc.perform(get("/events/slug/{slug}", "nonexistent"))
+            mockMvc.perform(get("/api/v1/events/slug/{slug}", "nonexistent"))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Event not found"));
         }
@@ -486,7 +486,7 @@ class EventControllerTest {
             when(eventService.getEventBySlug("private-event", USER_ID))
                     .thenThrow(new ForbiddenException("You don't have permission to view this event"));
 
-            mockMvc.perform(get("/events/slug/{slug}", "private-event"))
+            mockMvc.perform(get("/api/v1/events/slug/{slug}", "private-event"))
                     .andExpect(status().isForbidden());
         }
     }
@@ -494,7 +494,7 @@ class EventControllerTest {
     // ==================== PUBLISH EVENT ====================
 
     @Nested
-    @DisplayName("POST /events/{eventId}/publish - publishEvent")
+    @DisplayName("POST /api/v1/events/{eventId}/publish - publishEvent")
     class PublishEventTests {
 
         @Test
@@ -510,7 +510,7 @@ class EventControllerTest {
 
             when(eventService.publishEvent(USER_ID, EVENT_ID)).thenReturn(publishedResponse);
 
-            mockMvc.perform(post("/events/{eventId}/publish", EVENT_ID))
+            mockMvc.perform(post("/api/v1/events/{eventId}/publish", EVENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.status").value("PUBLISHED"));
 
@@ -525,7 +525,7 @@ class EventControllerTest {
             when(eventService.publishEvent(USER_ID, EVENT_ID))
                     .thenThrow(new ValidationException("Only draft events can be published"));
 
-            mockMvc.perform(post("/events/{eventId}/publish", EVENT_ID))
+            mockMvc.perform(post("/api/v1/events/{eventId}/publish", EVENT_ID))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Only draft events can be published"));
         }
@@ -538,7 +538,7 @@ class EventControllerTest {
             when(eventService.publishEvent(USER_ID, EVENT_ID))
                     .thenThrow(new ForbiddenException("No permission to publish this event"));
 
-            mockMvc.perform(post("/events/{eventId}/publish", EVENT_ID))
+            mockMvc.perform(post("/api/v1/events/{eventId}/publish", EVENT_ID))
                     .andExpect(status().isForbidden());
         }
 
@@ -550,7 +550,7 @@ class EventControllerTest {
             when(eventService.publishEvent(USER_ID, EVENT_ID))
                     .thenThrow(new ValidationException("Event not found"));
 
-            mockMvc.perform(post("/events/{eventId}/publish", EVENT_ID))
+            mockMvc.perform(post("/api/v1/events/{eventId}/publish", EVENT_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -559,7 +559,7 @@ class EventControllerTest {
         void publishEvent_InvalidUuid() throws Exception {
             setAuthentication(userPrincipal);
 
-            mockMvc.perform(post("/events/{eventId}/publish", "invalid-uuid"))
+            mockMvc.perform(post("/api/v1/events/{eventId}/publish", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(eventService);
@@ -569,7 +569,7 @@ class EventControllerTest {
     // ==================== CANCEL EVENT ====================
 
     @Nested
-    @DisplayName("POST /events/{eventId}/cancel - cancelEvent")
+    @DisplayName("POST /api/v1/events/{eventId}/cancel - cancelEvent")
     class CancelEventTests {
 
         @Test
@@ -586,7 +586,7 @@ class EventControllerTest {
             when(eventService.cancelEvent(USER_ID, EVENT_ID, "Weather conditions"))
                     .thenReturn(cancelledResponse);
 
-            mockMvc.perform(post("/events/{eventId}/cancel", EVENT_ID)
+            mockMvc.perform(post("/api/v1/events/{eventId}/cancel", EVENT_ID)
                             .param("reason", "Weather conditions"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.status").value("CANCELLED"));
@@ -607,7 +607,7 @@ class EventControllerTest {
             when(eventService.cancelEvent(USER_ID, EVENT_ID, null))
                     .thenReturn(cancelledResponse);
 
-            mockMvc.perform(post("/events/{eventId}/cancel", EVENT_ID))
+            mockMvc.perform(post("/api/v1/events/{eventId}/cancel", EVENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.status").value("CANCELLED"));
 
@@ -622,7 +622,7 @@ class EventControllerTest {
             when(eventService.cancelEvent(eq(USER_ID), eq(EVENT_ID), any()))
                     .thenThrow(new ForbiddenException("Only host can cancel this event"));
 
-            mockMvc.perform(post("/events/{eventId}/cancel", EVENT_ID))
+            mockMvc.perform(post("/api/v1/events/{eventId}/cancel", EVENT_ID))
                     .andExpect(status().isForbidden());
         }
 
@@ -634,7 +634,7 @@ class EventControllerTest {
             when(eventService.cancelEvent(eq(USER_ID), eq(EVENT_ID), any()))
                     .thenThrow(new ValidationException("Event not found"));
 
-            mockMvc.perform(post("/events/{eventId}/cancel", EVENT_ID))
+            mockMvc.perform(post("/api/v1/events/{eventId}/cancel", EVENT_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -643,7 +643,7 @@ class EventControllerTest {
         void cancelEvent_InvalidUuid() throws Exception {
             setAuthentication(userPrincipal);
 
-            mockMvc.perform(post("/events/{eventId}/cancel", "invalid-uuid"))
+            mockMvc.perform(post("/api/v1/events/{eventId}/cancel", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(eventService);
@@ -653,7 +653,7 @@ class EventControllerTest {
     // ==================== GET UPCOMING EVENTS ====================
 
     @Nested
-    @DisplayName("GET /events/upcoming - getUpcomingEvents")
+    @DisplayName("GET /api/v1/events/upcoming - getUpcomingEvents")
     class GetUpcomingEventsTests {
 
         @Test
@@ -674,7 +674,7 @@ class EventControllerTest {
 
             when(eventService.getUpcomingEvents(0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/upcoming"))
+            mockMvc.perform(get("/api/v1/events/upcoming"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)))
                     .andExpect(jsonPath("$.totalElements").value(1));
@@ -700,7 +700,7 @@ class EventControllerTest {
 
             when(eventService.getUpcomingEvents(0, 20)).thenReturn(emptyResponse);
 
-            mockMvc.perform(get("/events/upcoming"))
+            mockMvc.perform(get("/api/v1/events/upcoming"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(0)))
                     .andExpect(jsonPath("$.empty").value(true));
@@ -719,7 +719,7 @@ class EventControllerTest {
 
             when(eventService.getUpcomingEvents(5, 10)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/upcoming")
+            mockMvc.perform(get("/api/v1/events/upcoming")
                             .param("page", "5")
                             .param("size", "10"))
                     .andExpect(status().isOk());
@@ -732,7 +732,7 @@ class EventControllerTest {
         void getUpcomingEvents_PageBelowMin() throws Exception {
             setAuthentication(userPrincipal);
 
-            mockMvc.perform(get("/events/upcoming")
+            mockMvc.perform(get("/api/v1/events/upcoming")
                             .param("page", "-1"))
                     .andExpect(status().isBadRequest());
 
@@ -744,7 +744,7 @@ class EventControllerTest {
         void getUpcomingEvents_PageAboveMax() throws Exception {
             setAuthentication(userPrincipal);
 
-            mockMvc.perform(get("/events/upcoming")
+            mockMvc.perform(get("/api/v1/events/upcoming")
                             .param("page", "1001"))
                     .andExpect(status().isBadRequest());
 
@@ -756,7 +756,7 @@ class EventControllerTest {
         void getUpcomingEvents_SizeBelowMin() throws Exception {
             setAuthentication(userPrincipal);
 
-            mockMvc.perform(get("/events/upcoming")
+            mockMvc.perform(get("/api/v1/events/upcoming")
                             .param("size", "0"))
                     .andExpect(status().isBadRequest());
 
@@ -768,7 +768,7 @@ class EventControllerTest {
         void getUpcomingEvents_SizeAboveMax() throws Exception {
             setAuthentication(userPrincipal);
 
-            mockMvc.perform(get("/events/upcoming")
+            mockMvc.perform(get("/api/v1/events/upcoming")
                             .param("size", "101"))
                     .andExpect(status().isBadRequest());
 
@@ -779,7 +779,7 @@ class EventControllerTest {
     // ==================== SEARCH EVENTS ====================
 
     @Nested
-    @DisplayName("GET /events/search - searchEvents")
+    @DisplayName("GET /api/v1/events/search - searchEvents")
     class SearchEventsTests {
 
         @Test
@@ -797,7 +797,7 @@ class EventControllerTest {
 
             when(eventService.searchEvents("conference", 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/search")
+            mockMvc.perform(get("/api/v1/events/search")
                             .param("query", "conference"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)));
@@ -820,7 +820,7 @@ class EventControllerTest {
 
             when(eventService.searchEvents("nonexistent", 0, 20)).thenReturn(emptyResponse);
 
-            mockMvc.perform(get("/events/search")
+            mockMvc.perform(get("/api/v1/events/search")
                             .param("query", "nonexistent"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.empty").value(true));
@@ -837,7 +837,7 @@ class EventControllerTest {
 
             when(eventService.searchEvents("test", 2, 50)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/search")
+            mockMvc.perform(get("/api/v1/events/search")
                             .param("query", "test")
                             .param("page", "2")
                             .param("size", "50"))
@@ -851,7 +851,7 @@ class EventControllerTest {
         void searchEvents_MissingQuery() throws Exception {
             setAuthentication(userPrincipal);
 
-            mockMvc.perform(get("/events/search"))
+            mockMvc.perform(get("/api/v1/events/search"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(eventService);
@@ -862,7 +862,7 @@ class EventControllerTest {
         void searchEvents_PageBelowMin() throws Exception {
             setAuthentication(userPrincipal);
 
-            mockMvc.perform(get("/events/search")
+            mockMvc.perform(get("/api/v1/events/search")
                             .param("query", "test")
                             .param("page", "-1"))
                     .andExpect(status().isBadRequest());
@@ -875,7 +875,7 @@ class EventControllerTest {
         void searchEvents_SizeAboveMax() throws Exception {
             setAuthentication(userPrincipal);
 
-            mockMvc.perform(get("/events/search")
+            mockMvc.perform(get("/api/v1/events/search")
                             .param("query", "test")
                             .param("size", "101"))
                     .andExpect(status().isBadRequest());
@@ -887,7 +887,7 @@ class EventControllerTest {
     // ==================== GET POPULAR EVENTS ====================
 
     @Nested
-    @DisplayName("GET /events/popular - getPopularEvents")
+    @DisplayName("GET /api/v1/events/popular - getPopularEvents")
     class GetPopularEventsTests {
 
         @Test
@@ -905,7 +905,7 @@ class EventControllerTest {
 
             when(eventService.getPopularEvents(0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/popular"))
+            mockMvc.perform(get("/api/v1/events/popular"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)));
 
@@ -924,7 +924,7 @@ class EventControllerTest {
 
             when(eventService.getPopularEvents(0, 20)).thenReturn(emptyResponse);
 
-            mockMvc.perform(get("/events/popular"))
+            mockMvc.perform(get("/api/v1/events/popular"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.empty").value(true));
         }
@@ -940,7 +940,7 @@ class EventControllerTest {
 
             when(eventService.getPopularEvents(3, 15)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/popular")
+            mockMvc.perform(get("/api/v1/events/popular")
                             .param("page", "3")
                             .param("size", "15"))
                     .andExpect(status().isOk());
@@ -953,7 +953,7 @@ class EventControllerTest {
         void getPopularEvents_PageAboveMax() throws Exception {
             setAuthentication(userPrincipal);
 
-            mockMvc.perform(get("/events/popular")
+            mockMvc.perform(get("/api/v1/events/popular")
                             .param("page", "1001"))
                     .andExpect(status().isBadRequest());
 
@@ -965,7 +965,7 @@ class EventControllerTest {
         void getPopularEvents_SizeBelowMin() throws Exception {
             setAuthentication(userPrincipal);
 
-            mockMvc.perform(get("/events/popular")
+            mockMvc.perform(get("/api/v1/events/popular")
                             .param("size", "0"))
                     .andExpect(status().isBadRequest());
 
@@ -976,7 +976,7 @@ class EventControllerTest {
     // ==================== GET MY UPCOMING EVENTS ====================
 
     @Nested
-    @DisplayName("GET /events/my/upcoming - getMyUpcomingEvents")
+    @DisplayName("GET /api/v1/events/my/upcoming - getMyUpcomingEvents")
     class GetMyUpcomingEventsTests {
 
         @Test
@@ -994,7 +994,7 @@ class EventControllerTest {
 
             when(eventService.getUserUpcomingEvents(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/my/upcoming"))
+            mockMvc.perform(get("/api/v1/events/my/upcoming"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)));
 
@@ -1013,7 +1013,7 @@ class EventControllerTest {
 
             when(eventService.getUserUpcomingEvents(USER_ID, 0, 20)).thenReturn(emptyResponse);
 
-            mockMvc.perform(get("/events/my/upcoming"))
+            mockMvc.perform(get("/api/v1/events/my/upcoming"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.empty").value(true));
         }
@@ -1029,7 +1029,7 @@ class EventControllerTest {
 
             when(eventService.getUserUpcomingEvents(USER_ID, 1, 30)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/my/upcoming")
+            mockMvc.perform(get("/api/v1/events/my/upcoming")
                             .param("page", "1")
                             .param("size", "30"))
                     .andExpect(status().isOk());
@@ -1042,7 +1042,7 @@ class EventControllerTest {
         void getMyUpcomingEvents_PageBelowMin() throws Exception {
             setAuthentication(userPrincipal);
 
-            mockMvc.perform(get("/events/my/upcoming")
+            mockMvc.perform(get("/api/v1/events/my/upcoming")
                             .param("page", "-1"))
                     .andExpect(status().isBadRequest());
 
@@ -1054,7 +1054,7 @@ class EventControllerTest {
         void getMyUpcomingEvents_SizeAboveMax() throws Exception {
             setAuthentication(userPrincipal);
 
-            mockMvc.perform(get("/events/my/upcoming")
+            mockMvc.perform(get("/api/v1/events/my/upcoming")
                             .param("size", "101"))
                     .andExpect(status().isBadRequest());
 
@@ -1065,7 +1065,7 @@ class EventControllerTest {
     // ==================== GET MY HOSTED EVENTS ====================
 
     @Nested
-    @DisplayName("GET /events/my/hosted - getMyHostedEvents")
+    @DisplayName("GET /api/v1/events/my/hosted - getMyHostedEvents")
     class GetMyHostedEventsTests {
 
         @Test
@@ -1083,7 +1083,7 @@ class EventControllerTest {
 
             when(eventService.getHostedEvents(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/my/hosted"))
+            mockMvc.perform(get("/api/v1/events/my/hosted"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)));
 
@@ -1102,7 +1102,7 @@ class EventControllerTest {
 
             when(eventService.getHostedEvents(USER_ID, 0, 20)).thenReturn(emptyResponse);
 
-            mockMvc.perform(get("/events/my/hosted"))
+            mockMvc.perform(get("/api/v1/events/my/hosted"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.empty").value(true));
         }
@@ -1118,7 +1118,7 @@ class EventControllerTest {
 
             when(eventService.getHostedEvents(USER_ID, 10, 5)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/my/hosted")
+            mockMvc.perform(get("/api/v1/events/my/hosted")
                             .param("page", "10")
                             .param("size", "5"))
                     .andExpect(status().isOk());
@@ -1131,7 +1131,7 @@ class EventControllerTest {
         void getMyHostedEvents_PageAboveMax() throws Exception {
             setAuthentication(userPrincipal);
 
-            mockMvc.perform(get("/events/my/hosted")
+            mockMvc.perform(get("/api/v1/events/my/hosted")
                             .param("page", "1001"))
                     .andExpect(status().isBadRequest());
 
@@ -1143,7 +1143,7 @@ class EventControllerTest {
         void getMyHostedEvents_SizeBelowMin() throws Exception {
             setAuthentication(userPrincipal);
 
-            mockMvc.perform(get("/events/my/hosted")
+            mockMvc.perform(get("/api/v1/events/my/hosted")
                             .param("size", "0"))
                     .andExpect(status().isBadRequest());
 
@@ -1162,7 +1162,7 @@ class EventControllerTest {
             // Test max page (1000) and max size (100)
             when(eventService.getHostedEvents(USER_ID, 1000, 100)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/events/my/hosted")
+            mockMvc.perform(get("/api/v1/events/my/hosted")
                             .param("page", "1000")
                             .param("size", "100"))
                     .andExpect(status().isOk());

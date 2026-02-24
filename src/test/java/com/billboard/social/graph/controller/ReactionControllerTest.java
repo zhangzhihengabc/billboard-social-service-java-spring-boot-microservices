@@ -92,7 +92,7 @@ class ReactionControllerTest {
     // ==================== REACT ====================
 
     @Nested
-    @DisplayName("POST /reactions - react")
+    @DisplayName("POST /api/v1/reactions - react")
     class ReactTests {
 
         @Test
@@ -107,7 +107,7 @@ class ReactionControllerTest {
             when(reactionService.react(eq(USER_ID), any(ReactionRequest.class)))
                     .thenReturn(testReactionResponse);
 
-            mockMvc.perform(post("/reactions")
+            mockMvc.perform(post("/api/v1/reactions")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -131,7 +131,7 @@ class ReactionControllerTest {
             when(reactionService.react(eq(USER_ID), any(ReactionRequest.class)))
                     .thenReturn(testReactionResponse);
 
-            mockMvc.perform(post("/reactions")
+            mockMvc.perform(post("/api/v1/reactions")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -157,7 +157,7 @@ class ReactionControllerTest {
             when(reactionService.getReactionStats(null, ContentType.POST, CONTENT_ID))
                     .thenReturn(statsResponse);
 
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}/stats", "POST", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}/stats", "POST", CONTENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.totalCount").value(10))
                     .andExpect(jsonPath("$.userReacted").value(false));
@@ -179,7 +179,7 @@ class ReactionControllerTest {
             when(reactionService.react(eq(USER_ID), any(ReactionRequest.class)))
                     .thenReturn(testReactionResponse);
 
-            mockMvc.perform(post("/reactions")
+            mockMvc.perform(post("/api/v1/reactions")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -194,7 +194,7 @@ class ReactionControllerTest {
                     .reactionType(ReactionType.LIKE)
                     .build();
 
-            mockMvc.perform(post("/reactions")
+            mockMvc.perform(post("/api/v1/reactions")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -210,7 +210,7 @@ class ReactionControllerTest {
                     .reactionType(ReactionType.LIKE)
                     .build();
 
-            mockMvc.perform(post("/reactions")
+            mockMvc.perform(post("/api/v1/reactions")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -226,7 +226,7 @@ class ReactionControllerTest {
                     .contentId(CONTENT_ID)
                     .build();
 
-            mockMvc.perform(post("/reactions")
+            mockMvc.perform(post("/api/v1/reactions")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -237,7 +237,7 @@ class ReactionControllerTest {
         @Test
         @DisplayName("Invalid contentType - returns 400")
         void react_InvalidContentType() throws Exception {
-            mockMvc.perform(post("/reactions")
+            mockMvc.perform(post("/api/v1/reactions")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"contentType\": \"INVALID\", \"contentId\": \"" + CONTENT_ID + "\", \"reactionType\": \"LIKE\"}"))
                     .andExpect(status().isBadRequest());
@@ -248,7 +248,7 @@ class ReactionControllerTest {
         @Test
         @DisplayName("Invalid reactionType - returns 400")
         void react_InvalidReactionType() throws Exception {
-            mockMvc.perform(post("/reactions")
+            mockMvc.perform(post("/api/v1/reactions")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"contentType\": \"POST\", \"contentId\": \"" + CONTENT_ID + "\", \"reactionType\": \"INVALID\"}"))
                     .andExpect(status().isBadRequest());
@@ -268,7 +268,7 @@ class ReactionControllerTest {
             when(reactionService.react(eq(USER_ID), any(ReactionRequest.class)))
                     .thenThrow(new ValidationException("Content not found"));
 
-            mockMvc.perform(post("/reactions")
+            mockMvc.perform(post("/api/v1/reactions")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())
@@ -278,7 +278,7 @@ class ReactionControllerTest {
         @Test
         @DisplayName("Missing request body - returns 400")
         void react_MissingBody() throws Exception {
-            mockMvc.perform(post("/reactions")
+            mockMvc.perform(post("/api/v1/reactions")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
@@ -288,7 +288,7 @@ class ReactionControllerTest {
         @Test
         @DisplayName("Malformed JSON - returns 400")
         void react_MalformedJson() throws Exception {
-            mockMvc.perform(post("/reactions")
+            mockMvc.perform(post("/api/v1/reactions")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"contentType\": }"))
                     .andExpect(status().isBadRequest());
@@ -300,7 +300,7 @@ class ReactionControllerTest {
     // ==================== REMOVE REACTION ====================
 
     @Nested
-    @DisplayName("DELETE /reactions/{contentType}/{contentId} - removeReaction")
+    @DisplayName("DELETE /api/v1/reactions/{contentType}/{contentId} - removeReaction")
     class RemoveReactionTests {
 
         @Test
@@ -308,7 +308,7 @@ class ReactionControllerTest {
         void removeReaction_Success() throws Exception {
             doNothing().when(reactionService).removeReaction(USER_ID, ContentType.POST, CONTENT_ID);
 
-            mockMvc.perform(delete("/reactions/{contentType}/{contentId}", "POST", CONTENT_ID))
+            mockMvc.perform(delete("/api/v1/reactions/{contentType}/{contentId}", "POST", CONTENT_ID))
                     .andExpect(status().isNoContent());
 
             verify(reactionService).removeReaction(USER_ID, ContentType.POST, CONTENT_ID);
@@ -319,7 +319,7 @@ class ReactionControllerTest {
         void removeReaction_CommentContentType() throws Exception {
             doNothing().when(reactionService).removeReaction(USER_ID, ContentType.COMMENT, CONTENT_ID);
 
-            mockMvc.perform(delete("/reactions/{contentType}/{contentId}", "COMMENT", CONTENT_ID))
+            mockMvc.perform(delete("/api/v1/reactions/{contentType}/{contentId}", "COMMENT", CONTENT_ID))
                     .andExpect(status().isNoContent());
 
             verify(reactionService).removeReaction(USER_ID, ContentType.COMMENT, CONTENT_ID);
@@ -331,7 +331,7 @@ class ReactionControllerTest {
             doThrow(new ValidationException("Reaction not found"))
                     .when(reactionService).removeReaction(USER_ID, ContentType.POST, CONTENT_ID);
 
-            mockMvc.perform(delete("/reactions/{contentType}/{contentId}", "POST", CONTENT_ID))
+            mockMvc.perform(delete("/api/v1/reactions/{contentType}/{contentId}", "POST", CONTENT_ID))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Reaction not found"));
         }
@@ -339,7 +339,7 @@ class ReactionControllerTest {
         @Test
         @DisplayName("Invalid contentType - returns 400")
         void removeReaction_InvalidContentType() throws Exception {
-            mockMvc.perform(delete("/reactions/{contentType}/{contentId}", "INVALID", CONTENT_ID))
+            mockMvc.perform(delete("/api/v1/reactions/{contentType}/{contentId}", "INVALID", CONTENT_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(reactionService);
@@ -348,7 +348,7 @@ class ReactionControllerTest {
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void removeReaction_InvalidUuid() throws Exception {
-            mockMvc.perform(delete("/reactions/{contentType}/{contentId}", "POST", "invalid-uuid"))
+            mockMvc.perform(delete("/api/v1/reactions/{contentType}/{contentId}", "POST", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(reactionService);
@@ -358,7 +358,7 @@ class ReactionControllerTest {
     // ==================== GET REACTIONS ====================
 
     @Nested
-    @DisplayName("GET /reactions/{contentType}/{contentId} - getReactions")
+    @DisplayName("GET /api/v1/reactions/{contentType}/{contentId} - getReactions")
     class GetReactionsTests {
 
         @Test
@@ -374,7 +374,7 @@ class ReactionControllerTest {
 
             when(reactionService.getReactions(ContentType.POST, CONTENT_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}", "POST", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}", "POST", CONTENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)))
                     .andExpect(jsonPath("$.content[0].reactionType").value("LIKE"))
@@ -394,7 +394,7 @@ class ReactionControllerTest {
 
             when(reactionService.getReactions(ContentType.POST, CONTENT_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}", "POST", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}", "POST", CONTENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(0)));
         }
@@ -412,7 +412,7 @@ class ReactionControllerTest {
 
             when(reactionService.getReactions(ContentType.POST, CONTENT_ID, 5, 50)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}", "POST", CONTENT_ID)
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}", "POST", CONTENT_ID)
                             .param("page", "5")
                             .param("size", "50"))
                     .andExpect(status().isOk())
@@ -423,7 +423,7 @@ class ReactionControllerTest {
         @Test
         @DisplayName("Page below minimum - returns 400")
         void getReactions_PageBelowMin() throws Exception {
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}", "POST", CONTENT_ID)
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}", "POST", CONTENT_ID)
                             .param("page", "-1"))
                     .andExpect(status().isBadRequest());
 
@@ -433,7 +433,7 @@ class ReactionControllerTest {
         @Test
         @DisplayName("Page above maximum - returns 400")
         void getReactions_PageAboveMax() throws Exception {
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}", "POST", CONTENT_ID)
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}", "POST", CONTENT_ID)
                             .param("page", "1001"))
                     .andExpect(status().isBadRequest());
 
@@ -443,7 +443,7 @@ class ReactionControllerTest {
         @Test
         @DisplayName("Size below minimum - returns 400")
         void getReactions_SizeBelowMin() throws Exception {
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}", "POST", CONTENT_ID)
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}", "POST", CONTENT_ID)
                             .param("size", "0"))
                     .andExpect(status().isBadRequest());
 
@@ -453,7 +453,7 @@ class ReactionControllerTest {
         @Test
         @DisplayName("Size above maximum - returns 400")
         void getReactions_SizeAboveMax() throws Exception {
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}", "POST", CONTENT_ID)
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}", "POST", CONTENT_ID)
                             .param("size", "101"))
                     .andExpect(status().isBadRequest());
 
@@ -473,7 +473,7 @@ class ReactionControllerTest {
 
             when(reactionService.getReactions(ContentType.POST, CONTENT_ID, 1000, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}", "POST", CONTENT_ID)
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}", "POST", CONTENT_ID)
                             .param("page", "1000"))
                     .andExpect(status().isOk());
         }
@@ -491,7 +491,7 @@ class ReactionControllerTest {
 
             when(reactionService.getReactions(ContentType.POST, CONTENT_ID, 0, 1)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}", "POST", CONTENT_ID)
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}", "POST", CONTENT_ID)
                             .param("size", "1"))
                     .andExpect(status().isOk());
         }
@@ -509,7 +509,7 @@ class ReactionControllerTest {
 
             when(reactionService.getReactions(ContentType.POST, CONTENT_ID, 0, 100)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}", "POST", CONTENT_ID)
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}", "POST", CONTENT_ID)
                             .param("size", "100"))
                     .andExpect(status().isOk());
         }
@@ -517,7 +517,7 @@ class ReactionControllerTest {
         @Test
         @DisplayName("Invalid contentType - returns 400")
         void getReactions_InvalidContentType() throws Exception {
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}", "INVALID", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}", "INVALID", CONTENT_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(reactionService);
@@ -526,7 +526,7 @@ class ReactionControllerTest {
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void getReactions_InvalidUuid() throws Exception {
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}", "POST", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}", "POST", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(reactionService);
@@ -536,7 +536,7 @@ class ReactionControllerTest {
     // ==================== GET REACTIONS BY TYPE ====================
 
     @Nested
-    @DisplayName("GET /reactions/{contentType}/{contentId}/type/{reactionType} - getReactionsByType")
+    @DisplayName("GET /api/v1/reactions/{contentType}/{contentId}/type/{reactionType} - getReactionsByType")
     class GetReactionsByTypeTests {
 
         @Test
@@ -553,7 +553,7 @@ class ReactionControllerTest {
             when(reactionService.getReactionsByType(ContentType.POST, CONTENT_ID, ReactionType.LIKE, 0, 20))
                     .thenReturn(pageResponse);
 
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}/type/{reactionType}",
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}/type/{reactionType}",
                             "POST", CONTENT_ID, "LIKE"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)))
@@ -575,7 +575,7 @@ class ReactionControllerTest {
             when(reactionService.getReactionsByType(ContentType.POST, CONTENT_ID, ReactionType.LOVE, 0, 20))
                     .thenReturn(pageResponse);
 
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}/type/{reactionType}",
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}/type/{reactionType}",
                             "POST", CONTENT_ID, "LOVE"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content[0].reactionType").value("LOVE"));
@@ -595,7 +595,7 @@ class ReactionControllerTest {
             when(reactionService.getReactionsByType(ContentType.POST, CONTENT_ID, ReactionType.LIKE, 0, 20))
                     .thenReturn(pageResponse);
 
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}/type/{reactionType}",
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}/type/{reactionType}",
                             "POST", CONTENT_ID, "LIKE"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(0)));
@@ -615,7 +615,7 @@ class ReactionControllerTest {
             when(reactionService.getReactionsByType(ContentType.POST, CONTENT_ID, ReactionType.LIKE, 3, 25))
                     .thenReturn(pageResponse);
 
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}/type/{reactionType}",
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}/type/{reactionType}",
                             "POST", CONTENT_ID, "LIKE")
                             .param("page", "3")
                             .param("size", "25"))
@@ -625,7 +625,7 @@ class ReactionControllerTest {
         @Test
         @DisplayName("Invalid reactionType - returns 400")
         void getReactionsByType_InvalidReactionType() throws Exception {
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}/type/{reactionType}",
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}/type/{reactionType}",
                             "POST", CONTENT_ID, "INVALID"))
                     .andExpect(status().isBadRequest());
 
@@ -635,7 +635,7 @@ class ReactionControllerTest {
         @Test
         @DisplayName("Invalid contentType - returns 400")
         void getReactionsByType_InvalidContentType() throws Exception {
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}/type/{reactionType}",
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}/type/{reactionType}",
                             "INVALID", CONTENT_ID, "LIKE"))
                     .andExpect(status().isBadRequest());
 
@@ -645,7 +645,7 @@ class ReactionControllerTest {
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void getReactionsByType_InvalidUuid() throws Exception {
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}/type/{reactionType}",
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}/type/{reactionType}",
                             "POST", "invalid-uuid", "LIKE"))
                     .andExpect(status().isBadRequest());
 
@@ -655,7 +655,7 @@ class ReactionControllerTest {
         @Test
         @DisplayName("Page above maximum - returns 400")
         void getReactionsByType_PageAboveMax() throws Exception {
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}/type/{reactionType}",
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}/type/{reactionType}",
                             "POST", CONTENT_ID, "LIKE")
                             .param("page", "1001"))
                     .andExpect(status().isBadRequest());
@@ -666,7 +666,7 @@ class ReactionControllerTest {
         @Test
         @DisplayName("Size below minimum - returns 400")
         void getReactionsByType_SizeBelowMin() throws Exception {
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}/type/{reactionType}",
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}/type/{reactionType}",
                             "POST", CONTENT_ID, "LIKE")
                             .param("size", "0"))
                     .andExpect(status().isBadRequest());
@@ -678,7 +678,7 @@ class ReactionControllerTest {
     // ==================== GET REACTION STATS ====================
 
     @Nested
-    @DisplayName("GET /reactions/{contentType}/{contentId}/stats - getReactionStats")
+    @DisplayName("GET /api/v1/reactions/{contentType}/{contentId}/stats - getReactionStats")
     class GetReactionStatsTests {
 
         @Test
@@ -700,7 +700,7 @@ class ReactionControllerTest {
             when(reactionService.getReactionStats(USER_ID, ContentType.POST, CONTENT_ID))
                     .thenReturn(statsResponse);
 
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}/stats", "POST", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}/stats", "POST", CONTENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.contentType").value("POST"))
                     .andExpect(jsonPath("$.contentId").value(CONTENT_ID.toString()))
@@ -729,7 +729,7 @@ class ReactionControllerTest {
             when(reactionService.getReactionStats(USER_ID, ContentType.POST, CONTENT_ID))
                     .thenReturn(statsResponse);
 
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}/stats", "POST", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}/stats", "POST", CONTENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.userReacted").value(false))
                     .andExpect(jsonPath("$.userReactionType").doesNotExist());
@@ -750,7 +750,7 @@ class ReactionControllerTest {
             when(reactionService.getReactionStats(USER_ID, ContentType.POST, CONTENT_ID))
                     .thenReturn(statsResponse);
 
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}/stats", "POST", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}/stats", "POST", CONTENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.totalCount").value(0));
         }
@@ -769,7 +769,7 @@ class ReactionControllerTest {
             when(reactionService.getReactionStats(USER_ID, ContentType.COMMENT, CONTENT_ID))
                     .thenReturn(statsResponse);
 
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}/stats", "COMMENT", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}/stats", "COMMENT", CONTENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.contentType").value("COMMENT"));
         }
@@ -777,7 +777,7 @@ class ReactionControllerTest {
         @Test
         @DisplayName("Invalid contentType - returns 400")
         void getReactionStats_InvalidContentType() throws Exception {
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}/stats", "INVALID", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}/stats", "INVALID", CONTENT_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(reactionService);
@@ -786,7 +786,7 @@ class ReactionControllerTest {
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void getReactionStats_InvalidUuid() throws Exception {
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}/stats", "POST", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}/stats", "POST", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(reactionService);
@@ -796,7 +796,7 @@ class ReactionControllerTest {
     // ==================== HAS USER REACTED ====================
 
     @Nested
-    @DisplayName("GET /reactions/{contentType}/{contentId}/check - hasUserReacted")
+    @DisplayName("GET /api/v1/reactions/{contentType}/{contentId}/check - hasUserReacted")
     class HasUserReactedTests {
 
         @Test
@@ -804,7 +804,7 @@ class ReactionControllerTest {
         void hasUserReacted_ReturnsTrue() throws Exception {
             when(reactionService.hasUserReacted(USER_ID, ContentType.POST, CONTENT_ID)).thenReturn(true);
 
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}/check", "POST", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}/check", "POST", CONTENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(content().string("true"));
         }
@@ -814,7 +814,7 @@ class ReactionControllerTest {
         void hasUserReacted_ReturnsFalse() throws Exception {
             when(reactionService.hasUserReacted(USER_ID, ContentType.POST, CONTENT_ID)).thenReturn(false);
 
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}/check", "POST", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}/check", "POST", CONTENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(content().string("false"));
         }
@@ -824,7 +824,7 @@ class ReactionControllerTest {
         void hasUserReacted_CommentContentType() throws Exception {
             when(reactionService.hasUserReacted(USER_ID, ContentType.COMMENT, CONTENT_ID)).thenReturn(true);
 
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}/check", "COMMENT", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}/check", "COMMENT", CONTENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(content().string("true"));
         }
@@ -832,7 +832,7 @@ class ReactionControllerTest {
         @Test
         @DisplayName("Invalid contentType - returns 400")
         void hasUserReacted_InvalidContentType() throws Exception {
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}/check", "INVALID", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}/check", "INVALID", CONTENT_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(reactionService);
@@ -841,7 +841,7 @@ class ReactionControllerTest {
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void hasUserReacted_InvalidUuid() throws Exception {
-            mockMvc.perform(get("/reactions/{contentType}/{contentId}/check", "POST", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/reactions/{contentType}/{contentId}/check", "POST", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(reactionService);

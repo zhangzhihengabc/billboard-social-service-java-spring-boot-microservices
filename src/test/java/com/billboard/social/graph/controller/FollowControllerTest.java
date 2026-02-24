@@ -4,7 +4,6 @@ import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.dto.UserSummary;
 import com.billboard.social.common.exception.GlobalExceptionHandler;
 import com.billboard.social.common.exception.ValidationException;
-import com.billboard.social.common.security.JwtAuthenticationFilter;
 import com.billboard.social.common.security.UserPrincipal;
 import com.billboard.social.graph.dto.request.SocialRequests.FollowRequest;
 import com.billboard.social.graph.dto.request.SocialRequests.UpdateFollowRequest;
@@ -93,7 +92,7 @@ class FollowControllerTest {
     // ==================== FOLLOW ====================
 
     @Nested
-    @DisplayName("POST /follows - follow")
+    @DisplayName("POST /api/v1/follows - follow")
     class FollowTests {
 
         @Test
@@ -106,7 +105,7 @@ class FollowControllerTest {
             when(followService.follow(eq(USER_ID), any(FollowRequest.class)))
                     .thenReturn(testFollowResponse);
 
-            mockMvc.perform(post("/follows")
+            mockMvc.perform(post("/api/v1/follows")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -120,7 +119,7 @@ class FollowControllerTest {
         void follow_MissingUserId() throws Exception {
             FollowRequest request = FollowRequest.builder().build();
 
-            mockMvc.perform(post("/follows")
+            mockMvc.perform(post("/api/v1/follows")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -138,7 +137,7 @@ class FollowControllerTest {
             when(followService.follow(eq(USER_ID), any(FollowRequest.class)))
                     .thenThrow(new ValidationException("Cannot follow yourself"));
 
-            mockMvc.perform(post("/follows")
+            mockMvc.perform(post("/api/v1/follows")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())
@@ -155,7 +154,7 @@ class FollowControllerTest {
             when(followService.follow(eq(USER_ID), any(FollowRequest.class)))
                     .thenThrow(new ValidationException("Already following this user"));
 
-            mockMvc.perform(post("/follows")
+            mockMvc.perform(post("/api/v1/follows")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())
@@ -172,7 +171,7 @@ class FollowControllerTest {
             when(followService.follow(eq(USER_ID), any(FollowRequest.class)))
                     .thenThrow(new ValidationException("Cannot follow a blocked user"));
 
-            mockMvc.perform(post("/follows")
+            mockMvc.perform(post("/api/v1/follows")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -188,7 +187,7 @@ class FollowControllerTest {
             when(followService.follow(eq(USER_ID), any(FollowRequest.class)))
                     .thenThrow(new ValidationException("Maximum following limit reached"));
 
-            mockMvc.perform(post("/follows")
+            mockMvc.perform(post("/api/v1/follows")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -197,7 +196,7 @@ class FollowControllerTest {
         @Test
         @DisplayName("Missing request body - returns 400")
         void follow_MissingBody() throws Exception {
-            mockMvc.perform(post("/follows")
+            mockMvc.perform(post("/api/v1/follows")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
@@ -207,7 +206,7 @@ class FollowControllerTest {
         @Test
         @DisplayName("Malformed JSON - returns 400")
         void follow_MalformedJson() throws Exception {
-            mockMvc.perform(post("/follows")
+            mockMvc.perform(post("/api/v1/follows")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"userId\": }"))
                     .andExpect(status().isBadRequest());
@@ -219,7 +218,7 @@ class FollowControllerTest {
     // ==================== UNFOLLOW ====================
 
     @Nested
-    @DisplayName("DELETE /follows/{userId} - unfollow")
+    @DisplayName("DELETE /api/v1/follows/{userId} - unfollow")
     class UnfollowTests {
 
         @Test
@@ -227,7 +226,7 @@ class FollowControllerTest {
         void unfollow_Success() throws Exception {
             doNothing().when(followService).unfollow(USER_ID, TARGET_USER_ID);
 
-            mockMvc.perform(delete("/follows/{userId}", TARGET_USER_ID))
+            mockMvc.perform(delete("/api/v1/follows/{userId}", TARGET_USER_ID))
                     .andExpect(status().isNoContent());
 
             verify(followService).unfollow(USER_ID, TARGET_USER_ID);
@@ -239,7 +238,7 @@ class FollowControllerTest {
             doThrow(new ValidationException("Follow relationship not found"))
                     .when(followService).unfollow(USER_ID, TARGET_USER_ID);
 
-            mockMvc.perform(delete("/follows/{userId}", TARGET_USER_ID))
+            mockMvc.perform(delete("/api/v1/follows/{userId}", TARGET_USER_ID))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Follow relationship not found"));
         }
@@ -247,7 +246,7 @@ class FollowControllerTest {
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void unfollow_InvalidUuid() throws Exception {
-            mockMvc.perform(delete("/follows/{userId}", "invalid-uuid"))
+            mockMvc.perform(delete("/api/v1/follows/{userId}", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(followService);
@@ -257,7 +256,7 @@ class FollowControllerTest {
     // ==================== UPDATE FOLLOW ====================
 
     @Nested
-    @DisplayName("PUT /follows/{userId} - updateFollow")
+    @DisplayName("PUT /api/v1/follows/{userId} - updateFollow")
     class UpdateFollowTests {
 
         @Test
@@ -276,7 +275,7 @@ class FollowControllerTest {
             when(followService.updateFollow(eq(USER_ID), eq(TARGET_USER_ID), any(UpdateFollowRequest.class)))
                     .thenReturn(testFollowResponse);
 
-            mockMvc.perform(put("/follows/{userId}", TARGET_USER_ID)
+            mockMvc.perform(put("/api/v1/follows/{userId}", TARGET_USER_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -295,7 +294,7 @@ class FollowControllerTest {
             when(followService.updateFollow(eq(USER_ID), eq(TARGET_USER_ID), any(UpdateFollowRequest.class)))
                     .thenReturn(testFollowResponse);
 
-            mockMvc.perform(put("/follows/{userId}", TARGET_USER_ID)
+            mockMvc.perform(put("/api/v1/follows/{userId}", TARGET_USER_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk());
@@ -313,7 +312,7 @@ class FollowControllerTest {
             when(followService.updateFollow(eq(USER_ID), eq(TARGET_USER_ID), any(UpdateFollowRequest.class)))
                     .thenReturn(testFollowResponse);
 
-            mockMvc.perform(put("/follows/{userId}", TARGET_USER_ID)
+            mockMvc.perform(put("/api/v1/follows/{userId}", TARGET_USER_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -332,7 +331,7 @@ class FollowControllerTest {
             when(followService.updateFollow(eq(USER_ID), eq(TARGET_USER_ID), any(UpdateFollowRequest.class)))
                     .thenReturn(testFollowResponse);
 
-            mockMvc.perform(put("/follows/{userId}", TARGET_USER_ID)
+            mockMvc.perform(put("/api/v1/follows/{userId}", TARGET_USER_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -349,7 +348,7 @@ class FollowControllerTest {
             when(followService.updateFollow(eq(USER_ID), eq(TARGET_USER_ID), any(UpdateFollowRequest.class)))
                     .thenThrow(new ValidationException("Follow relationship not found"));
 
-            mockMvc.perform(put("/follows/{userId}", TARGET_USER_ID)
+            mockMvc.perform(put("/api/v1/follows/{userId}", TARGET_USER_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -362,7 +361,7 @@ class FollowControllerTest {
                     .notificationsEnabled(false)
                     .build();
 
-            mockMvc.perform(put("/follows/{userId}", "invalid-uuid")
+            mockMvc.perform(put("/api/v1/follows/{userId}", "invalid-uuid")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -373,7 +372,7 @@ class FollowControllerTest {
         @Test
         @DisplayName("Missing request body - returns 400")
         void updateFollow_MissingBody() throws Exception {
-            mockMvc.perform(put("/follows/{userId}", TARGET_USER_ID)
+            mockMvc.perform(put("/api/v1/follows/{userId}", TARGET_USER_ID)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
@@ -388,7 +387,7 @@ class FollowControllerTest {
             when(followService.updateFollow(eq(USER_ID), eq(TARGET_USER_ID), any(UpdateFollowRequest.class)))
                     .thenReturn(testFollowResponse);
 
-            mockMvc.perform(put("/follows/{userId}", TARGET_USER_ID)
+            mockMvc.perform(put("/api/v1/follows/{userId}", TARGET_USER_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk());
@@ -398,7 +397,7 @@ class FollowControllerTest {
     // ==================== GET FOLLOWERS ====================
 
     @Nested
-    @DisplayName("GET /follows/followers - getFollowers")
+    @DisplayName("GET /api/v1/follows/followers - getFollowers")
     class GetFollowersTests {
 
         @Test
@@ -414,7 +413,7 @@ class FollowControllerTest {
 
             when(followService.getFollowers(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/follows/followers"))
+            mockMvc.perform(get("/api/v1/follows/followers"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)))
                     .andExpect(jsonPath("$.totalElements").value(1));
@@ -433,7 +432,7 @@ class FollowControllerTest {
 
             when(followService.getFollowers(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/follows/followers"))
+            mockMvc.perform(get("/api/v1/follows/followers"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(0)));
         }
@@ -451,7 +450,7 @@ class FollowControllerTest {
 
             when(followService.getFollowers(USER_ID, 5, 50)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/follows/followers")
+            mockMvc.perform(get("/api/v1/follows/followers")
                             .param("page", "5")
                             .param("size", "50"))
                     .andExpect(status().isOk())
@@ -462,7 +461,7 @@ class FollowControllerTest {
         @Test
         @DisplayName("Page below minimum - returns 400")
         void getFollowers_PageBelowMin() throws Exception {
-            mockMvc.perform(get("/follows/followers")
+            mockMvc.perform(get("/api/v1/follows/followers")
                             .param("page", "-1"))
                     .andExpect(status().isBadRequest());
 
@@ -472,7 +471,7 @@ class FollowControllerTest {
         @Test
         @DisplayName("Page above maximum - returns 400")
         void getFollowers_PageAboveMax() throws Exception {
-            mockMvc.perform(get("/follows/followers")
+            mockMvc.perform(get("/api/v1/follows/followers")
                             .param("page", "1001"))
                     .andExpect(status().isBadRequest());
 
@@ -482,7 +481,7 @@ class FollowControllerTest {
         @Test
         @DisplayName("Size below minimum - returns 400")
         void getFollowers_SizeBelowMin() throws Exception {
-            mockMvc.perform(get("/follows/followers")
+            mockMvc.perform(get("/api/v1/follows/followers")
                             .param("size", "0"))
                     .andExpect(status().isBadRequest());
 
@@ -492,7 +491,7 @@ class FollowControllerTest {
         @Test
         @DisplayName("Size above maximum - returns 400")
         void getFollowers_SizeAboveMax() throws Exception {
-            mockMvc.perform(get("/follows/followers")
+            mockMvc.perform(get("/api/v1/follows/followers")
                             .param("size", "101"))
                     .andExpect(status().isBadRequest());
 
@@ -512,7 +511,7 @@ class FollowControllerTest {
 
             when(followService.getFollowers(USER_ID, 1000, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/follows/followers")
+            mockMvc.perform(get("/api/v1/follows/followers")
                             .param("page", "1000"))
                     .andExpect(status().isOk());
         }
@@ -530,7 +529,7 @@ class FollowControllerTest {
 
             when(followService.getFollowers(USER_ID, 0, 1)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/follows/followers")
+            mockMvc.perform(get("/api/v1/follows/followers")
                             .param("size", "1"))
                     .andExpect(status().isOk());
         }
@@ -548,7 +547,7 @@ class FollowControllerTest {
 
             when(followService.getFollowers(USER_ID, 0, 100)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/follows/followers")
+            mockMvc.perform(get("/api/v1/follows/followers")
                             .param("size", "100"))
                     .andExpect(status().isOk());
         }
@@ -557,7 +556,7 @@ class FollowControllerTest {
     // ==================== GET FOLLOWING ====================
 
     @Nested
-    @DisplayName("GET /follows/following - getFollowing")
+    @DisplayName("GET /api/v1/follows/following - getFollowing")
     class GetFollowingTests {
 
         @Test
@@ -573,7 +572,7 @@ class FollowControllerTest {
 
             when(followService.getFollowing(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/follows/following"))
+            mockMvc.perform(get("/api/v1/follows/following"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)));
         }
@@ -591,7 +590,7 @@ class FollowControllerTest {
 
             when(followService.getFollowing(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/follows/following"))
+            mockMvc.perform(get("/api/v1/follows/following"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(0)));
         }
@@ -609,7 +608,7 @@ class FollowControllerTest {
 
             when(followService.getFollowing(USER_ID, 3, 25)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/follows/following")
+            mockMvc.perform(get("/api/v1/follows/following")
                             .param("page", "3")
                             .param("size", "25"))
                     .andExpect(status().isOk());
@@ -618,7 +617,7 @@ class FollowControllerTest {
         @Test
         @DisplayName("Page below minimum - returns 400")
         void getFollowing_PageBelowMin() throws Exception {
-            mockMvc.perform(get("/follows/following")
+            mockMvc.perform(get("/api/v1/follows/following")
                             .param("page", "-1"))
                     .andExpect(status().isBadRequest());
 
@@ -628,7 +627,7 @@ class FollowControllerTest {
         @Test
         @DisplayName("Size above maximum - returns 400")
         void getFollowing_SizeAboveMax() throws Exception {
-            mockMvc.perform(get("/follows/following")
+            mockMvc.perform(get("/api/v1/follows/following")
                             .param("size", "101"))
                     .andExpect(status().isBadRequest());
 
@@ -639,7 +638,7 @@ class FollowControllerTest {
     // ==================== GET CLOSE FRIENDS ====================
 
     @Nested
-    @DisplayName("GET /follows/close-friends - getCloseFriends")
+    @DisplayName("GET /api/v1/follows/close-friends - getCloseFriends")
     class GetCloseFriendsTests {
 
         @Test
@@ -656,7 +655,7 @@ class FollowControllerTest {
 
             when(followService.getCloseFriends(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/follows/close-friends"))
+            mockMvc.perform(get("/api/v1/follows/close-friends"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)))
                     .andExpect(jsonPath("$.content[0].isCloseFriend").value(true));
@@ -675,7 +674,7 @@ class FollowControllerTest {
 
             when(followService.getCloseFriends(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/follows/close-friends"))
+            mockMvc.perform(get("/api/v1/follows/close-friends"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(0)));
         }
@@ -693,7 +692,7 @@ class FollowControllerTest {
 
             when(followService.getCloseFriends(USER_ID, 2, 30)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/follows/close-friends")
+            mockMvc.perform(get("/api/v1/follows/close-friends")
                             .param("page", "2")
                             .param("size", "30"))
                     .andExpect(status().isOk());
@@ -702,7 +701,7 @@ class FollowControllerTest {
         @Test
         @DisplayName("Page above maximum - returns 400")
         void getCloseFriends_PageAboveMax() throws Exception {
-            mockMvc.perform(get("/follows/close-friends")
+            mockMvc.perform(get("/api/v1/follows/close-friends")
                             .param("page", "1001"))
                     .andExpect(status().isBadRequest());
 
@@ -712,7 +711,7 @@ class FollowControllerTest {
         @Test
         @DisplayName("Size below minimum - returns 400")
         void getCloseFriends_SizeBelowMin() throws Exception {
-            mockMvc.perform(get("/follows/close-friends")
+            mockMvc.perform(get("/api/v1/follows/close-friends")
                             .param("size", "0"))
                     .andExpect(status().isBadRequest());
 
@@ -723,7 +722,7 @@ class FollowControllerTest {
     // ==================== GET FOLLOW STATS ====================
 
     @Nested
-    @DisplayName("GET /follows/stats/{userId} - getFollowStats")
+    @DisplayName("GET /api/v1/follows/stats/{userId} - getFollowStats")
     class GetFollowStatsTests {
 
         @Test
@@ -739,7 +738,7 @@ class FollowControllerTest {
 
             when(followService.getFollowStats(TARGET_USER_ID, USER_ID)).thenReturn(stats);
 
-            mockMvc.perform(get("/follows/stats/{userId}", TARGET_USER_ID))
+            mockMvc.perform(get("/api/v1/follows/stats/{userId}", TARGET_USER_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.userId").value(TARGET_USER_ID.toString()))
                     .andExpect(jsonPath("$.followersCount").value(150))
@@ -761,7 +760,7 @@ class FollowControllerTest {
 
             when(followService.getFollowStats(TARGET_USER_ID, USER_ID)).thenReturn(stats);
 
-            mockMvc.perform(get("/follows/stats/{userId}", TARGET_USER_ID))
+            mockMvc.perform(get("/api/v1/follows/stats/{userId}", TARGET_USER_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.isFollowing").value(false))
                     .andExpect(jsonPath("$.isFollowedBy").value(false));
@@ -780,7 +779,7 @@ class FollowControllerTest {
 
             when(followService.getFollowStats(TARGET_USER_ID, USER_ID)).thenReturn(stats);
 
-            mockMvc.perform(get("/follows/stats/{userId}", TARGET_USER_ID))
+            mockMvc.perform(get("/api/v1/follows/stats/{userId}", TARGET_USER_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.isFollowing").value(true))
                     .andExpect(jsonPath("$.isFollowedBy").value(true));
@@ -799,7 +798,7 @@ class FollowControllerTest {
 
             when(followService.getFollowStats(USER_ID, USER_ID)).thenReturn(stats);
 
-            mockMvc.perform(get("/follows/stats/{userId}", USER_ID))
+            mockMvc.perform(get("/api/v1/follows/stats/{userId}", USER_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.userId").value(USER_ID.toString()));
         }
@@ -807,7 +806,7 @@ class FollowControllerTest {
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void getFollowStats_InvalidUuid() throws Exception {
-            mockMvc.perform(get("/follows/stats/{userId}", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/follows/stats/{userId}", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(followService);
@@ -819,7 +818,7 @@ class FollowControllerTest {
             when(followService.getFollowStats(TARGET_USER_ID, USER_ID))
                     .thenThrow(new ValidationException("User not found"));
 
-            mockMvc.perform(get("/follows/stats/{userId}", TARGET_USER_ID))
+            mockMvc.perform(get("/api/v1/follows/stats/{userId}", TARGET_USER_ID))
                     .andExpect(status().isBadRequest());
         }
     }
@@ -827,7 +826,7 @@ class FollowControllerTest {
     // ==================== GET FOLLOWING IDS ====================
 
     @Nested
-    @DisplayName("GET /follows/following/ids - getFollowingIds")
+    @DisplayName("GET /api/v1/follows/following/ids - getFollowingIds")
     class GetFollowingIdsTests {
 
         @Test
@@ -839,7 +838,7 @@ class FollowControllerTest {
 
             when(followService.getFollowingIds(USER_ID)).thenReturn(ids);
 
-            mockMvc.perform(get("/follows/following/ids"))
+            mockMvc.perform(get("/api/v1/follows/following/ids"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(3)))
                     .andExpect(jsonPath("$[0]").value(TARGET_USER_ID.toString()));
@@ -850,7 +849,7 @@ class FollowControllerTest {
         void getFollowingIds_Empty() throws Exception {
             when(followService.getFollowingIds(USER_ID)).thenReturn(Collections.emptyList());
 
-            mockMvc.perform(get("/follows/following/ids"))
+            mockMvc.perform(get("/api/v1/follows/following/ids"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(0)));
         }
@@ -862,7 +861,7 @@ class FollowControllerTest {
 
             when(followService.getFollowingIds(USER_ID)).thenReturn(ids);
 
-            mockMvc.perform(get("/follows/following/ids"))
+            mockMvc.perform(get("/api/v1/follows/following/ids"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(1)));
         }
@@ -871,7 +870,7 @@ class FollowControllerTest {
     // ==================== IS FOLLOWING ====================
 
     @Nested
-    @DisplayName("GET /follows/check/{userId} - isFollowing")
+    @DisplayName("GET /api/v1/follows/check/{userId} - isFollowing")
     class IsFollowingTests {
 
         @Test
@@ -879,7 +878,7 @@ class FollowControllerTest {
         void isFollowing_ReturnsTrue() throws Exception {
             when(followService.isFollowing(USER_ID, TARGET_USER_ID)).thenReturn(true);
 
-            mockMvc.perform(get("/follows/check/{userId}", TARGET_USER_ID))
+            mockMvc.perform(get("/api/v1/follows/check/{userId}", TARGET_USER_ID))
                     .andExpect(status().isOk())
                     .andExpect(content().string("true"));
         }
@@ -889,7 +888,7 @@ class FollowControllerTest {
         void isFollowing_ReturnsFalse() throws Exception {
             when(followService.isFollowing(USER_ID, TARGET_USER_ID)).thenReturn(false);
 
-            mockMvc.perform(get("/follows/check/{userId}", TARGET_USER_ID))
+            mockMvc.perform(get("/api/v1/follows/check/{userId}", TARGET_USER_ID))
                     .andExpect(status().isOk())
                     .andExpect(content().string("false"));
         }
@@ -897,7 +896,7 @@ class FollowControllerTest {
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void isFollowing_InvalidUuid() throws Exception {
-            mockMvc.perform(get("/follows/check/{userId}", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/follows/check/{userId}", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(followService);
@@ -908,7 +907,7 @@ class FollowControllerTest {
         void isFollowing_CheckSelf() throws Exception {
             when(followService.isFollowing(USER_ID, USER_ID)).thenReturn(false);
 
-            mockMvc.perform(get("/follows/check/{userId}", USER_ID))
+            mockMvc.perform(get("/api/v1/follows/check/{userId}", USER_ID))
                     .andExpect(status().isOk())
                     .andExpect(content().string("false"));
         }

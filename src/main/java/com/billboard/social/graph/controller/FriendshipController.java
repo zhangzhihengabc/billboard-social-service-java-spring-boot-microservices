@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/friendships")
+@RequestMapping("/api/v1/friendships")
 @RequiredArgsConstructor
 @Validated
 @Tag(name = "Friendships", description = "Friend request and friendship management")

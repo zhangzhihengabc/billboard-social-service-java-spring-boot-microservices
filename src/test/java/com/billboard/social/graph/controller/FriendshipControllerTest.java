@@ -92,7 +92,7 @@ class FriendshipControllerTest {
     // ==================== SEND FRIEND REQUEST ====================
 
     @Nested
-    @DisplayName("POST /friendships/request - sendFriendRequest")
+    @DisplayName("POST /api/v1/friendships/request - sendFriendRequest")
     class SendFriendRequestTests {
 
         @Test
@@ -106,7 +106,7 @@ class FriendshipControllerTest {
             when(friendshipService.sendFriendRequest(eq(USER_ID), any(FriendRequest.class)))
                     .thenReturn(testFriendshipResponse);
 
-            mockMvc.perform(post("/friendships/request")
+            mockMvc.perform(post("/api/v1/friendships/request")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -127,7 +127,7 @@ class FriendshipControllerTest {
             when(friendshipService.sendFriendRequest(eq(USER_ID), any(FriendRequest.class)))
                     .thenReturn(testFriendshipResponse);
 
-            mockMvc.perform(post("/friendships/request")
+            mockMvc.perform(post("/api/v1/friendships/request")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated());
@@ -140,7 +140,7 @@ class FriendshipControllerTest {
                     .message("Hello!")
                     .build();
 
-            mockMvc.perform(post("/friendships/request")
+            mockMvc.perform(post("/api/v1/friendships/request")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -158,7 +158,7 @@ class FriendshipControllerTest {
             when(friendshipService.sendFriendRequest(eq(USER_ID), any(FriendRequest.class)))
                     .thenThrow(new ValidationException("Cannot send friend request to yourself"));
 
-            mockMvc.perform(post("/friendships/request")
+            mockMvc.perform(post("/api/v1/friendships/request")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())
@@ -175,7 +175,7 @@ class FriendshipControllerTest {
             when(friendshipService.sendFriendRequest(eq(USER_ID), any(FriendRequest.class)))
                     .thenThrow(new ValidationException("Already friends with this user"));
 
-            mockMvc.perform(post("/friendships/request")
+            mockMvc.perform(post("/api/v1/friendships/request")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -191,7 +191,7 @@ class FriendshipControllerTest {
             when(friendshipService.sendFriendRequest(eq(USER_ID), any(FriendRequest.class)))
                     .thenThrow(new ValidationException("Friend request already pending"));
 
-            mockMvc.perform(post("/friendships/request")
+            mockMvc.perform(post("/api/v1/friendships/request")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -207,7 +207,7 @@ class FriendshipControllerTest {
             when(friendshipService.sendFriendRequest(eq(USER_ID), any(FriendRequest.class)))
                     .thenThrow(new ValidationException("Cannot send friend request to blocked user"));
 
-            mockMvc.perform(post("/friendships/request")
+            mockMvc.perform(post("/api/v1/friendships/request")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -223,7 +223,7 @@ class FriendshipControllerTest {
             when(friendshipService.sendFriendRequest(eq(USER_ID), any(FriendRequest.class)))
                     .thenThrow(new ValidationException("Maximum friends limit reached"));
 
-            mockMvc.perform(post("/friendships/request")
+            mockMvc.perform(post("/api/v1/friendships/request")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -239,7 +239,7 @@ class FriendshipControllerTest {
             when(friendshipService.sendFriendRequest(eq(USER_ID), any(FriendRequest.class)))
                     .thenThrow(new ValidationException("User not found"));
 
-            mockMvc.perform(post("/friendships/request")
+            mockMvc.perform(post("/api/v1/friendships/request")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -248,7 +248,7 @@ class FriendshipControllerTest {
         @Test
         @DisplayName("Missing request body - returns 400")
         void sendFriendRequest_MissingBody() throws Exception {
-            mockMvc.perform(post("/friendships/request")
+            mockMvc.perform(post("/api/v1/friendships/request")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
@@ -258,7 +258,7 @@ class FriendshipControllerTest {
         @Test
         @DisplayName("Malformed JSON - returns 400")
         void sendFriendRequest_MalformedJson() throws Exception {
-            mockMvc.perform(post("/friendships/request")
+            mockMvc.perform(post("/api/v1/friendships/request")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"userId\": }"))
                     .andExpect(status().isBadRequest());
@@ -270,7 +270,7 @@ class FriendshipControllerTest {
     // ==================== ACCEPT FRIEND REQUEST ====================
 
     @Nested
-    @DisplayName("POST /friendships/{friendshipId}/accept - acceptFriendRequest")
+    @DisplayName("POST /api/v1/friendships/{friendshipId}/accept - acceptFriendRequest")
     class AcceptFriendRequestTests {
 
         @Test
@@ -282,7 +282,7 @@ class FriendshipControllerTest {
             when(friendshipService.acceptFriendRequest(USER_ID, FRIENDSHIP_ID))
                     .thenReturn(testFriendshipResponse);
 
-            mockMvc.perform(post("/friendships/{friendshipId}/accept", FRIENDSHIP_ID))
+            mockMvc.perform(post("/api/v1/friendships/{friendshipId}/accept", FRIENDSHIP_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(FRIENDSHIP_ID.toString()))
                     .andExpect(jsonPath("$.status").value("ACCEPTED"));
@@ -294,7 +294,7 @@ class FriendshipControllerTest {
             when(friendshipService.acceptFriendRequest(USER_ID, FRIENDSHIP_ID))
                     .thenThrow(new ValidationException("Only the addressee can accept this request"));
 
-            mockMvc.perform(post("/friendships/{friendshipId}/accept", FRIENDSHIP_ID))
+            mockMvc.perform(post("/api/v1/friendships/{friendshipId}/accept", FRIENDSHIP_ID))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Only the addressee can accept this request"));
         }
@@ -305,7 +305,7 @@ class FriendshipControllerTest {
             when(friendshipService.acceptFriendRequest(USER_ID, FRIENDSHIP_ID))
                     .thenThrow(new ValidationException("Request is not pending"));
 
-            mockMvc.perform(post("/friendships/{friendshipId}/accept", FRIENDSHIP_ID))
+            mockMvc.perform(post("/api/v1/friendships/{friendshipId}/accept", FRIENDSHIP_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -315,14 +315,14 @@ class FriendshipControllerTest {
             when(friendshipService.acceptFriendRequest(USER_ID, FRIENDSHIP_ID))
                     .thenThrow(new ValidationException("Friendship not found"));
 
-            mockMvc.perform(post("/friendships/{friendshipId}/accept", FRIENDSHIP_ID))
+            mockMvc.perform(post("/api/v1/friendships/{friendshipId}/accept", FRIENDSHIP_ID))
                     .andExpect(status().isBadRequest());
         }
 
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void acceptFriendRequest_InvalidUuid() throws Exception {
-            mockMvc.perform(post("/friendships/{friendshipId}/accept", "invalid-uuid"))
+            mockMvc.perform(post("/api/v1/friendships/{friendshipId}/accept", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(friendshipService);
@@ -332,7 +332,7 @@ class FriendshipControllerTest {
     // ==================== DECLINE FRIEND REQUEST ====================
 
     @Nested
-    @DisplayName("POST /friendships/{friendshipId}/decline - declineFriendRequest")
+    @DisplayName("POST /api/v1/friendships/{friendshipId}/decline - declineFriendRequest")
     class DeclineFriendRequestTests {
 
         @Test
@@ -340,7 +340,7 @@ class FriendshipControllerTest {
         void declineFriendRequest_Success() throws Exception {
             doNothing().when(friendshipService).declineFriendRequest(USER_ID, FRIENDSHIP_ID);
 
-            mockMvc.perform(post("/friendships/{friendshipId}/decline", FRIENDSHIP_ID))
+            mockMvc.perform(post("/api/v1/friendships/{friendshipId}/decline", FRIENDSHIP_ID))
                     .andExpect(status().isNoContent());
 
             verify(friendshipService).declineFriendRequest(USER_ID, FRIENDSHIP_ID);
@@ -352,7 +352,7 @@ class FriendshipControllerTest {
             doThrow(new ValidationException("Only the addressee can decline this request"))
                     .when(friendshipService).declineFriendRequest(USER_ID, FRIENDSHIP_ID);
 
-            mockMvc.perform(post("/friendships/{friendshipId}/decline", FRIENDSHIP_ID))
+            mockMvc.perform(post("/api/v1/friendships/{friendshipId}/decline", FRIENDSHIP_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -362,7 +362,7 @@ class FriendshipControllerTest {
             doThrow(new ValidationException("Request is not pending"))
                     .when(friendshipService).declineFriendRequest(USER_ID, FRIENDSHIP_ID);
 
-            mockMvc.perform(post("/friendships/{friendshipId}/decline", FRIENDSHIP_ID))
+            mockMvc.perform(post("/api/v1/friendships/{friendshipId}/decline", FRIENDSHIP_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -372,14 +372,14 @@ class FriendshipControllerTest {
             doThrow(new ValidationException("Friendship not found"))
                     .when(friendshipService).declineFriendRequest(USER_ID, FRIENDSHIP_ID);
 
-            mockMvc.perform(post("/friendships/{friendshipId}/decline", FRIENDSHIP_ID))
+            mockMvc.perform(post("/api/v1/friendships/{friendshipId}/decline", FRIENDSHIP_ID))
                     .andExpect(status().isBadRequest());
         }
 
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void declineFriendRequest_InvalidUuid() throws Exception {
-            mockMvc.perform(post("/friendships/{friendshipId}/decline", "invalid-uuid"))
+            mockMvc.perform(post("/api/v1/friendships/{friendshipId}/decline", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(friendshipService);
@@ -389,7 +389,7 @@ class FriendshipControllerTest {
     // ==================== CANCEL FRIEND REQUEST ====================
 
     @Nested
-    @DisplayName("DELETE /friendships/{friendshipId}/cancel - cancelFriendRequest")
+    @DisplayName("DELETE /api/v1/friendships/{friendshipId}/cancel - cancelFriendRequest")
     class CancelFriendRequestTests {
 
         @Test
@@ -397,7 +397,7 @@ class FriendshipControllerTest {
         void cancelFriendRequest_Success() throws Exception {
             doNothing().when(friendshipService).cancelFriendRequest(USER_ID, FRIENDSHIP_ID);
 
-            mockMvc.perform(delete("/friendships/{friendshipId}/cancel", FRIENDSHIP_ID))
+            mockMvc.perform(delete("/api/v1/friendships/{friendshipId}/cancel", FRIENDSHIP_ID))
                     .andExpect(status().isNoContent());
 
             verify(friendshipService).cancelFriendRequest(USER_ID, FRIENDSHIP_ID);
@@ -409,7 +409,7 @@ class FriendshipControllerTest {
             doThrow(new ValidationException("Only the requester can cancel this request"))
                     .when(friendshipService).cancelFriendRequest(USER_ID, FRIENDSHIP_ID);
 
-            mockMvc.perform(delete("/friendships/{friendshipId}/cancel", FRIENDSHIP_ID))
+            mockMvc.perform(delete("/api/v1/friendships/{friendshipId}/cancel", FRIENDSHIP_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -419,7 +419,7 @@ class FriendshipControllerTest {
             doThrow(new ValidationException("Request is not pending"))
                     .when(friendshipService).cancelFriendRequest(USER_ID, FRIENDSHIP_ID);
 
-            mockMvc.perform(delete("/friendships/{friendshipId}/cancel", FRIENDSHIP_ID))
+            mockMvc.perform(delete("/api/v1/friendships/{friendshipId}/cancel", FRIENDSHIP_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -429,14 +429,14 @@ class FriendshipControllerTest {
             doThrow(new ValidationException("Friendship not found"))
                     .when(friendshipService).cancelFriendRequest(USER_ID, FRIENDSHIP_ID);
 
-            mockMvc.perform(delete("/friendships/{friendshipId}/cancel", FRIENDSHIP_ID))
+            mockMvc.perform(delete("/api/v1/friendships/{friendshipId}/cancel", FRIENDSHIP_ID))
                     .andExpect(status().isBadRequest());
         }
 
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void cancelFriendRequest_InvalidUuid() throws Exception {
-            mockMvc.perform(delete("/friendships/{friendshipId}/cancel", "invalid-uuid"))
+            mockMvc.perform(delete("/api/v1/friendships/{friendshipId}/cancel", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(friendshipService);
@@ -446,7 +446,7 @@ class FriendshipControllerTest {
     // ==================== UNFRIEND ====================
 
     @Nested
-    @DisplayName("DELETE /friendships/{friendId} - unfriend")
+    @DisplayName("DELETE /api/v1/friendships/{friendId} - unfriend")
     class UnfriendTests {
 
         @Test
@@ -454,7 +454,7 @@ class FriendshipControllerTest {
         void unfriend_Success() throws Exception {
             doNothing().when(friendshipService).unfriend(USER_ID, FRIEND_ID);
 
-            mockMvc.perform(delete("/friendships/{friendId}", FRIEND_ID))
+            mockMvc.perform(delete("/api/v1/friendships/{friendId}", FRIEND_ID))
                     .andExpect(status().isNoContent());
 
             verify(friendshipService).unfriend(USER_ID, FRIEND_ID);
@@ -466,7 +466,7 @@ class FriendshipControllerTest {
             doThrow(new ValidationException("Not friends with this user"))
                     .when(friendshipService).unfriend(USER_ID, FRIEND_ID);
 
-            mockMvc.perform(delete("/friendships/{friendId}", FRIEND_ID))
+            mockMvc.perform(delete("/api/v1/friendships/{friendId}", FRIEND_ID))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Not friends with this user"));
         }
@@ -477,14 +477,14 @@ class FriendshipControllerTest {
             doThrow(new ValidationException("Friendship not found"))
                     .when(friendshipService).unfriend(USER_ID, FRIEND_ID);
 
-            mockMvc.perform(delete("/friendships/{friendId}", FRIEND_ID))
+            mockMvc.perform(delete("/api/v1/friendships/{friendId}", FRIEND_ID))
                     .andExpect(status().isBadRequest());
         }
 
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void unfriend_InvalidUuid() throws Exception {
-            mockMvc.perform(delete("/friendships/{friendId}", "invalid-uuid"))
+            mockMvc.perform(delete("/api/v1/friendships/{friendId}", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(friendshipService);
@@ -494,7 +494,7 @@ class FriendshipControllerTest {
     // ==================== GET FRIENDS ====================
 
     @Nested
-    @DisplayName("GET /friendships - getFriends")
+    @DisplayName("GET /api/v1/friendships - getFriends")
     class GetFriendsTests {
 
         @Test
@@ -510,7 +510,7 @@ class FriendshipControllerTest {
 
             when(friendshipService.getFriends(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/friendships"))
+            mockMvc.perform(get("/api/v1/friendships"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)))
                     .andExpect(jsonPath("$.content[0].friendId").value(FRIEND_ID.toString()))
@@ -530,7 +530,7 @@ class FriendshipControllerTest {
 
             when(friendshipService.getFriends(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/friendships"))
+            mockMvc.perform(get("/api/v1/friendships"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(0)));
         }
@@ -548,7 +548,7 @@ class FriendshipControllerTest {
 
             when(friendshipService.getFriends(USER_ID, 5, 50)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/friendships")
+            mockMvc.perform(get("/api/v1/friendships")
                             .param("page", "5")
                             .param("size", "50"))
                     .andExpect(status().isOk())
@@ -559,7 +559,7 @@ class FriendshipControllerTest {
         @Test
         @DisplayName("Page below minimum - returns 400")
         void getFriends_PageBelowMin() throws Exception {
-            mockMvc.perform(get("/friendships")
+            mockMvc.perform(get("/api/v1/friendships")
                             .param("page", "-1"))
                     .andExpect(status().isBadRequest());
 
@@ -569,7 +569,7 @@ class FriendshipControllerTest {
         @Test
         @DisplayName("Page above maximum - returns 400")
         void getFriends_PageAboveMax() throws Exception {
-            mockMvc.perform(get("/friendships")
+            mockMvc.perform(get("/api/v1/friendships")
                             .param("page", "1001"))
                     .andExpect(status().isBadRequest());
 
@@ -579,7 +579,7 @@ class FriendshipControllerTest {
         @Test
         @DisplayName("Size below minimum - returns 400")
         void getFriends_SizeBelowMin() throws Exception {
-            mockMvc.perform(get("/friendships")
+            mockMvc.perform(get("/api/v1/friendships")
                             .param("size", "0"))
                     .andExpect(status().isBadRequest());
 
@@ -589,7 +589,7 @@ class FriendshipControllerTest {
         @Test
         @DisplayName("Size above maximum - returns 400")
         void getFriends_SizeAboveMax() throws Exception {
-            mockMvc.perform(get("/friendships")
+            mockMvc.perform(get("/api/v1/friendships")
                             .param("size", "101"))
                     .andExpect(status().isBadRequest());
 
@@ -609,7 +609,7 @@ class FriendshipControllerTest {
 
             when(friendshipService.getFriends(USER_ID, 1000, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/friendships")
+            mockMvc.perform(get("/api/v1/friendships")
                             .param("page", "1000"))
                     .andExpect(status().isOk());
         }
@@ -627,7 +627,7 @@ class FriendshipControllerTest {
 
             when(friendshipService.getFriends(USER_ID, 0, 1)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/friendships")
+            mockMvc.perform(get("/api/v1/friendships")
                             .param("size", "1"))
                     .andExpect(status().isOk());
         }
@@ -645,7 +645,7 @@ class FriendshipControllerTest {
 
             when(friendshipService.getFriends(USER_ID, 0, 100)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/friendships")
+            mockMvc.perform(get("/api/v1/friendships")
                             .param("size", "100"))
                     .andExpect(status().isOk());
         }
@@ -654,7 +654,7 @@ class FriendshipControllerTest {
     // ==================== GET PENDING REQUESTS ====================
 
     @Nested
-    @DisplayName("GET /friendships/requests/pending - getPendingRequests")
+    @DisplayName("GET /api/v1/friendships/requests/pending - getPendingRequests")
     class GetPendingRequestsTests {
 
         @Test
@@ -670,7 +670,7 @@ class FriendshipControllerTest {
 
             when(friendshipService.getPendingRequests(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/friendships/requests/pending"))
+            mockMvc.perform(get("/api/v1/friendships/requests/pending"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)))
                     .andExpect(jsonPath("$.content[0].status").value("PENDING"));
@@ -689,7 +689,7 @@ class FriendshipControllerTest {
 
             when(friendshipService.getPendingRequests(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/friendships/requests/pending"))
+            mockMvc.perform(get("/api/v1/friendships/requests/pending"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(0)));
         }
@@ -707,7 +707,7 @@ class FriendshipControllerTest {
 
             when(friendshipService.getPendingRequests(USER_ID, 3, 25)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/friendships/requests/pending")
+            mockMvc.perform(get("/api/v1/friendships/requests/pending")
                             .param("page", "3")
                             .param("size", "25"))
                     .andExpect(status().isOk());
@@ -716,7 +716,7 @@ class FriendshipControllerTest {
         @Test
         @DisplayName("Page above maximum - returns 400")
         void getPendingRequests_PageAboveMax() throws Exception {
-            mockMvc.perform(get("/friendships/requests/pending")
+            mockMvc.perform(get("/api/v1/friendships/requests/pending")
                             .param("page", "1001"))
                     .andExpect(status().isBadRequest());
 
@@ -726,7 +726,7 @@ class FriendshipControllerTest {
         @Test
         @DisplayName("Size below minimum - returns 400")
         void getPendingRequests_SizeBelowMin() throws Exception {
-            mockMvc.perform(get("/friendships/requests/pending")
+            mockMvc.perform(get("/api/v1/friendships/requests/pending")
                             .param("size", "0"))
                     .andExpect(status().isBadRequest());
 
@@ -737,7 +737,7 @@ class FriendshipControllerTest {
     // ==================== GET SENT REQUESTS ====================
 
     @Nested
-    @DisplayName("GET /friendships/requests/sent - getSentRequests")
+    @DisplayName("GET /api/v1/friendships/requests/sent - getSentRequests")
     class GetSentRequestsTests {
 
         @Test
@@ -753,7 +753,7 @@ class FriendshipControllerTest {
 
             when(friendshipService.getSentRequests(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/friendships/requests/sent"))
+            mockMvc.perform(get("/api/v1/friendships/requests/sent"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)))
                     .andExpect(jsonPath("$.content[0].requesterId").value(USER_ID.toString()));
@@ -772,7 +772,7 @@ class FriendshipControllerTest {
 
             when(friendshipService.getSentRequests(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/friendships/requests/sent"))
+            mockMvc.perform(get("/api/v1/friendships/requests/sent"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(0)));
         }
@@ -790,7 +790,7 @@ class FriendshipControllerTest {
 
             when(friendshipService.getSentRequests(USER_ID, 2, 30)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/friendships/requests/sent")
+            mockMvc.perform(get("/api/v1/friendships/requests/sent")
                             .param("page", "2")
                             .param("size", "30"))
                     .andExpect(status().isOk());
@@ -799,7 +799,7 @@ class FriendshipControllerTest {
         @Test
         @DisplayName("Size above maximum - returns 400")
         void getSentRequests_SizeAboveMax() throws Exception {
-            mockMvc.perform(get("/friendships/requests/sent")
+            mockMvc.perform(get("/api/v1/friendships/requests/sent")
                             .param("size", "101"))
                     .andExpect(status().isBadRequest());
 
@@ -810,7 +810,7 @@ class FriendshipControllerTest {
     // ==================== GET FRIEND IDS ====================
 
     @Nested
-    @DisplayName("GET /friendships/ids - getFriendIds")
+    @DisplayName("GET /api/v1/friendships/ids - getFriendIds")
     class GetFriendIdsTests {
 
         @Test
@@ -822,7 +822,7 @@ class FriendshipControllerTest {
 
             when(friendshipService.getFriendIds(USER_ID)).thenReturn(ids);
 
-            mockMvc.perform(get("/friendships/ids"))
+            mockMvc.perform(get("/api/v1/friendships/ids"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(3)))
                     .andExpect(jsonPath("$[0]").value(FRIEND_ID.toString()));
@@ -833,7 +833,7 @@ class FriendshipControllerTest {
         void getFriendIds_Empty() throws Exception {
             when(friendshipService.getFriendIds(USER_ID)).thenReturn(Collections.emptyList());
 
-            mockMvc.perform(get("/friendships/ids"))
+            mockMvc.perform(get("/api/v1/friendships/ids"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(0)));
         }
@@ -843,7 +843,7 @@ class FriendshipControllerTest {
         void getFriendIds_SingleFriend() throws Exception {
             when(friendshipService.getFriendIds(USER_ID)).thenReturn(List.of(FRIEND_ID));
 
-            mockMvc.perform(get("/friendships/ids"))
+            mockMvc.perform(get("/api/v1/friendships/ids"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(1)));
         }
@@ -852,7 +852,7 @@ class FriendshipControllerTest {
     // ==================== GET MUTUAL FRIENDS ====================
 
     @Nested
-    @DisplayName("GET /friendships/mutual/{userId} - getMutualFriends")
+    @DisplayName("GET /api/v1/friendships/mutual/{userId} - getMutualFriends")
     class GetMutualFriendsTests {
 
         @Test
@@ -864,7 +864,7 @@ class FriendshipControllerTest {
 
             when(friendshipService.getMutualFriendIds(USER_ID, FRIEND_ID)).thenReturn(mutualIds);
 
-            mockMvc.perform(get("/friendships/mutual/{userId}", FRIEND_ID))
+            mockMvc.perform(get("/api/v1/friendships/mutual/{userId}", FRIEND_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(2)));
         }
@@ -874,7 +874,7 @@ class FriendshipControllerTest {
         void getMutualFriends_Empty() throws Exception {
             when(friendshipService.getMutualFriendIds(USER_ID, FRIEND_ID)).thenReturn(Collections.emptyList());
 
-            mockMvc.perform(get("/friendships/mutual/{userId}", FRIEND_ID))
+            mockMvc.perform(get("/api/v1/friendships/mutual/{userId}", FRIEND_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(0)));
         }
@@ -884,7 +884,7 @@ class FriendshipControllerTest {
         void getMutualFriends_CheckSelf() throws Exception {
             when(friendshipService.getMutualFriendIds(USER_ID, USER_ID)).thenReturn(Collections.emptyList());
 
-            mockMvc.perform(get("/friendships/mutual/{userId}", USER_ID))
+            mockMvc.perform(get("/api/v1/friendships/mutual/{userId}", USER_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(0)));
         }
@@ -892,7 +892,7 @@ class FriendshipControllerTest {
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void getMutualFriends_InvalidUuid() throws Exception {
-            mockMvc.perform(get("/friendships/mutual/{userId}", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/friendships/mutual/{userId}", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(friendshipService);
@@ -902,7 +902,7 @@ class FriendshipControllerTest {
     // ==================== ARE FRIENDS ====================
 
     @Nested
-    @DisplayName("GET /friendships/check/{userId} - areFriends")
+    @DisplayName("GET /api/v1/friendships/check/{userId} - areFriends")
     class AreFriendsTests {
 
         @Test
@@ -910,7 +910,7 @@ class FriendshipControllerTest {
         void areFriends_ReturnsTrue() throws Exception {
             when(friendshipService.areFriends(USER_ID, FRIEND_ID)).thenReturn(true);
 
-            mockMvc.perform(get("/friendships/check/{userId}", FRIEND_ID))
+            mockMvc.perform(get("/api/v1/friendships/check/{userId}", FRIEND_ID))
                     .andExpect(status().isOk())
                     .andExpect(content().string("true"));
         }
@@ -920,7 +920,7 @@ class FriendshipControllerTest {
         void areFriends_ReturnsFalse() throws Exception {
             when(friendshipService.areFriends(USER_ID, FRIEND_ID)).thenReturn(false);
 
-            mockMvc.perform(get("/friendships/check/{userId}", FRIEND_ID))
+            mockMvc.perform(get("/api/v1/friendships/check/{userId}", FRIEND_ID))
                     .andExpect(status().isOk())
                     .andExpect(content().string("false"));
         }
@@ -930,7 +930,7 @@ class FriendshipControllerTest {
         void areFriends_CheckSelf() throws Exception {
             when(friendshipService.areFriends(USER_ID, USER_ID)).thenReturn(false);
 
-            mockMvc.perform(get("/friendships/check/{userId}", USER_ID))
+            mockMvc.perform(get("/api/v1/friendships/check/{userId}", USER_ID))
                     .andExpect(status().isOk())
                     .andExpect(content().string("false"));
         }
@@ -938,7 +938,7 @@ class FriendshipControllerTest {
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void areFriends_InvalidUuid() throws Exception {
-            mockMvc.perform(get("/friendships/check/{userId}", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/friendships/check/{userId}", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(friendshipService);
@@ -948,7 +948,7 @@ class FriendshipControllerTest {
     // ==================== GET FRIENDS COUNT ====================
 
     @Nested
-    @DisplayName("GET /friendships/count - getFriendsCount")
+    @DisplayName("GET /api/v1/friendships/count - getFriendsCount")
     class GetFriendsCountTests {
 
         @Test
@@ -956,7 +956,7 @@ class FriendshipControllerTest {
         void getFriendsCount_Success() throws Exception {
             when(friendshipService.getFriendsCount(USER_ID)).thenReturn(42L);
 
-            mockMvc.perform(get("/friendships/count"))
+            mockMvc.perform(get("/api/v1/friendships/count"))
                     .andExpect(status().isOk())
                     .andExpect(content().string("42"));
         }
@@ -966,7 +966,7 @@ class FriendshipControllerTest {
         void getFriendsCount_Zero() throws Exception {
             when(friendshipService.getFriendsCount(USER_ID)).thenReturn(0L);
 
-            mockMvc.perform(get("/friendships/count"))
+            mockMvc.perform(get("/api/v1/friendships/count"))
                     .andExpect(status().isOk())
                     .andExpect(content().string("0"));
         }
@@ -976,7 +976,7 @@ class FriendshipControllerTest {
         void getFriendsCount_LargeCount() throws Exception {
             when(friendshipService.getFriendsCount(USER_ID)).thenReturn(5000L);
 
-            mockMvc.perform(get("/friendships/count"))
+            mockMvc.perform(get("/api/v1/friendships/count"))
                     .andExpect(status().isOk())
                     .andExpect(content().string("5000"));
         }

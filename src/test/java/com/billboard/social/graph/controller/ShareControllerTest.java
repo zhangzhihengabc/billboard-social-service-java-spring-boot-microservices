@@ -52,15 +52,11 @@ class ShareControllerTest {
     @MockBean
     private ShareService shareService;
 
-    @MockBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    private UserPrincipal userPrincipal;
     private ShareResponse testShareResponse;
 
     @BeforeEach
     void setUp() {
-        userPrincipal = UserPrincipal.builder()
+        UserPrincipal userPrincipal = UserPrincipal.builder()
                 .id(USER_ID)
                 .username("testuser")
                 .email("test@example.com")
@@ -117,7 +113,7 @@ class ShareControllerTest {
             when(shareService.share(eq(USER_ID), any(ShareRequest.class)))
                     .thenReturn(testShareResponse);
 
-            mockMvc.perform(post("/shares")
+            mockMvc.perform(post("/api/v1/shares")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -146,7 +142,7 @@ class ShareControllerTest {
             when(shareService.share(eq(USER_ID), any(ShareRequest.class)))
                     .thenReturn(testShareResponse);
 
-            mockMvc.perform(post("/shares")
+            mockMvc.perform(post("/api/v1/shares")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -168,7 +164,7 @@ class ShareControllerTest {
             when(shareService.share(eq(USER_ID), any(ShareRequest.class)))
                     .thenReturn(testShareResponse);
 
-            mockMvc.perform(post("/shares")
+            mockMvc.perform(post("/api/v1/shares")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -189,7 +185,7 @@ class ShareControllerTest {
             when(shareService.share(eq(USER_ID), any(ShareRequest.class)))
                     .thenReturn(testShareResponse);
 
-            mockMvc.perform(post("/shares")
+            mockMvc.perform(post("/api/v1/shares")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -209,7 +205,7 @@ class ShareControllerTest {
             when(shareService.share(eq(USER_ID), any(ShareRequest.class)))
                     .thenReturn(testShareResponse);
 
-            mockMvc.perform(post("/shares")
+            mockMvc.perform(post("/api/v1/shares")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -224,7 +220,7 @@ class ShareControllerTest {
                     .shareToFeed(true)
                     .build();
 
-            mockMvc.perform(post("/shares")
+            mockMvc.perform(post("/api/v1/shares")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -240,7 +236,7 @@ class ShareControllerTest {
                     .shareToFeed(true)
                     .build();
 
-            mockMvc.perform(post("/shares")
+            mockMvc.perform(post("/api/v1/shares")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -251,7 +247,7 @@ class ShareControllerTest {
         @Test
         @DisplayName("Invalid contentType - returns 400")
         void share_InvalidContentType() throws Exception {
-            mockMvc.perform(post("/shares")
+            mockMvc.perform(post("/api/v1/shares")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"contentType\": \"INVALID\", \"contentId\": \"" + CONTENT_ID + "\", \"shareToFeed\": true}"))
                     .andExpect(status().isBadRequest());
@@ -271,7 +267,7 @@ class ShareControllerTest {
             when(shareService.share(eq(USER_ID), any(ShareRequest.class)))
                     .thenThrow(new ValidationException("Content not found"));
 
-            mockMvc.perform(post("/shares")
+            mockMvc.perform(post("/api/v1/shares")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())
@@ -290,7 +286,7 @@ class ShareControllerTest {
             when(shareService.share(eq(USER_ID), any(ShareRequest.class)))
                     .thenThrow(new ValidationException("Cannot share to blocked user"));
 
-            mockMvc.perform(post("/shares")
+            mockMvc.perform(post("/api/v1/shares")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -299,7 +295,7 @@ class ShareControllerTest {
         @Test
         @DisplayName("Missing request body - returns 400")
         void share_MissingBody() throws Exception {
-            mockMvc.perform(post("/shares")
+            mockMvc.perform(post("/api/v1/shares")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
@@ -309,7 +305,7 @@ class ShareControllerTest {
         @Test
         @DisplayName("Malformed JSON - returns 400")
         void share_MalformedJson() throws Exception {
-            mockMvc.perform(post("/shares")
+            mockMvc.perform(post("/api/v1/shares")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"contentType\": }"))
                     .andExpect(status().isBadRequest());
@@ -338,7 +334,7 @@ class ShareControllerTest {
             when(shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20))
                     .thenReturn(pageResponse);
 
-            mockMvc.perform(get("/shares/content/{contentType}/{contentId}", "POST", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/shares/content/{contentType}/{contentId}", "POST", CONTENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)))
                     .andExpect(jsonPath("$.content[0].id").value(SHARE_ID.toString()))
@@ -359,7 +355,7 @@ class ShareControllerTest {
             when(shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20))
                     .thenReturn(pageResponse);
 
-            mockMvc.perform(get("/shares/content/{contentType}/{contentId}", "POST", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/shares/content/{contentType}/{contentId}", "POST", CONTENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(0)));
         }
@@ -378,7 +374,7 @@ class ShareControllerTest {
             when(shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 5, 50))
                     .thenReturn(pageResponse);
 
-            mockMvc.perform(get("/shares/content/{contentType}/{contentId}", "POST", CONTENT_ID)
+            mockMvc.perform(get("/api/v1/shares/content/{contentType}/{contentId}", "POST", CONTENT_ID)
                             .param("page", "5")
                             .param("size", "50"))
                     .andExpect(status().isOk())
@@ -401,7 +397,7 @@ class ShareControllerTest {
             when(shareService.getSharesByContent(ContentType.COMMENT, CONTENT_ID, 0, 20))
                     .thenReturn(pageResponse);
 
-            mockMvc.perform(get("/shares/content/{contentType}/{contentId}", "COMMENT", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/shares/content/{contentType}/{contentId}", "COMMENT", CONTENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content[0].contentType").value("COMMENT"));
         }
@@ -409,7 +405,7 @@ class ShareControllerTest {
         @Test
         @DisplayName("Page below minimum - returns 400")
         void getSharesByContent_PageBelowMin() throws Exception {
-            mockMvc.perform(get("/shares/content/{contentType}/{contentId}", "POST", CONTENT_ID)
+            mockMvc.perform(get("/api/v1/shares/content/{contentType}/{contentId}", "POST", CONTENT_ID)
                             .param("page", "-1"))
                     .andExpect(status().isBadRequest());
 
@@ -419,7 +415,7 @@ class ShareControllerTest {
         @Test
         @DisplayName("Page above maximum - returns 400")
         void getSharesByContent_PageAboveMax() throws Exception {
-            mockMvc.perform(get("/shares/content/{contentType}/{contentId}", "POST", CONTENT_ID)
+            mockMvc.perform(get("/api/v1/shares/content/{contentType}/{contentId}", "POST", CONTENT_ID)
                             .param("page", "1001"))
                     .andExpect(status().isBadRequest());
 
@@ -429,7 +425,7 @@ class ShareControllerTest {
         @Test
         @DisplayName("Size below minimum - returns 400")
         void getSharesByContent_SizeBelowMin() throws Exception {
-            mockMvc.perform(get("/shares/content/{contentType}/{contentId}", "POST", CONTENT_ID)
+            mockMvc.perform(get("/api/v1/shares/content/{contentType}/{contentId}", "POST", CONTENT_ID)
                             .param("size", "0"))
                     .andExpect(status().isBadRequest());
 
@@ -439,7 +435,7 @@ class ShareControllerTest {
         @Test
         @DisplayName("Size above maximum - returns 400")
         void getSharesByContent_SizeAboveMax() throws Exception {
-            mockMvc.perform(get("/shares/content/{contentType}/{contentId}", "POST", CONTENT_ID)
+            mockMvc.perform(get("/api/v1/shares/content/{contentType}/{contentId}", "POST", CONTENT_ID)
                             .param("size", "101"))
                     .andExpect(status().isBadRequest());
 
@@ -460,7 +456,7 @@ class ShareControllerTest {
             when(shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 1000, 20))
                     .thenReturn(pageResponse);
 
-            mockMvc.perform(get("/shares/content/{contentType}/{contentId}", "POST", CONTENT_ID)
+            mockMvc.perform(get("/api/v1/shares/content/{contentType}/{contentId}", "POST", CONTENT_ID)
                             .param("page", "1000"))
                     .andExpect(status().isOk());
         }
@@ -479,7 +475,7 @@ class ShareControllerTest {
             when(shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 1))
                     .thenReturn(pageResponse);
 
-            mockMvc.perform(get("/shares/content/{contentType}/{contentId}", "POST", CONTENT_ID)
+            mockMvc.perform(get("/api/v1/shares/content/{contentType}/{contentId}", "POST", CONTENT_ID)
                             .param("size", "1"))
                     .andExpect(status().isOk());
         }
@@ -498,7 +494,7 @@ class ShareControllerTest {
             when(shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 100))
                     .thenReturn(pageResponse);
 
-            mockMvc.perform(get("/shares/content/{contentType}/{contentId}", "POST", CONTENT_ID)
+            mockMvc.perform(get("/api/v1/shares/content/{contentType}/{contentId}", "POST", CONTENT_ID)
                             .param("size", "100"))
                     .andExpect(status().isOk());
         }
@@ -506,7 +502,7 @@ class ShareControllerTest {
         @Test
         @DisplayName("Invalid contentType - returns 400")
         void getSharesByContent_InvalidContentType() throws Exception {
-            mockMvc.perform(get("/shares/content/{contentType}/{contentId}", "INVALID", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/shares/content/{contentType}/{contentId}", "INVALID", CONTENT_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(shareService);
@@ -515,7 +511,7 @@ class ShareControllerTest {
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void getSharesByContent_InvalidUuid() throws Exception {
-            mockMvc.perform(get("/shares/content/{contentType}/{contentId}", "POST", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/shares/content/{contentType}/{contentId}", "POST", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(shareService);
@@ -541,7 +537,7 @@ class ShareControllerTest {
 
             when(shareService.getSharesByUser(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/shares/user"))
+            mockMvc.perform(get("/api/v1/shares/user"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)))
                     .andExpect(jsonPath("$.content[0].userId").value(USER_ID.toString()))
@@ -561,7 +557,7 @@ class ShareControllerTest {
 
             when(shareService.getSharesByUser(USER_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/shares/user"))
+            mockMvc.perform(get("/api/v1/shares/user"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(0)));
         }
@@ -579,7 +575,7 @@ class ShareControllerTest {
 
             when(shareService.getSharesByUser(USER_ID, 3, 25)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/shares/user")
+            mockMvc.perform(get("/api/v1/shares/user")
                             .param("page", "3")
                             .param("size", "25"))
                     .andExpect(status().isOk())
@@ -590,7 +586,7 @@ class ShareControllerTest {
         @Test
         @DisplayName("Page below minimum - returns 400")
         void getSharesByUser_PageBelowMin() throws Exception {
-            mockMvc.perform(get("/shares/user")
+            mockMvc.perform(get("/api/v1/shares/user")
                             .param("page", "-1"))
                     .andExpect(status().isBadRequest());
 
@@ -600,7 +596,7 @@ class ShareControllerTest {
         @Test
         @DisplayName("Page above maximum - returns 400")
         void getSharesByUser_PageAboveMax() throws Exception {
-            mockMvc.perform(get("/shares/user")
+            mockMvc.perform(get("/api/v1/shares/user")
                             .param("page", "1001"))
                     .andExpect(status().isBadRequest());
 
@@ -610,7 +606,7 @@ class ShareControllerTest {
         @Test
         @DisplayName("Size below minimum - returns 400")
         void getSharesByUser_SizeBelowMin() throws Exception {
-            mockMvc.perform(get("/shares/user")
+            mockMvc.perform(get("/api/v1/shares/user")
                             .param("size", "0"))
                     .andExpect(status().isBadRequest());
 
@@ -620,7 +616,7 @@ class ShareControllerTest {
         @Test
         @DisplayName("Size above maximum - returns 400")
         void getSharesByUser_SizeAboveMax() throws Exception {
-            mockMvc.perform(get("/shares/user")
+            mockMvc.perform(get("/api/v1/shares/user")
                             .param("size", "101"))
                     .andExpect(status().isBadRequest());
 
@@ -640,7 +636,7 @@ class ShareControllerTest {
 
             when(shareService.getSharesByUser(USER_ID, 1000, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/shares/user")
+            mockMvc.perform(get("/api/v1/shares/user")
                             .param("page", "1000"))
                     .andExpect(status().isOk());
         }
@@ -658,7 +654,7 @@ class ShareControllerTest {
 
             when(shareService.getSharesByUser(USER_ID, 0, 1)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/shares/user")
+            mockMvc.perform(get("/api/v1/shares/user")
                             .param("size", "1"))
                     .andExpect(status().isOk());
         }
@@ -676,7 +672,7 @@ class ShareControllerTest {
 
             when(shareService.getSharesByUser(USER_ID, 0, 100)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/shares/user")
+            mockMvc.perform(get("/api/v1/shares/user")
                             .param("size", "100"))
                     .andExpect(status().isOk());
         }
@@ -693,7 +689,7 @@ class ShareControllerTest {
         void getShareCount_Success() throws Exception {
             when(shareService.getShareCount(ContentType.POST, CONTENT_ID)).thenReturn(25L);
 
-            mockMvc.perform(get("/shares/count/{contentType}/{contentId}", "POST", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/shares/count/{contentType}/{contentId}", "POST", CONTENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(content().string("25"));
         }
@@ -703,7 +699,7 @@ class ShareControllerTest {
         void getShareCount_Zero() throws Exception {
             when(shareService.getShareCount(ContentType.POST, CONTENT_ID)).thenReturn(0L);
 
-            mockMvc.perform(get("/shares/count/{contentType}/{contentId}", "POST", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/shares/count/{contentType}/{contentId}", "POST", CONTENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(content().string("0"));
         }
@@ -713,7 +709,7 @@ class ShareControllerTest {
         void getShareCount_LargeCount() throws Exception {
             when(shareService.getShareCount(ContentType.POST, CONTENT_ID)).thenReturn(10000L);
 
-            mockMvc.perform(get("/shares/count/{contentType}/{contentId}", "POST", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/shares/count/{contentType}/{contentId}", "POST", CONTENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(content().string("10000"));
         }
@@ -723,7 +719,7 @@ class ShareControllerTest {
         void getShareCount_CommentContentType() throws Exception {
             when(shareService.getShareCount(ContentType.COMMENT, CONTENT_ID)).thenReturn(5L);
 
-            mockMvc.perform(get("/shares/count/{contentType}/{contentId}", "COMMENT", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/shares/count/{contentType}/{contentId}", "COMMENT", CONTENT_ID))
                     .andExpect(status().isOk())
                     .andExpect(content().string("5"));
         }
@@ -731,7 +727,7 @@ class ShareControllerTest {
         @Test
         @DisplayName("Invalid contentType - returns 400")
         void getShareCount_InvalidContentType() throws Exception {
-            mockMvc.perform(get("/shares/count/{contentType}/{contentId}", "INVALID", CONTENT_ID))
+            mockMvc.perform(get("/api/v1/shares/count/{contentType}/{contentId}", "INVALID", CONTENT_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(shareService);
@@ -740,7 +736,7 @@ class ShareControllerTest {
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void getShareCount_InvalidUuid() throws Exception {
-            mockMvc.perform(get("/shares/count/{contentType}/{contentId}", "POST", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/shares/count/{contentType}/{contentId}", "POST", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(shareService);

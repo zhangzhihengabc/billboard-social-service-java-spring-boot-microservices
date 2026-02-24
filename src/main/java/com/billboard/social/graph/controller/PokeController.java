@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/pokes")
+@RequestMapping("/api/v1/pokes")
 @RequiredArgsConstructor
 @Validated
 @Tag(name = "Pokes", description = "Poke feature")

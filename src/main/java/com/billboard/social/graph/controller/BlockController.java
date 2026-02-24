@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/blocks")
+@RequestMapping("/api/v1/blocks")
 @RequiredArgsConstructor
 @Validated
 @Tag(name = "Blocks", description = "User blocking management")

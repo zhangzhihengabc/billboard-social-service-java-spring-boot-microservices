@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/follows")
+@RequestMapping("/api/v1/follows")
 @RequiredArgsConstructor
 @Validated
 @Tag(name = "Follows", description = "APIs for managing follow/unfollow relationships between users")

@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/shares")
+@RequestMapping("/api/v1/shares")
 @RequiredArgsConstructor
 @Validated
 @Tag(name = "Shares", description = "Content sharing")

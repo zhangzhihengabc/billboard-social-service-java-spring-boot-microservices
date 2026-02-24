@@ -99,7 +99,7 @@ class GroupMemberControllerTest {
     // ==================== JOIN GROUP ====================
 
     @Nested
-    @DisplayName("POST /groups/{groupId}/members/join")
+    @DisplayName("POST /api/v1/groups/{groupId}/members/join")
     class JoinGroupTests {
 
         @Test
@@ -110,7 +110,7 @@ class GroupMemberControllerTest {
             when(memberService.joinGroup(eq(USER_ID), eq(GROUP_ID), any(JoinGroupRequest.class)))
                     .thenReturn(testMemberResponse);
 
-            mockMvc.perform(post("/groups/{groupId}/members/join", GROUP_ID)
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/join", GROUP_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -124,7 +124,7 @@ class GroupMemberControllerTest {
             when(memberService.joinGroup(eq(USER_ID), eq(GROUP_ID), any(JoinGroupRequest.class)))
                     .thenReturn(testMemberResponse);
 
-            mockMvc.perform(post("/groups/{groupId}/members/join", GROUP_ID)
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/join", GROUP_ID)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.id").value(MEMBER_ID.toString()));
@@ -136,7 +136,7 @@ class GroupMemberControllerTest {
             when(memberService.joinGroup(eq(USER_ID), eq(GROUP_ID), any(JoinGroupRequest.class)))
                     .thenThrow(new ResourceNotFoundException("Group", "id", GROUP_ID));
 
-            mockMvc.perform(post("/groups/{groupId}/members/join", GROUP_ID)
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/join", GROUP_ID)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
         }
@@ -147,7 +147,7 @@ class GroupMemberControllerTest {
             when(memberService.joinGroup(eq(USER_ID), eq(GROUP_ID), any(JoinGroupRequest.class)))
                     .thenThrow(new ValidationException("You are already a member of this group"));
 
-            mockMvc.perform(post("/groups/{groupId}/members/join", GROUP_ID)
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/join", GROUP_ID)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
         }
@@ -155,7 +155,7 @@ class GroupMemberControllerTest {
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void joinGroup_InvalidUuid() throws Exception {
-            mockMvc.perform(post("/groups/{groupId}/members/join", "invalid-uuid")
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/join", "invalid-uuid")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
@@ -166,7 +166,7 @@ class GroupMemberControllerTest {
     // ==================== LEAVE GROUP ====================
 
     @Nested
-    @DisplayName("POST /groups/{groupId}/members/leave")
+    @DisplayName("POST /api/v1/groups/{groupId}/members/leave")
     class LeaveGroupTests {
 
         @Test
@@ -174,7 +174,7 @@ class GroupMemberControllerTest {
         void leaveGroup_Success() throws Exception {
             doNothing().when(memberService).leaveGroup(USER_ID, GROUP_ID);
 
-            mockMvc.perform(post("/groups/{groupId}/members/leave", GROUP_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/leave", GROUP_ID))
                     .andExpect(status().isNoContent());
 
             verify(memberService).leaveGroup(USER_ID, GROUP_ID);
@@ -186,7 +186,7 @@ class GroupMemberControllerTest {
             doThrow(new ResourceNotFoundException("Member", "userId", USER_ID))
                     .when(memberService).leaveGroup(USER_ID, GROUP_ID);
 
-            mockMvc.perform(post("/groups/{groupId}/members/leave", GROUP_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/leave", GROUP_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -196,14 +196,14 @@ class GroupMemberControllerTest {
             doThrow(new ValidationException("Owner cannot leave the group"))
                     .when(memberService).leaveGroup(USER_ID, GROUP_ID);
 
-            mockMvc.perform(post("/groups/{groupId}/members/leave", GROUP_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/leave", GROUP_ID))
                     .andExpect(status().isBadRequest());
         }
 
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void leaveGroup_InvalidUuid() throws Exception {
-            mockMvc.perform(post("/groups/{groupId}/members/leave", "invalid-uuid"))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/leave", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);
@@ -213,7 +213,7 @@ class GroupMemberControllerTest {
     // ==================== GET MEMBERS ====================
 
     @Nested
-    @DisplayName("GET /groups/{groupId}/members")
+    @DisplayName("GET /api/v1/groups/{groupId}/members")
     class GetMembersTests {
 
         @Test
@@ -226,7 +226,7 @@ class GroupMemberControllerTest {
 
             when(memberService.getMembers(GROUP_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/groups/{groupId}/members", GROUP_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members", GROUP_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)))
                     .andExpect(jsonPath("$.content[0].id").value(MEMBER_ID.toString()));
@@ -242,7 +242,7 @@ class GroupMemberControllerTest {
 
             when(memberService.getMembers(GROUP_ID, 0, 20)).thenReturn(emptyResponse);
 
-            mockMvc.perform(get("/groups/{groupId}/members", GROUP_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members", GROUP_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(0)));
         }
@@ -257,7 +257,7 @@ class GroupMemberControllerTest {
 
             when(memberService.getMembers(GROUP_ID, 2, 10)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/groups/{groupId}/members", GROUP_ID)
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members", GROUP_ID)
                             .param("page", "2")
                             .param("size", "10"))
                     .andExpect(status().isOk());
@@ -266,7 +266,7 @@ class GroupMemberControllerTest {
         @Test
         @DisplayName("Page below minimum - returns 400")
         void getMembers_PageBelowMin() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/members", GROUP_ID)
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members", GROUP_ID)
                             .param("page", "-1"))
                     .andExpect(status().isBadRequest());
 
@@ -276,7 +276,7 @@ class GroupMemberControllerTest {
         @Test
         @DisplayName("Page above maximum - returns 400")
         void getMembers_PageAboveMax() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/members", GROUP_ID)
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members", GROUP_ID)
                             .param("page", "1001"))
                     .andExpect(status().isBadRequest());
 
@@ -286,7 +286,7 @@ class GroupMemberControllerTest {
         @Test
         @DisplayName("Size below minimum - returns 400")
         void getMembers_SizeBelowMin() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/members", GROUP_ID)
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members", GROUP_ID)
                             .param("size", "0"))
                     .andExpect(status().isBadRequest());
 
@@ -296,7 +296,7 @@ class GroupMemberControllerTest {
         @Test
         @DisplayName("Size above maximum - returns 400")
         void getMembers_SizeAboveMax() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/members", GROUP_ID)
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members", GROUP_ID)
                             .param("size", "101"))
                     .andExpect(status().isBadRequest());
 
@@ -306,7 +306,7 @@ class GroupMemberControllerTest {
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void getMembers_InvalidUuid() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/members", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);
@@ -316,7 +316,7 @@ class GroupMemberControllerTest {
     // ==================== GET MY MEMBERSHIP ====================
 
     @Nested
-    @DisplayName("GET /groups/{groupId}/members/me")
+    @DisplayName("GET /api/v1/groups/{groupId}/members/me")
     class GetMyMembershipTests {
 
         @Test
@@ -324,7 +324,7 @@ class GroupMemberControllerTest {
         void getMyMembership_Success() throws Exception {
             when(memberService.getMember(GROUP_ID, USER_ID)).thenReturn(testMemberResponse);
 
-            mockMvc.perform(get("/groups/{groupId}/members/me", GROUP_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/me", GROUP_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(MEMBER_ID.toString()))
                     .andExpect(jsonPath("$.userId").value(USER_ID.toString()));
@@ -336,14 +336,14 @@ class GroupMemberControllerTest {
             when(memberService.getMember(GROUP_ID, USER_ID))
                     .thenThrow(new ResourceNotFoundException("Member", "userId", USER_ID));
 
-            mockMvc.perform(get("/groups/{groupId}/members/me", GROUP_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/me", GROUP_ID))
                     .andExpect(status().isBadRequest());
         }
 
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void getMyMembership_InvalidUuid() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/members/me", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/me", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);
@@ -353,7 +353,7 @@ class GroupMemberControllerTest {
     // ==================== GET MEMBER ====================
 
     @Nested
-    @DisplayName("GET /groups/{groupId}/members/{userId}")
+    @DisplayName("GET /api/v1/groups/{groupId}/members/{userId}")
     class GetMemberTests {
 
         @Test
@@ -361,7 +361,7 @@ class GroupMemberControllerTest {
         void getMember_Success() throws Exception {
             when(memberService.getMember(GROUP_ID, TARGET_USER_ID)).thenReturn(testMemberResponse);
 
-            mockMvc.perform(get("/groups/{groupId}/members/{userId}", GROUP_ID, TARGET_USER_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/{userId}", GROUP_ID, TARGET_USER_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(MEMBER_ID.toString()));
         }
@@ -372,14 +372,14 @@ class GroupMemberControllerTest {
             when(memberService.getMember(GROUP_ID, TARGET_USER_ID))
                     .thenThrow(new ResourceNotFoundException("Member", "userId", TARGET_USER_ID));
 
-            mockMvc.perform(get("/groups/{groupId}/members/{userId}", GROUP_ID, TARGET_USER_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/{userId}", GROUP_ID, TARGET_USER_ID))
                     .andExpect(status().isBadRequest());
         }
 
         @Test
         @DisplayName("Invalid group UUID - returns 400")
         void getMember_InvalidGroupUuid() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/members/{userId}", "invalid-uuid", TARGET_USER_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/{userId}", "invalid-uuid", TARGET_USER_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);
@@ -388,7 +388,7 @@ class GroupMemberControllerTest {
         @Test
         @DisplayName("Invalid user UUID - returns 400")
         void getMember_InvalidUserUuid() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/members/{userId}", GROUP_ID, "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/{userId}", GROUP_ID, "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);
@@ -398,7 +398,7 @@ class GroupMemberControllerTest {
     // ==================== GET PENDING MEMBERS ====================
 
     @Nested
-    @DisplayName("GET /groups/{groupId}/members/pending")
+    @DisplayName("GET /api/v1/groups/{groupId}/members/pending")
     class GetPendingMembersTests {
 
         @Test
@@ -419,7 +419,7 @@ class GroupMemberControllerTest {
 
             when(memberService.getPendingMembers(USER_ID, GROUP_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/groups/{groupId}/members/pending", GROUP_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/pending", GROUP_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)))
                     .andExpect(jsonPath("$.content[0].status").value("PENDING"));
@@ -435,7 +435,7 @@ class GroupMemberControllerTest {
 
             when(memberService.getPendingMembers(USER_ID, GROUP_ID, 0, 20)).thenReturn(emptyResponse);
 
-            mockMvc.perform(get("/groups/{groupId}/members/pending", GROUP_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/pending", GROUP_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(0)));
         }
@@ -446,14 +446,14 @@ class GroupMemberControllerTest {
             when(memberService.getPendingMembers(USER_ID, GROUP_ID, 0, 20))
                     .thenThrow(new ForbiddenException("Moderator access required"));
 
-            mockMvc.perform(get("/groups/{groupId}/members/pending", GROUP_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/pending", GROUP_ID))
                     .andExpect(status().isForbidden());
         }
 
         @Test
         @DisplayName("Page above maximum - returns 400")
         void getPendingMembers_PageAboveMax() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/members/pending", GROUP_ID)
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/pending", GROUP_ID)
                             .param("page", "1001"))
                     .andExpect(status().isBadRequest());
 
@@ -463,7 +463,7 @@ class GroupMemberControllerTest {
         @Test
         @DisplayName("Size below minimum - returns 400")
         void getPendingMembers_SizeBelowMin() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/members/pending", GROUP_ID)
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/pending", GROUP_ID)
                             .param("size", "0"))
                     .andExpect(status().isBadRequest());
 
@@ -473,7 +473,7 @@ class GroupMemberControllerTest {
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void getPendingMembers_InvalidUuid() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/members/pending", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/pending", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);
@@ -483,7 +483,7 @@ class GroupMemberControllerTest {
     // ==================== GET BANNED MEMBERS ====================
 
     @Nested
-    @DisplayName("GET /groups/{groupId}/members/banned")
+    @DisplayName("GET /api/v1/groups/{groupId}/members/banned")
     class GetBannedMembersTests {
 
         @Test
@@ -504,7 +504,7 @@ class GroupMemberControllerTest {
 
             when(memberService.getBannedMembers(USER_ID, GROUP_ID, 0, 20)).thenReturn(pageResponse);
 
-            mockMvc.perform(get("/groups/{groupId}/members/banned", GROUP_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/banned", GROUP_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)))
                     .andExpect(jsonPath("$.content[0].status").value("BANNED"));
@@ -516,14 +516,14 @@ class GroupMemberControllerTest {
             when(memberService.getBannedMembers(USER_ID, GROUP_ID, 0, 20))
                     .thenThrow(new ForbiddenException("Moderator access required"));
 
-            mockMvc.perform(get("/groups/{groupId}/members/banned", GROUP_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/banned", GROUP_ID))
                     .andExpect(status().isForbidden());
         }
 
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void getBannedMembers_InvalidUuid() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/members/banned", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/banned", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);
@@ -533,7 +533,7 @@ class GroupMemberControllerTest {
     // ==================== GET ADMINS ====================
 
     @Nested
-    @DisplayName("GET /groups/{groupId}/members/admins")
+    @DisplayName("GET /api/v1/groups/{groupId}/members/admins")
     class GetAdminsTests {
 
         @Test
@@ -549,7 +549,7 @@ class GroupMemberControllerTest {
 
             when(memberService.getAdminsAndModerators(GROUP_ID)).thenReturn(List.of(adminMember));
 
-            mockMvc.perform(get("/groups/{groupId}/members/admins", GROUP_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/admins", GROUP_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(1)))
                     .andExpect(jsonPath("$[0].role").value("ADMIN"));
@@ -560,7 +560,7 @@ class GroupMemberControllerTest {
         void getAdmins_Empty() throws Exception {
             when(memberService.getAdminsAndModerators(GROUP_ID)).thenReturn(Collections.emptyList());
 
-            mockMvc.perform(get("/groups/{groupId}/members/admins", GROUP_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/admins", GROUP_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(0)));
         }
@@ -568,7 +568,7 @@ class GroupMemberControllerTest {
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void getAdmins_InvalidUuid() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/members/admins", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/admins", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);
@@ -578,7 +578,7 @@ class GroupMemberControllerTest {
     // ==================== GET MEMBER IDS ====================
 
     @Nested
-    @DisplayName("GET /groups/{groupId}/members/ids")
+    @DisplayName("GET /api/v1/groups/{groupId}/members/ids")
     class GetMemberIdsTests {
 
         @Test
@@ -586,7 +586,7 @@ class GroupMemberControllerTest {
         void getMemberIds_Success() throws Exception {
             when(memberService.getMemberIds(GROUP_ID)).thenReturn(List.of(USER_ID, TARGET_USER_ID));
 
-            mockMvc.perform(get("/groups/{groupId}/members/ids", GROUP_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/ids", GROUP_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(2)))
                     .andExpect(jsonPath("$[0]").value(USER_ID.toString()));
@@ -597,7 +597,7 @@ class GroupMemberControllerTest {
         void getMemberIds_Empty() throws Exception {
             when(memberService.getMemberIds(GROUP_ID)).thenReturn(Collections.emptyList());
 
-            mockMvc.perform(get("/groups/{groupId}/members/ids", GROUP_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/ids", GROUP_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(0)));
         }
@@ -605,7 +605,7 @@ class GroupMemberControllerTest {
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void getMemberIds_InvalidUuid() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/members/ids", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/ids", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);
@@ -615,7 +615,7 @@ class GroupMemberControllerTest {
     // ==================== GET MEMBERSHIP STATS ====================
 
     @Nested
-    @DisplayName("GET /groups/{groupId}/members/stats")
+    @DisplayName("GET /api/v1/groups/{groupId}/members/stats")
     class GetMembershipStatsTests {
 
         @Test
@@ -631,7 +631,7 @@ class GroupMemberControllerTest {
 
             when(memberService.getMembershipStats(GROUP_ID)).thenReturn(stats);
 
-            mockMvc.perform(get("/groups/{groupId}/members/stats", GROUP_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/stats", GROUP_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.totalMembers").value(100))
                     .andExpect(jsonPath("$.pendingRequests").value(5));
@@ -640,7 +640,7 @@ class GroupMemberControllerTest {
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void getMembershipStats_InvalidUuid() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/members/stats", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/members/stats", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);
@@ -650,7 +650,7 @@ class GroupMemberControllerTest {
     // ==================== APPROVE JOIN REQUEST ====================
 
     @Nested
-    @DisplayName("POST /groups/{groupId}/members/{memberId}/approve")
+    @DisplayName("POST /api/v1/groups/{groupId}/members/{memberId}/approve")
     class ApproveJoinRequestTests {
 
         @Test
@@ -666,7 +666,7 @@ class GroupMemberControllerTest {
 
             when(memberService.approveJoinRequest(USER_ID, GROUP_ID, MEMBER_ID)).thenReturn(approvedMember);
 
-            mockMvc.perform(post("/groups/{groupId}/members/{memberId}/approve", GROUP_ID, MEMBER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{memberId}/approve", GROUP_ID, MEMBER_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.status").value("APPROVED"));
         }
@@ -677,7 +677,7 @@ class GroupMemberControllerTest {
             when(memberService.approveJoinRequest(USER_ID, GROUP_ID, MEMBER_ID))
                     .thenThrow(new ValidationException("Member is not pending approval"));
 
-            mockMvc.perform(post("/groups/{groupId}/members/{memberId}/approve", GROUP_ID, MEMBER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{memberId}/approve", GROUP_ID, MEMBER_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -687,14 +687,14 @@ class GroupMemberControllerTest {
             when(memberService.approveJoinRequest(USER_ID, GROUP_ID, MEMBER_ID))
                     .thenThrow(new ForbiddenException("Moderator access required"));
 
-            mockMvc.perform(post("/groups/{groupId}/members/{memberId}/approve", GROUP_ID, MEMBER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{memberId}/approve", GROUP_ID, MEMBER_ID))
                     .andExpect(status().isForbidden());
         }
 
         @Test
         @DisplayName("Invalid group UUID - returns 400")
         void approveJoinRequest_InvalidGroupUuid() throws Exception {
-            mockMvc.perform(post("/groups/{groupId}/members/{memberId}/approve", "invalid-uuid", MEMBER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{memberId}/approve", "invalid-uuid", MEMBER_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);
@@ -703,7 +703,7 @@ class GroupMemberControllerTest {
         @Test
         @DisplayName("Invalid member UUID - returns 400")
         void approveJoinRequest_InvalidMemberUuid() throws Exception {
-            mockMvc.perform(post("/groups/{groupId}/members/{memberId}/approve", GROUP_ID, "invalid-uuid"))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{memberId}/approve", GROUP_ID, "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);
@@ -713,7 +713,7 @@ class GroupMemberControllerTest {
     // ==================== REJECT JOIN REQUEST ====================
 
     @Nested
-    @DisplayName("POST /groups/{groupId}/members/{memberId}/reject")
+    @DisplayName("POST /api/v1/groups/{groupId}/members/{memberId}/reject")
     class RejectJoinRequestTests {
 
         @Test
@@ -721,7 +721,7 @@ class GroupMemberControllerTest {
         void rejectJoinRequest_Success() throws Exception {
             doNothing().when(memberService).rejectJoinRequest(USER_ID, GROUP_ID, MEMBER_ID);
 
-            mockMvc.perform(post("/groups/{groupId}/members/{memberId}/reject", GROUP_ID, MEMBER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{memberId}/reject", GROUP_ID, MEMBER_ID))
                     .andExpect(status().isNoContent());
 
             verify(memberService).rejectJoinRequest(USER_ID, GROUP_ID, MEMBER_ID);
@@ -733,14 +733,14 @@ class GroupMemberControllerTest {
             doThrow(new ForbiddenException("Moderator access required"))
                     .when(memberService).rejectJoinRequest(USER_ID, GROUP_ID, MEMBER_ID);
 
-            mockMvc.perform(post("/groups/{groupId}/members/{memberId}/reject", GROUP_ID, MEMBER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{memberId}/reject", GROUP_ID, MEMBER_ID))
                     .andExpect(status().isForbidden());
         }
 
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void rejectJoinRequest_InvalidUuid() throws Exception {
-            mockMvc.perform(post("/groups/{groupId}/members/{memberId}/reject", "invalid-uuid", MEMBER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{memberId}/reject", "invalid-uuid", MEMBER_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);
@@ -750,7 +750,7 @@ class GroupMemberControllerTest {
     // ==================== REMOVE MEMBER ====================
 
     @Nested
-    @DisplayName("DELETE /groups/{groupId}/members/{userId}")
+    @DisplayName("DELETE /api/v1/groups/{groupId}/members/{userId}")
     class RemoveMemberTests {
 
         @Test
@@ -758,7 +758,7 @@ class GroupMemberControllerTest {
         void removeMember_Success() throws Exception {
             doNothing().when(memberService).removeMember(USER_ID, GROUP_ID, TARGET_USER_ID);
 
-            mockMvc.perform(delete("/groups/{groupId}/members/{userId}", GROUP_ID, TARGET_USER_ID))
+            mockMvc.perform(delete("/api/v1/groups/{groupId}/members/{userId}", GROUP_ID, TARGET_USER_ID))
                     .andExpect(status().isNoContent());
 
             verify(memberService).removeMember(USER_ID, GROUP_ID, TARGET_USER_ID);
@@ -770,14 +770,14 @@ class GroupMemberControllerTest {
             doThrow(new ForbiddenException("Cannot remove the group owner"))
                     .when(memberService).removeMember(USER_ID, GROUP_ID, TARGET_USER_ID);
 
-            mockMvc.perform(delete("/groups/{groupId}/members/{userId}", GROUP_ID, TARGET_USER_ID))
+            mockMvc.perform(delete("/api/v1/groups/{groupId}/members/{userId}", GROUP_ID, TARGET_USER_ID))
                     .andExpect(status().isForbidden());
         }
 
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void removeMember_InvalidUuid() throws Exception {
-            mockMvc.perform(delete("/groups/{groupId}/members/{userId}", "invalid-uuid", TARGET_USER_ID))
+            mockMvc.perform(delete("/api/v1/groups/{groupId}/members/{userId}", "invalid-uuid", TARGET_USER_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);
@@ -787,7 +787,7 @@ class GroupMemberControllerTest {
     // ==================== UPDATE MEMBER ROLE ====================
 
     @Nested
-    @DisplayName("PUT /groups/{groupId}/members/{userId}/role")
+    @DisplayName("PUT /api/v1/groups/{groupId}/members/{userId}/role")
     class UpdateMemberRoleTests {
 
         @Test
@@ -808,7 +808,7 @@ class GroupMemberControllerTest {
             when(memberService.updateMemberRole(eq(USER_ID), eq(GROUP_ID), eq(TARGET_USER_ID), any(UpdateMemberRoleRequest.class)))
                     .thenReturn(updatedMember);
 
-            mockMvc.perform(put("/groups/{groupId}/members/{userId}/role", GROUP_ID, TARGET_USER_ID)
+            mockMvc.perform(put("/api/v1/groups/{groupId}/members/{userId}/role", GROUP_ID, TARGET_USER_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -825,7 +825,7 @@ class GroupMemberControllerTest {
             when(memberService.updateMemberRole(eq(USER_ID), eq(GROUP_ID), eq(TARGET_USER_ID), any(UpdateMemberRoleRequest.class)))
                     .thenThrow(new ForbiddenException("Admin access required"));
 
-            mockMvc.perform(put("/groups/{groupId}/members/{userId}/role", GROUP_ID, TARGET_USER_ID)
+            mockMvc.perform(put("/api/v1/groups/{groupId}/members/{userId}/role", GROUP_ID, TARGET_USER_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isForbidden());
@@ -838,7 +838,7 @@ class GroupMemberControllerTest {
                     .role(MemberRole.MODERATOR)
                     .build();
 
-            mockMvc.perform(put("/groups/{groupId}/members/{userId}/role", "invalid-uuid", TARGET_USER_ID)
+            mockMvc.perform(put("/api/v1/groups/{groupId}/members/{userId}/role", "invalid-uuid", TARGET_USER_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -850,7 +850,7 @@ class GroupMemberControllerTest {
     // ==================== PROMOTE TO ADMIN ====================
 
     @Nested
-    @DisplayName("POST /groups/{groupId}/members/{userId}/promote-to-admin")
+    @DisplayName("POST /api/v1/groups/{groupId}/members/{userId}/promote-to-admin")
     class PromoteToAdminTests {
 
         @Test
@@ -866,7 +866,7 @@ class GroupMemberControllerTest {
 
             when(memberService.promoteToAdmin(USER_ID, GROUP_ID, TARGET_USER_ID)).thenReturn(promotedMember);
 
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/promote-to-admin", GROUP_ID, TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/promote-to-admin", GROUP_ID, TARGET_USER_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.role").value("ADMIN"));
         }
@@ -877,14 +877,14 @@ class GroupMemberControllerTest {
             when(memberService.promoteToAdmin(USER_ID, GROUP_ID, TARGET_USER_ID))
                     .thenThrow(new ForbiddenException("Only owner can promote to admin"));
 
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/promote-to-admin", GROUP_ID, TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/promote-to-admin", GROUP_ID, TARGET_USER_ID))
                     .andExpect(status().isForbidden());
         }
 
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void promoteToAdmin_InvalidUuid() throws Exception {
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/promote-to-admin", "invalid-uuid", TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/promote-to-admin", "invalid-uuid", TARGET_USER_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);
@@ -894,7 +894,7 @@ class GroupMemberControllerTest {
     // ==================== PROMOTE TO MODERATOR ====================
 
     @Nested
-    @DisplayName("POST /groups/{groupId}/members/{userId}/promote-to-moderator")
+    @DisplayName("POST /api/v1/groups/{groupId}/members/{userId}/promote-to-moderator")
     class PromoteToModeratorTests {
 
         @Test
@@ -910,7 +910,7 @@ class GroupMemberControllerTest {
 
             when(memberService.promoteToModerator(USER_ID, GROUP_ID, TARGET_USER_ID)).thenReturn(promotedMember);
 
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/promote-to-moderator", GROUP_ID, TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/promote-to-moderator", GROUP_ID, TARGET_USER_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.role").value("MODERATOR"));
         }
@@ -921,14 +921,14 @@ class GroupMemberControllerTest {
             when(memberService.promoteToModerator(USER_ID, GROUP_ID, TARGET_USER_ID))
                     .thenThrow(new ForbiddenException("Admin access required"));
 
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/promote-to-moderator", GROUP_ID, TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/promote-to-moderator", GROUP_ID, TARGET_USER_ID))
                     .andExpect(status().isForbidden());
         }
 
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void promoteToModerator_InvalidUuid() throws Exception {
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/promote-to-moderator", "invalid-uuid", TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/promote-to-moderator", "invalid-uuid", TARGET_USER_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);
@@ -938,7 +938,7 @@ class GroupMemberControllerTest {
     // ==================== DEMOTE ADMIN ====================
 
     @Nested
-    @DisplayName("POST /groups/{groupId}/members/{userId}/demote-admin")
+    @DisplayName("POST /api/v1/groups/{groupId}/members/{userId}/demote-admin")
     class DemoteAdminTests {
 
         @Test
@@ -954,7 +954,7 @@ class GroupMemberControllerTest {
 
             when(memberService.demoteAdmin(USER_ID, GROUP_ID, TARGET_USER_ID)).thenReturn(demotedMember);
 
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/demote-admin", GROUP_ID, TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/demote-admin", GROUP_ID, TARGET_USER_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.role").value("MEMBER"));
         }
@@ -965,14 +965,14 @@ class GroupMemberControllerTest {
             when(memberService.demoteAdmin(USER_ID, GROUP_ID, TARGET_USER_ID))
                     .thenThrow(new ForbiddenException("Only owner can demote admin"));
 
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/demote-admin", GROUP_ID, TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/demote-admin", GROUP_ID, TARGET_USER_ID))
                     .andExpect(status().isForbidden());
         }
 
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void demoteAdmin_InvalidUuid() throws Exception {
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/demote-admin", "invalid-uuid", TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/demote-admin", "invalid-uuid", TARGET_USER_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);
@@ -982,7 +982,7 @@ class GroupMemberControllerTest {
     // ==================== DEMOTE MODERATOR ====================
 
     @Nested
-    @DisplayName("POST /groups/{groupId}/members/{userId}/demote-moderator")
+    @DisplayName("POST /api/v1/groups/{groupId}/members/{userId}/demote-moderator")
     class DemoteModeratorTests {
 
         @Test
@@ -998,7 +998,7 @@ class GroupMemberControllerTest {
 
             when(memberService.demoteModerator(USER_ID, GROUP_ID, TARGET_USER_ID)).thenReturn(demotedMember);
 
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/demote-moderator", GROUP_ID, TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/demote-moderator", GROUP_ID, TARGET_USER_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.role").value("MEMBER"));
         }
@@ -1009,14 +1009,14 @@ class GroupMemberControllerTest {
             when(memberService.demoteModerator(USER_ID, GROUP_ID, TARGET_USER_ID))
                     .thenThrow(new ForbiddenException("Admin access required"));
 
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/demote-moderator", GROUP_ID, TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/demote-moderator", GROUP_ID, TARGET_USER_ID))
                     .andExpect(status().isForbidden());
         }
 
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void demoteModerator_InvalidUuid() throws Exception {
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/demote-moderator", "invalid-uuid", TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/demote-moderator", "invalid-uuid", TARGET_USER_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);
@@ -1026,7 +1026,7 @@ class GroupMemberControllerTest {
     // ==================== MUTE MEMBER ====================
 
     @Nested
-    @DisplayName("POST /groups/{groupId}/members/{userId}/mute")
+    @DisplayName("POST /api/v1/groups/{groupId}/members/{userId}/mute")
     class MuteMemberTests {
 
         @Test
@@ -1049,7 +1049,7 @@ class GroupMemberControllerTest {
             when(memberService.muteMember(eq(USER_ID), eq(GROUP_ID), eq(TARGET_USER_ID), any(MuteMemberRequest.class)))
                     .thenReturn(mutedMember);
 
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/mute", GROUP_ID, TARGET_USER_ID)
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/mute", GROUP_ID, TARGET_USER_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -1066,7 +1066,7 @@ class GroupMemberControllerTest {
             when(memberService.muteMember(eq(USER_ID), eq(GROUP_ID), eq(TARGET_USER_ID), any(MuteMemberRequest.class)))
                     .thenThrow(new ForbiddenException("Cannot mute admins"));
 
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/mute", GROUP_ID, TARGET_USER_ID)
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/mute", GROUP_ID, TARGET_USER_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isForbidden());
@@ -1079,7 +1079,7 @@ class GroupMemberControllerTest {
                     .durationHours(1)
                     .build();
 
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/mute", "invalid-uuid", TARGET_USER_ID)
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/mute", "invalid-uuid", TARGET_USER_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -1091,7 +1091,7 @@ class GroupMemberControllerTest {
     // ==================== UNMUTE MEMBER ====================
 
     @Nested
-    @DisplayName("POST /groups/{groupId}/members/{userId}/unmute")
+    @DisplayName("POST /api/v1/groups/{groupId}/members/{userId}/unmute")
     class UnmuteMemberTests {
 
         @Test
@@ -1108,7 +1108,7 @@ class GroupMemberControllerTest {
 
             when(memberService.unmuteMember(USER_ID, GROUP_ID, TARGET_USER_ID)).thenReturn(unmutedMember);
 
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/unmute", GROUP_ID, TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/unmute", GROUP_ID, TARGET_USER_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.mutedUntil").doesNotExist());
         }
@@ -1119,14 +1119,14 @@ class GroupMemberControllerTest {
             when(memberService.unmuteMember(USER_ID, GROUP_ID, TARGET_USER_ID))
                     .thenThrow(new ForbiddenException("Moderator access required"));
 
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/unmute", GROUP_ID, TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/unmute", GROUP_ID, TARGET_USER_ID))
                     .andExpect(status().isForbidden());
         }
 
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void unmuteMember_InvalidUuid() throws Exception {
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/unmute", "invalid-uuid", TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/unmute", "invalid-uuid", TARGET_USER_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);
@@ -1136,7 +1136,7 @@ class GroupMemberControllerTest {
     // ==================== BAN MEMBER ====================
 
     @Nested
-    @DisplayName("POST /groups/{groupId}/members/{userId}/ban")
+    @DisplayName("POST /api/v1/groups/{groupId}/members/{userId}/ban")
     class BanMemberTests {
 
         @Test
@@ -1148,7 +1148,7 @@ class GroupMemberControllerTest {
 
             doNothing().when(memberService).banMember(eq(USER_ID), eq(GROUP_ID), eq(TARGET_USER_ID), any(BanMemberRequest.class));
 
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/ban", GROUP_ID, TARGET_USER_ID)
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/ban", GROUP_ID, TARGET_USER_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isNoContent());
@@ -1161,7 +1161,7 @@ class GroupMemberControllerTest {
         void banMember_SuccessWithoutBody() throws Exception {
             doNothing().when(memberService).banMember(eq(USER_ID), eq(GROUP_ID), eq(TARGET_USER_ID), any());
 
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/ban", GROUP_ID, TARGET_USER_ID)
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/ban", GROUP_ID, TARGET_USER_ID)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNoContent());
 
@@ -1174,7 +1174,7 @@ class GroupMemberControllerTest {
             doThrow(new ForbiddenException("Cannot ban the group owner"))
                     .when(memberService).banMember(eq(USER_ID), eq(GROUP_ID), eq(TARGET_USER_ID), any());
 
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/ban", GROUP_ID, TARGET_USER_ID)
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/ban", GROUP_ID, TARGET_USER_ID)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isForbidden());
         }
@@ -1182,7 +1182,7 @@ class GroupMemberControllerTest {
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void banMember_InvalidUuid() throws Exception {
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/ban", "invalid-uuid", TARGET_USER_ID)
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/ban", "invalid-uuid", TARGET_USER_ID)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
@@ -1193,7 +1193,7 @@ class GroupMemberControllerTest {
     // ==================== UNBAN MEMBER ====================
 
     @Nested
-    @DisplayName("POST /groups/{groupId}/members/{userId}/unban")
+    @DisplayName("POST /api/v1/groups/{groupId}/members/{userId}/unban")
     class UnbanMemberTests {
 
         @Test
@@ -1201,7 +1201,7 @@ class GroupMemberControllerTest {
         void unbanMember_Success() throws Exception {
             doNothing().when(memberService).unbanMember(USER_ID, GROUP_ID, TARGET_USER_ID);
 
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/unban", GROUP_ID, TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/unban", GROUP_ID, TARGET_USER_ID))
                     .andExpect(status().isNoContent());
 
             verify(memberService).unbanMember(USER_ID, GROUP_ID, TARGET_USER_ID);
@@ -1213,7 +1213,7 @@ class GroupMemberControllerTest {
             doThrow(new ValidationException("Member is not banned"))
                     .when(memberService).unbanMember(USER_ID, GROUP_ID, TARGET_USER_ID);
 
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/unban", GROUP_ID, TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/unban", GROUP_ID, TARGET_USER_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -1223,14 +1223,14 @@ class GroupMemberControllerTest {
             doThrow(new ForbiddenException("Moderator access required"))
                     .when(memberService).unbanMember(USER_ID, GROUP_ID, TARGET_USER_ID);
 
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/unban", GROUP_ID, TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/unban", GROUP_ID, TARGET_USER_ID))
                     .andExpect(status().isForbidden());
         }
 
         @Test
         @DisplayName("Invalid UUID - returns 400")
         void unbanMember_InvalidUuid() throws Exception {
-            mockMvc.perform(post("/groups/{groupId}/members/{userId}/unban", "invalid-uuid", TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/{userId}/unban", "invalid-uuid", TARGET_USER_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);
@@ -1240,7 +1240,7 @@ class GroupMemberControllerTest {
     // ==================== UPDATE MY SETTINGS ====================
 
     @Nested
-    @DisplayName("PUT /groups/{groupId}/members/me/settings")
+    @DisplayName("PUT /api/v1/groups/{groupId}/members/me/settings")
     class UpdateMySettingsTests {
 
         @Test
@@ -1262,7 +1262,7 @@ class GroupMemberControllerTest {
             when(memberService.updateMemberSettings(eq(USER_ID), eq(GROUP_ID), any(UpdateMemberSettingsRequest.class)))
                     .thenReturn(updatedMember);
 
-            mockMvc.perform(put("/groups/{groupId}/members/me/settings", GROUP_ID)
+            mockMvc.perform(put("/api/v1/groups/{groupId}/members/me/settings", GROUP_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -1279,7 +1279,7 @@ class GroupMemberControllerTest {
             when(memberService.updateMemberSettings(eq(USER_ID), eq(GROUP_ID), any(UpdateMemberSettingsRequest.class)))
                     .thenThrow(new ResourceNotFoundException("Member", "userId", USER_ID));
 
-            mockMvc.perform(put("/groups/{groupId}/members/me/settings", GROUP_ID)
+            mockMvc.perform(put("/api/v1/groups/{groupId}/members/me/settings", GROUP_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -1292,7 +1292,7 @@ class GroupMemberControllerTest {
                     .notificationsEnabled(false)
                     .build();
 
-            mockMvc.perform(put("/groups/{groupId}/members/me/settings", "invalid-uuid")
+            mockMvc.perform(put("/api/v1/groups/{groupId}/members/me/settings", "invalid-uuid")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -1304,7 +1304,7 @@ class GroupMemberControllerTest {
     // ==================== TRANSFER OWNERSHIP ====================
 
     @Nested
-    @DisplayName("POST /groups/{groupId}/members/transfer-ownership/{newOwnerId}")
+    @DisplayName("POST /api/v1/groups/{groupId}/members/transfer-ownership/{newOwnerId}")
     class TransferOwnershipTests {
 
         @Test
@@ -1312,7 +1312,7 @@ class GroupMemberControllerTest {
         void transferOwnership_Success() throws Exception {
             doNothing().when(memberService).transferOwnership(USER_ID, GROUP_ID, TARGET_USER_ID);
 
-            mockMvc.perform(post("/groups/{groupId}/members/transfer-ownership/{newOwnerId}", GROUP_ID, TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/transfer-ownership/{newOwnerId}", GROUP_ID, TARGET_USER_ID))
                     .andExpect(status().isOk());
 
             verify(memberService).transferOwnership(USER_ID, GROUP_ID, TARGET_USER_ID);
@@ -1324,7 +1324,7 @@ class GroupMemberControllerTest {
             doThrow(new ForbiddenException("Only owner can transfer ownership"))
                     .when(memberService).transferOwnership(USER_ID, GROUP_ID, TARGET_USER_ID);
 
-            mockMvc.perform(post("/groups/{groupId}/members/transfer-ownership/{newOwnerId}", GROUP_ID, TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/transfer-ownership/{newOwnerId}", GROUP_ID, TARGET_USER_ID))
                     .andExpect(status().isForbidden());
         }
 
@@ -1334,14 +1334,14 @@ class GroupMemberControllerTest {
             doThrow(new ValidationException("New owner must be an approved member"))
                     .when(memberService).transferOwnership(USER_ID, GROUP_ID, TARGET_USER_ID);
 
-            mockMvc.perform(post("/groups/{groupId}/members/transfer-ownership/{newOwnerId}", GROUP_ID, TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/transfer-ownership/{newOwnerId}", GROUP_ID, TARGET_USER_ID))
                     .andExpect(status().isBadRequest());
         }
 
         @Test
         @DisplayName("Invalid group UUID - returns 400")
         void transferOwnership_InvalidGroupUuid() throws Exception {
-            mockMvc.perform(post("/groups/{groupId}/members/transfer-ownership/{newOwnerId}", "invalid-uuid", TARGET_USER_ID))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/transfer-ownership/{newOwnerId}", "invalid-uuid", TARGET_USER_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);
@@ -1350,7 +1350,7 @@ class GroupMemberControllerTest {
         @Test
         @DisplayName("Invalid new owner UUID - returns 400")
         void transferOwnership_InvalidNewOwnerUuid() throws Exception {
-            mockMvc.perform(post("/groups/{groupId}/members/transfer-ownership/{newOwnerId}", GROUP_ID, "invalid-uuid"))
+            mockMvc.perform(post("/api/v1/groups/{groupId}/members/transfer-ownership/{newOwnerId}", GROUP_ID, "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(memberService);

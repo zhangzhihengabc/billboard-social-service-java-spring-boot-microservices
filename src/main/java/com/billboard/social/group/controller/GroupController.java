@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/groups")
+@RequestMapping("/api/v1/groups")
 @RequiredArgsConstructor
 @Validated
 @Tag(name = "Groups", description = "Group management endpoints")

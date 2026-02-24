@@ -46,7 +46,7 @@ class GroupControllerTest {
     private static final Long USER_ID = 1L;
     private static final UUID GROUP_ID = UUID.fromString("22222222-2222-2222-2222-222222222222");
     private static final UUID CATEGORY_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
-    private static final String BASE_URL = "/groups";
+    private static final String BASE_URL = "/api/v1/groups";
 
     @Autowired
     private MockMvc mockMvc;

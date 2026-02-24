@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/groups/{groupId}/members")
+@RequestMapping("/api/v1/groups/{groupId}/members")
 @RequiredArgsConstructor
 @Validated
 @SecurityRequirement(name = "bearerAuth")

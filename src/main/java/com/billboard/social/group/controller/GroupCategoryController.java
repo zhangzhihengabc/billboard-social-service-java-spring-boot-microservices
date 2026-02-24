@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/groups/categories")
+@RequestMapping("/api/v1/groups/categories")
 @RequiredArgsConstructor
 @Validated
 @Tag(name = "Group Categories", description = "Group category management endpoints")

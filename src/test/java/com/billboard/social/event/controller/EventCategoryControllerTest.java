@@ -105,7 +105,7 @@ class EventCategoryControllerTest {
     // ==================== GET ALL CATEGORIES ====================
 
     @Nested
-    @DisplayName("GET /event-categories - getAllCategories")
+    @DisplayName("GET /api/v1/event-categories - getAllCategories")
     class GetAllCategoriesTests {
 
         @Test
@@ -122,7 +122,7 @@ class EventCategoryControllerTest {
 
             when(categoryService.getAllActiveCategories()).thenReturn(List.of(testCategoryResponse, category2));
 
-            mockMvc.perform(get("/event-categories"))
+            mockMvc.perform(get("/api/v1/event-categories"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(2)))
                     .andExpect(jsonPath("$[0].name").value("Conference"))
@@ -138,7 +138,7 @@ class EventCategoryControllerTest {
 
             when(categoryService.getAllActiveCategories()).thenReturn(Collections.emptyList());
 
-            mockMvc.perform(get("/event-categories"))
+            mockMvc.perform(get("/api/v1/event-categories"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(0)));
         }
@@ -147,7 +147,7 @@ class EventCategoryControllerTest {
     // ==================== GET ALL CATEGORIES ADMIN ====================
 
     @Nested
-    @DisplayName("GET /event-categories/all - getAllCategoriesAdmin")
+    @DisplayName("GET /api/v1/event-categories/all - getAllCategoriesAdmin")
     class GetAllCategoriesAdminTests {
 
         @Test
@@ -164,7 +164,7 @@ class EventCategoryControllerTest {
 
             when(categoryService.getAllCategories()).thenReturn(List.of(testCategoryResponse, inactiveCategory));
 
-            mockMvc.perform(get("/event-categories/all"))
+            mockMvc.perform(get("/api/v1/event-categories/all"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(2)))
                     .andExpect(jsonPath("$[0].isActive").value(true))
@@ -180,7 +180,7 @@ class EventCategoryControllerTest {
 
             when(categoryService.getAllCategories()).thenReturn(Collections.emptyList());
 
-            mockMvc.perform(get("/event-categories/all"))
+            mockMvc.perform(get("/api/v1/event-categories/all"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(0)));
         }
@@ -189,7 +189,7 @@ class EventCategoryControllerTest {
     // ==================== GET CATEGORY BY ID ====================
 
     @Nested
-    @DisplayName("GET /event-categories/{id} - getCategoryById")
+    @DisplayName("GET /api/v1/event-categories/{id} - getCategoryById")
     class GetCategoryByIdTests {
 
         @Test
@@ -199,7 +199,7 @@ class EventCategoryControllerTest {
 
             when(categoryService.getCategoryById(CATEGORY_ID)).thenReturn(testCategoryResponse);
 
-            mockMvc.perform(get("/event-categories/{id}", CATEGORY_ID))
+            mockMvc.perform(get("/api/v1/event-categories/{id}", CATEGORY_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(CATEGORY_ID.toString()))
                     .andExpect(jsonPath("$.name").value("Conference"))
@@ -216,7 +216,7 @@ class EventCategoryControllerTest {
             when(categoryService.getCategoryById(CATEGORY_ID))
                     .thenThrow(new ValidationException("Category not found"));
 
-            mockMvc.perform(get("/event-categories/{id}", CATEGORY_ID))
+            mockMvc.perform(get("/api/v1/event-categories/{id}", CATEGORY_ID))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Category not found"));
         }
@@ -226,7 +226,7 @@ class EventCategoryControllerTest {
         void getCategoryById_InvalidUuid() throws Exception {
             setAuthentication(userPrincipal);
 
-            mockMvc.perform(get("/event-categories/{id}", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/event-categories/{id}", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(categoryService);
@@ -236,7 +236,7 @@ class EventCategoryControllerTest {
     // ==================== GET CATEGORY BY SLUG ====================
 
     @Nested
-    @DisplayName("GET /event-categories/slug/{slug} - getCategoryBySlug")
+    @DisplayName("GET /api/v1/event-categories/slug/{slug} - getCategoryBySlug")
     class GetCategoryBySlugTests {
 
         @Test
@@ -246,7 +246,7 @@ class EventCategoryControllerTest {
 
             when(categoryService.getCategoryBySlug("conference")).thenReturn(testCategoryResponse);
 
-            mockMvc.perform(get("/event-categories/slug/{slug}", "conference"))
+            mockMvc.perform(get("/api/v1/event-categories/slug/{slug}", "conference"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.slug").value("conference"))
                     .andExpect(jsonPath("$.name").value("Conference"));
@@ -262,7 +262,7 @@ class EventCategoryControllerTest {
             when(categoryService.getCategoryBySlug("nonexistent"))
                     .thenThrow(new ValidationException("Category not found"));
 
-            mockMvc.perform(get("/event-categories/slug/{slug}", "nonexistent"))
+            mockMvc.perform(get("/api/v1/event-categories/slug/{slug}", "nonexistent"))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Category not found"));
         }
@@ -273,7 +273,7 @@ class EventCategoryControllerTest {
             setAuthentication(userPrincipal);
             String longSlug = "a".repeat(121); // Exceeds max 120
 
-            mockMvc.perform(get("/event-categories/slug/{slug}", longSlug))
+            mockMvc.perform(get("/api/v1/event-categories/slug/{slug}", longSlug))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(categoryService);
@@ -283,7 +283,7 @@ class EventCategoryControllerTest {
     // ==================== CREATE CATEGORY ====================
 
     @Nested
-    @DisplayName("POST /event-categories - createCategory")
+    @DisplayName("POST /api/v1/event-categories - createCategory")
     class CreateCategoryTests {
 
         @Test
@@ -314,7 +314,7 @@ class EventCategoryControllerTest {
 
             when(categoryService.createCategory(any(CreateCategoryRequest.class))).thenReturn(response);
 
-            mockMvc.perform(post("/event-categories")
+            mockMvc.perform(post("/api/v1/event-categories")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -337,7 +337,7 @@ class EventCategoryControllerTest {
             when(categoryService.createCategory(any(CreateCategoryRequest.class)))
                     .thenThrow(new ValidationException("Category with slug 'conference' already exists"));
 
-            mockMvc.perform(post("/event-categories")
+            mockMvc.perform(post("/api/v1/event-categories")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())
@@ -354,7 +354,7 @@ class EventCategoryControllerTest {
                     // Missing name
                     .build();
 
-            mockMvc.perform(post("/event-categories")
+            mockMvc.perform(post("/api/v1/event-categories")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -367,7 +367,7 @@ class EventCategoryControllerTest {
         void createCategory_InvalidJson() throws Exception {
             setAuthentication(adminPrincipal);
 
-            mockMvc.perform(post("/event-categories")
+            mockMvc.perform(post("/api/v1/event-categories")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"name\": }"))  // Malformed JSON
                     .andExpect(status().isBadRequest());
@@ -380,7 +380,7 @@ class EventCategoryControllerTest {
         void createCategory_EmptyBody() throws Exception {
             setAuthentication(adminPrincipal);
 
-            mockMvc.perform(post("/event-categories")
+            mockMvc.perform(post("/api/v1/event-categories")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{}"))
                     .andExpect(status().isBadRequest());
@@ -392,7 +392,7 @@ class EventCategoryControllerTest {
     // ==================== UPDATE CATEGORY ====================
 
     @Nested
-    @DisplayName("PUT /event-categories/{id} - updateCategory")
+    @DisplayName("PUT /api/v1/event-categories/{id} - updateCategory")
     class UpdateCategoryTests {
 
         @Test
@@ -416,7 +416,7 @@ class EventCategoryControllerTest {
             when(categoryService.updateCategory(eq(CATEGORY_ID), any(UpdateCategoryRequest.class)))
                     .thenReturn(response);
 
-            mockMvc.perform(put("/event-categories/{id}", CATEGORY_ID)
+            mockMvc.perform(put("/api/v1/event-categories/{id}", CATEGORY_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -438,7 +438,7 @@ class EventCategoryControllerTest {
             when(categoryService.updateCategory(eq(CATEGORY_ID), any(UpdateCategoryRequest.class)))
                     .thenThrow(new ValidationException("Category not found"));
 
-            mockMvc.perform(put("/event-categories/{id}", CATEGORY_ID)
+            mockMvc.perform(put("/api/v1/event-categories/{id}", CATEGORY_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())
@@ -454,7 +454,7 @@ class EventCategoryControllerTest {
                     .name("Updated Name")
                     .build();
 
-            mockMvc.perform(put("/event-categories/{id}", "invalid-uuid")
+            mockMvc.perform(put("/api/v1/event-categories/{id}", "invalid-uuid")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -467,7 +467,7 @@ class EventCategoryControllerTest {
     // ==================== DELETE CATEGORY ====================
 
     @Nested
-    @DisplayName("DELETE /event-categories/{id} - deleteCategory")
+    @DisplayName("DELETE /api/v1/event-categories/{id} - deleteCategory")
     class DeleteCategoryTests {
 
         @Test
@@ -477,7 +477,7 @@ class EventCategoryControllerTest {
 
             doNothing().when(categoryService).deleteCategory(CATEGORY_ID);
 
-            mockMvc.perform(delete("/event-categories/{id}", CATEGORY_ID))
+            mockMvc.perform(delete("/api/v1/event-categories/{id}", CATEGORY_ID))
                     .andExpect(status().isNoContent());
 
             verify(categoryService).deleteCategory(CATEGORY_ID);
@@ -491,7 +491,7 @@ class EventCategoryControllerTest {
             doThrow(new ValidationException("Category not found"))
                     .when(categoryService).deleteCategory(CATEGORY_ID);
 
-            mockMvc.perform(delete("/event-categories/{id}", CATEGORY_ID))
+            mockMvc.perform(delete("/api/v1/event-categories/{id}", CATEGORY_ID))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Category not found"));
         }
@@ -504,7 +504,7 @@ class EventCategoryControllerTest {
             doThrow(new ValidationException("Cannot delete category with existing events"))
                     .when(categoryService).deleteCategory(CATEGORY_ID);
 
-            mockMvc.perform(delete("/event-categories/{id}", CATEGORY_ID))
+            mockMvc.perform(delete("/api/v1/event-categories/{id}", CATEGORY_ID))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Cannot delete category with existing events"));
         }
@@ -514,7 +514,7 @@ class EventCategoryControllerTest {
         void deleteCategory_InvalidUuid() throws Exception {
             setAuthentication(adminPrincipal);
 
-            mockMvc.perform(delete("/event-categories/{id}", "invalid-uuid"))
+            mockMvc.perform(delete("/api/v1/event-categories/{id}", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(categoryService);
@@ -524,7 +524,7 @@ class EventCategoryControllerTest {
     // ==================== TOGGLE ACTIVE ====================
 
     @Nested
-    @DisplayName("PATCH /event-categories/{id}/toggle-active - toggleActive")
+    @DisplayName("PATCH /api/v1/event-categories/{id}/toggle-active - toggleActive")
     class ToggleActiveTests {
 
         @Test
@@ -541,7 +541,7 @@ class EventCategoryControllerTest {
 
             when(categoryService.toggleActive(CATEGORY_ID)).thenReturn(response);
 
-            mockMvc.perform(patch("/event-categories/{id}/toggle-active", CATEGORY_ID))
+            mockMvc.perform(patch("/api/v1/event-categories/{id}/toggle-active", CATEGORY_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.isActive").value(false));
 
@@ -562,7 +562,7 @@ class EventCategoryControllerTest {
 
             when(categoryService.toggleActive(CATEGORY_ID)).thenReturn(response);
 
-            mockMvc.perform(patch("/event-categories/{id}/toggle-active", CATEGORY_ID))
+            mockMvc.perform(patch("/api/v1/event-categories/{id}/toggle-active", CATEGORY_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.isActive").value(true));
         }
@@ -575,7 +575,7 @@ class EventCategoryControllerTest {
             when(categoryService.toggleActive(CATEGORY_ID))
                     .thenThrow(new ValidationException("Category not found"));
 
-            mockMvc.perform(patch("/event-categories/{id}/toggle-active", CATEGORY_ID))
+            mockMvc.perform(patch("/api/v1/event-categories/{id}/toggle-active", CATEGORY_ID))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Category not found"));
         }
@@ -585,7 +585,7 @@ class EventCategoryControllerTest {
         void toggleActive_InvalidUuid() throws Exception {
             setAuthentication(adminPrincipal);
 
-            mockMvc.perform(patch("/event-categories/{id}/toggle-active", "invalid-uuid"))
+            mockMvc.perform(patch("/api/v1/event-categories/{id}/toggle-active", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(categoryService);
@@ -595,7 +595,7 @@ class EventCategoryControllerTest {
     // ==================== UPDATE DISPLAY ORDER ====================
 
     @Nested
-    @DisplayName("PATCH /event-categories/{id}/reorder - updateDisplayOrder")
+    @DisplayName("PATCH /api/v1/event-categories/{id}/reorder - updateDisplayOrder")
     class UpdateDisplayOrderTests {
 
         @Test
@@ -613,7 +613,7 @@ class EventCategoryControllerTest {
 
             when(categoryService.updateDisplayOrder(CATEGORY_ID, 10)).thenReturn(response);
 
-            mockMvc.perform(patch("/event-categories/{id}/reorder", CATEGORY_ID)
+            mockMvc.perform(patch("/api/v1/event-categories/{id}/reorder", CATEGORY_ID)
                             .param("displayOrder", "10"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.displayOrder").value(10));
@@ -633,7 +633,7 @@ class EventCategoryControllerTest {
 
             when(categoryService.updateDisplayOrder(CATEGORY_ID, 0)).thenReturn(response);
 
-            mockMvc.perform(patch("/event-categories/{id}/reorder", CATEGORY_ID)
+            mockMvc.perform(patch("/api/v1/event-categories/{id}/reorder", CATEGORY_ID)
                             .param("displayOrder", "0"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.displayOrder").value(0));
@@ -651,7 +651,7 @@ class EventCategoryControllerTest {
 
             when(categoryService.updateDisplayOrder(CATEGORY_ID, 1000)).thenReturn(response);
 
-            mockMvc.perform(patch("/event-categories/{id}/reorder", CATEGORY_ID)
+            mockMvc.perform(patch("/api/v1/event-categories/{id}/reorder", CATEGORY_ID)
                             .param("displayOrder", "1000"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.displayOrder").value(1000));
@@ -662,7 +662,7 @@ class EventCategoryControllerTest {
         void updateDisplayOrder_BelowMinimum() throws Exception {
             setAuthentication(adminPrincipal);
 
-            mockMvc.perform(patch("/event-categories/{id}/reorder", CATEGORY_ID)
+            mockMvc.perform(patch("/api/v1/event-categories/{id}/reorder", CATEGORY_ID)
                             .param("displayOrder", "-1"))
                     .andExpect(status().isBadRequest());
 
@@ -674,7 +674,7 @@ class EventCategoryControllerTest {
         void updateDisplayOrder_AboveMaximum() throws Exception {
             setAuthentication(adminPrincipal);
 
-            mockMvc.perform(patch("/event-categories/{id}/reorder", CATEGORY_ID)
+            mockMvc.perform(patch("/api/v1/event-categories/{id}/reorder", CATEGORY_ID)
                             .param("displayOrder", "1001"))
                     .andExpect(status().isBadRequest());
 
@@ -686,7 +686,7 @@ class EventCategoryControllerTest {
         void updateDisplayOrder_MissingParameter() throws Exception {
             setAuthentication(adminPrincipal);
 
-            mockMvc.perform(patch("/event-categories/{id}/reorder", CATEGORY_ID))
+            mockMvc.perform(patch("/api/v1/event-categories/{id}/reorder", CATEGORY_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(categoryService);
@@ -700,7 +700,7 @@ class EventCategoryControllerTest {
             when(categoryService.updateDisplayOrder(CATEGORY_ID, 5))
                     .thenThrow(new ValidationException("Category not found"));
 
-            mockMvc.perform(patch("/event-categories/{id}/reorder", CATEGORY_ID)
+            mockMvc.perform(patch("/api/v1/event-categories/{id}/reorder", CATEGORY_ID)
                             .param("displayOrder", "5"))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Category not found"));
@@ -711,7 +711,7 @@ class EventCategoryControllerTest {
         void updateDisplayOrder_InvalidUuid() throws Exception {
             setAuthentication(adminPrincipal);
 
-            mockMvc.perform(patch("/event-categories/{id}/reorder", "invalid-uuid")
+            mockMvc.perform(patch("/api/v1/event-categories/{id}/reorder", "invalid-uuid")
                             .param("displayOrder", "5"))
                     .andExpect(status().isBadRequest());
 
@@ -723,7 +723,7 @@ class EventCategoryControllerTest {
         void updateDisplayOrder_InvalidFormat() throws Exception {
             setAuthentication(adminPrincipal);
 
-            mockMvc.perform(patch("/event-categories/{id}/reorder", CATEGORY_ID)
+            mockMvc.perform(patch("/api/v1/event-categories/{id}/reorder", CATEGORY_ID)
                             .param("displayOrder", "abc"))
                     .andExpect(status().isBadRequest());
 

@@ -110,7 +110,7 @@ class GroupInvitationControllerTest {
     // ==================== INVITE MEMBER ====================
 
     @Nested
-    @DisplayName("POST /groups/{groupId}/invitations - inviteMember")
+    @DisplayName("POST /api/v1/groups/{groupId}/invitations - inviteMember")
     class InviteMemberTests {
 
         @Test
@@ -124,7 +124,7 @@ class GroupInvitationControllerTest {
             when(invitationService.inviteMember(eq(USER_ID), eq(GROUP_ID), any(InviteMemberRequest.class)))
                     .thenReturn(testInvitationResponse);
 
-            mockMvc.perform(post("/groups/{groupId}/invitations", GROUP_ID)
+            mockMvc.perform(post("/api/v1/groups/{groupId}/invitations", GROUP_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -143,7 +143,7 @@ class GroupInvitationControllerTest {
             when(invitationService.inviteMember(eq(USER_ID), eq(GROUP_ID), any(InviteMemberRequest.class)))
                     .thenReturn(testInvitationResponse);
 
-            mockMvc.perform(post("/groups/{groupId}/invitations", GROUP_ID)
+            mockMvc.perform(post("/api/v1/groups/{groupId}/invitations", GROUP_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated());
@@ -159,7 +159,7 @@ class GroupInvitationControllerTest {
             when(invitationService.inviteMember(eq(USER_ID), eq(GROUP_ID), any(InviteMemberRequest.class)))
                     .thenThrow(new ValidationException("User is already a member of this group"));
 
-            mockMvc.perform(post("/groups/{groupId}/invitations", GROUP_ID)
+            mockMvc.perform(post("/api/v1/groups/{groupId}/invitations", GROUP_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())
@@ -176,7 +176,7 @@ class GroupInvitationControllerTest {
             when(invitationService.inviteMember(eq(USER_ID), eq(GROUP_ID), any(InviteMemberRequest.class)))
                     .thenThrow(new ValidationException("Group not found"));
 
-            mockMvc.perform(post("/groups/{groupId}/invitations", GROUP_ID)
+            mockMvc.perform(post("/api/v1/groups/{groupId}/invitations", GROUP_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -192,7 +192,7 @@ class GroupInvitationControllerTest {
             when(invitationService.inviteMember(eq(USER_ID), eq(GROUP_ID), any(InviteMemberRequest.class)))
                     .thenThrow(new ForbiddenException("You do not have permission to invite members"));
 
-            mockMvc.perform(post("/groups/{groupId}/invitations", GROUP_ID)
+            mockMvc.perform(post("/api/v1/groups/{groupId}/invitations", GROUP_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isForbidden());
@@ -205,7 +205,7 @@ class GroupInvitationControllerTest {
                     .userId(OTHER_USER_ID)
                     .build();
 
-            mockMvc.perform(post("/groups/{groupId}/invitations", "invalid-uuid")
+            mockMvc.perform(post("/api/v1/groups/{groupId}/invitations", "invalid-uuid")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
@@ -216,7 +216,7 @@ class GroupInvitationControllerTest {
         @Test
         @DisplayName("Missing request body - returns 400")
         void inviteMember_MissingBody() throws Exception {
-            mockMvc.perform(post("/groups/{groupId}/invitations", GROUP_ID)
+            mockMvc.perform(post("/api/v1/groups/{groupId}/invitations", GROUP_ID)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
@@ -226,7 +226,7 @@ class GroupInvitationControllerTest {
         @Test
         @DisplayName("Malformed JSON - returns 400")
         void inviteMember_MalformedJson() throws Exception {
-            mockMvc.perform(post("/groups/{groupId}/invitations", GROUP_ID)
+            mockMvc.perform(post("/api/v1/groups/{groupId}/invitations", GROUP_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"userId\": }"))
                     .andExpect(status().isBadRequest());
@@ -238,7 +238,7 @@ class GroupInvitationControllerTest {
     // ==================== CREATE INVITE LINK ====================
 
     @Nested
-    @DisplayName("POST /groups/{groupId}/invitations/link - createInviteLink")
+    @DisplayName("POST /api/v1/groups/{groupId}/invitations/link - createInviteLink")
     class CreateInviteLinkTests {
 
         @Test
@@ -254,7 +254,7 @@ class GroupInvitationControllerTest {
             when(invitationService.createInviteLink(eq(USER_ID), eq(GROUP_ID), any(CreateInviteLinkRequest.class)))
                     .thenReturn(testInvitationResponse);
 
-            mockMvc.perform(post("/groups/{groupId}/invitations/link", GROUP_ID)
+            mockMvc.perform(post("/api/v1/groups/{groupId}/invitations/link", GROUP_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -269,7 +269,7 @@ class GroupInvitationControllerTest {
             when(invitationService.createInviteLink(eq(USER_ID), eq(GROUP_ID), any()))
                     .thenReturn(testInvitationResponse);
 
-            mockMvc.perform(post("/groups/{groupId}/invitations/link", GROUP_ID)
+            mockMvc.perform(post("/api/v1/groups/{groupId}/invitations/link", GROUP_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{}"))
                     .andExpect(status().isCreated());
@@ -281,7 +281,7 @@ class GroupInvitationControllerTest {
             when(invitationService.createInviteLink(eq(USER_ID), eq(GROUP_ID), any()))
                     .thenThrow(new ForbiddenException("Admin access required"));
 
-            mockMvc.perform(post("/groups/{groupId}/invitations/link", GROUP_ID)
+            mockMvc.perform(post("/api/v1/groups/{groupId}/invitations/link", GROUP_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{}"))
                     .andExpect(status().isForbidden());
@@ -290,7 +290,7 @@ class GroupInvitationControllerTest {
         @Test
         @DisplayName("Invalid group UUID - returns 400")
         void createInviteLink_InvalidGroupUuid() throws Exception {
-            mockMvc.perform(post("/groups/{groupId}/invitations/link", "invalid-uuid")
+            mockMvc.perform(post("/api/v1/groups/{groupId}/invitations/link", "invalid-uuid")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{}"))
                     .andExpect(status().isBadRequest());
@@ -302,7 +302,7 @@ class GroupInvitationControllerTest {
     // ==================== GET GROUP INVITATIONS ====================
 
     @Nested
-    @DisplayName("GET /groups/{groupId}/invitations - getGroupInvitations")
+    @DisplayName("GET /api/v1/groups/{groupId}/invitations - getGroupInvitations")
     class GetGroupInvitationsTests {
 
         @Test
@@ -319,7 +319,7 @@ class GroupInvitationControllerTest {
             when(invitationService.getGroupInvitations(USER_ID, GROUP_ID, 0, 20))
                     .thenReturn(pageResponse);
 
-            mockMvc.perform(get("/groups/{groupId}/invitations", GROUP_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/invitations", GROUP_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)))
                     .andExpect(jsonPath("$.content[0].id").value(INVITATION_ID.toString()));
@@ -339,7 +339,7 @@ class GroupInvitationControllerTest {
             when(invitationService.getGroupInvitations(USER_ID, GROUP_ID, 0, 20))
                     .thenReturn(pageResponse);
 
-            mockMvc.perform(get("/groups/{groupId}/invitations", GROUP_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/invitations", GROUP_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(0)));
         }
@@ -358,7 +358,7 @@ class GroupInvitationControllerTest {
             when(invitationService.getGroupInvitations(USER_ID, GROUP_ID, 5, 50))
                     .thenReturn(pageResponse);
 
-            mockMvc.perform(get("/groups/{groupId}/invitations", GROUP_ID)
+            mockMvc.perform(get("/api/v1/groups/{groupId}/invitations", GROUP_ID)
                             .param("page", "5")
                             .param("size", "50"))
                     .andExpect(status().isOk())
@@ -372,14 +372,14 @@ class GroupInvitationControllerTest {
             when(invitationService.getGroupInvitations(USER_ID, GROUP_ID, 0, 20))
                     .thenThrow(new ForbiddenException("Moderator access required"));
 
-            mockMvc.perform(get("/groups/{groupId}/invitations", GROUP_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/invitations", GROUP_ID))
                     .andExpect(status().isForbidden());
         }
 
         @Test
         @DisplayName("Invalid group UUID - returns 400")
         void getGroupInvitations_InvalidGroupUuid() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/invitations", "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/invitations", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(invitationService);
@@ -388,7 +388,7 @@ class GroupInvitationControllerTest {
         @Test
         @DisplayName("Page below minimum - returns 400")
         void getGroupInvitations_PageBelowMin() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/invitations", GROUP_ID)
+            mockMvc.perform(get("/api/v1/groups/{groupId}/invitations", GROUP_ID)
                             .param("page", "-1"))
                     .andExpect(status().isBadRequest());
 
@@ -398,7 +398,7 @@ class GroupInvitationControllerTest {
         @Test
         @DisplayName("Page above maximum - returns 400")
         void getGroupInvitations_PageAboveMax() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/invitations", GROUP_ID)
+            mockMvc.perform(get("/api/v1/groups/{groupId}/invitations", GROUP_ID)
                             .param("page", "1001"))
                     .andExpect(status().isBadRequest());
 
@@ -408,7 +408,7 @@ class GroupInvitationControllerTest {
         @Test
         @DisplayName("Size below minimum - returns 400")
         void getGroupInvitations_SizeBelowMin() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/invitations", GROUP_ID)
+            mockMvc.perform(get("/api/v1/groups/{groupId}/invitations", GROUP_ID)
                             .param("size", "0"))
                     .andExpect(status().isBadRequest());
 
@@ -418,7 +418,7 @@ class GroupInvitationControllerTest {
         @Test
         @DisplayName("Size above maximum - returns 400")
         void getGroupInvitations_SizeAboveMax() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/invitations", GROUP_ID)
+            mockMvc.perform(get("/api/v1/groups/{groupId}/invitations", GROUP_ID)
                             .param("size", "101"))
                     .andExpect(status().isBadRequest());
 
@@ -429,7 +429,7 @@ class GroupInvitationControllerTest {
     // ==================== GET INVITATION ====================
 
     @Nested
-    @DisplayName("GET /groups/{groupId}/invitations/{invitationId} - getInvitation")
+    @DisplayName("GET /api/v1/groups/{groupId}/invitations/{invitationId} - getInvitation")
     class GetInvitationTests {
 
         @Test
@@ -437,7 +437,7 @@ class GroupInvitationControllerTest {
         void getInvitation_Success() throws Exception {
             when(invitationService.getInvitation(INVITATION_ID)).thenReturn(testInvitationResponse);
 
-            mockMvc.perform(get("/groups/{groupId}/invitations/{invitationId}", GROUP_ID, INVITATION_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/invitations/{invitationId}", GROUP_ID, INVITATION_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(INVITATION_ID.toString()))
                     .andExpect(jsonPath("$.status").value("PENDING"));
@@ -449,7 +449,7 @@ class GroupInvitationControllerTest {
             when(invitationService.getInvitation(INVITATION_ID))
                     .thenThrow(new ValidationException("Invitation not found"));
 
-            mockMvc.perform(get("/groups/{groupId}/invitations/{invitationId}", GROUP_ID, INVITATION_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/invitations/{invitationId}", GROUP_ID, INVITATION_ID))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Invitation not found"));
         }
@@ -457,7 +457,7 @@ class GroupInvitationControllerTest {
         @Test
         @DisplayName("Invalid group UUID - returns 400")
         void getInvitation_InvalidGroupUuid() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/invitations/{invitationId}", "invalid-uuid", INVITATION_ID))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/invitations/{invitationId}", "invalid-uuid", INVITATION_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(invitationService);
@@ -466,7 +466,7 @@ class GroupInvitationControllerTest {
         @Test
         @DisplayName("Invalid invitation UUID - returns 400")
         void getInvitation_InvalidInvitationUuid() throws Exception {
-            mockMvc.perform(get("/groups/{groupId}/invitations/{invitationId}", GROUP_ID, "invalid-uuid"))
+            mockMvc.perform(get("/api/v1/groups/{groupId}/invitations/{invitationId}", GROUP_ID, "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(invitationService);
@@ -476,7 +476,7 @@ class GroupInvitationControllerTest {
     // ==================== CANCEL INVITATION ====================
 
     @Nested
-    @DisplayName("DELETE /groups/{groupId}/invitations/{invitationId} - cancelInvitation")
+    @DisplayName("DELETE /api/v1/groups/{groupId}/invitations/{invitationId} - cancelInvitation")
     class CancelInvitationTests {
 
         @Test
@@ -484,7 +484,7 @@ class GroupInvitationControllerTest {
         void cancelInvitation_Success() throws Exception {
             doNothing().when(invitationService).cancelInvitation(USER_ID, GROUP_ID, INVITATION_ID);
 
-            mockMvc.perform(delete("/groups/{groupId}/invitations/{invitationId}", GROUP_ID, INVITATION_ID))
+            mockMvc.perform(delete("/api/v1/groups/{groupId}/invitations/{invitationId}", GROUP_ID, INVITATION_ID))
                     .andExpect(status().isNoContent());
 
             verify(invitationService).cancelInvitation(USER_ID, GROUP_ID, INVITATION_ID);
@@ -496,7 +496,7 @@ class GroupInvitationControllerTest {
             doThrow(new ValidationException("Invitation not found"))
                     .when(invitationService).cancelInvitation(USER_ID, GROUP_ID, INVITATION_ID);
 
-            mockMvc.perform(delete("/groups/{groupId}/invitations/{invitationId}", GROUP_ID, INVITATION_ID))
+            mockMvc.perform(delete("/api/v1/groups/{groupId}/invitations/{invitationId}", GROUP_ID, INVITATION_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -506,14 +506,14 @@ class GroupInvitationControllerTest {
             doThrow(new ForbiddenException("Moderator access required"))
                     .when(invitationService).cancelInvitation(USER_ID, GROUP_ID, INVITATION_ID);
 
-            mockMvc.perform(delete("/groups/{groupId}/invitations/{invitationId}", GROUP_ID, INVITATION_ID))
+            mockMvc.perform(delete("/api/v1/groups/{groupId}/invitations/{invitationId}", GROUP_ID, INVITATION_ID))
                     .andExpect(status().isForbidden());
         }
 
         @Test
         @DisplayName("Invalid group UUID - returns 400")
         void cancelInvitation_InvalidGroupUuid() throws Exception {
-            mockMvc.perform(delete("/groups/{groupId}/invitations/{invitationId}", "invalid-uuid", INVITATION_ID))
+            mockMvc.perform(delete("/api/v1/groups/{groupId}/invitations/{invitationId}", "invalid-uuid", INVITATION_ID))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(invitationService);
@@ -522,7 +522,7 @@ class GroupInvitationControllerTest {
         @Test
         @DisplayName("Invalid invitation UUID - returns 400")
         void cancelInvitation_InvalidInvitationUuid() throws Exception {
-            mockMvc.perform(delete("/groups/{groupId}/invitations/{invitationId}", GROUP_ID, "invalid-uuid"))
+            mockMvc.perform(delete("/api/v1/groups/{groupId}/invitations/{invitationId}", GROUP_ID, "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(invitationService);
@@ -532,7 +532,7 @@ class GroupInvitationControllerTest {
     // ==================== GET MY INVITATIONS ====================
 
     @Nested
-    @DisplayName("GET /invitations - getMyInvitations")
+    @DisplayName("GET /api/v1/invitations - getMyInvitations")
     class GetMyInvitationsTests {
 
         @Test
@@ -549,7 +549,7 @@ class GroupInvitationControllerTest {
             when(invitationService.getMyPendingInvitations(USER_ID, 0, 20))
                     .thenReturn(pageResponse);
 
-            mockMvc.perform(get("/invitations"))
+            mockMvc.perform(get("/api/v1/invitations"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(1)));
         }
@@ -568,7 +568,7 @@ class GroupInvitationControllerTest {
             when(invitationService.getMyPendingInvitations(USER_ID, 0, 20))
                     .thenReturn(pageResponse);
 
-            mockMvc.perform(get("/invitations"))
+            mockMvc.perform(get("/api/v1/invitations"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content", hasSize(0)));
         }
@@ -587,7 +587,7 @@ class GroupInvitationControllerTest {
             when(invitationService.getMyPendingInvitations(USER_ID, 3, 10))
                     .thenReturn(pageResponse);
 
-            mockMvc.perform(get("/invitations")
+            mockMvc.perform(get("/api/v1/invitations")
                             .param("page", "3")
                             .param("size", "10"))
                     .andExpect(status().isOk());
@@ -596,7 +596,7 @@ class GroupInvitationControllerTest {
         @Test
         @DisplayName("Page below minimum - returns 400")
         void getMyInvitations_PageBelowMin() throws Exception {
-            mockMvc.perform(get("/invitations")
+            mockMvc.perform(get("/api/v1/invitations")
                             .param("page", "-1"))
                     .andExpect(status().isBadRequest());
 
@@ -606,7 +606,7 @@ class GroupInvitationControllerTest {
         @Test
         @DisplayName("Page above maximum - returns 400")
         void getMyInvitations_PageAboveMax() throws Exception {
-            mockMvc.perform(get("/invitations")
+            mockMvc.perform(get("/api/v1/invitations")
                             .param("page", "1001"))
                     .andExpect(status().isBadRequest());
 
@@ -616,7 +616,7 @@ class GroupInvitationControllerTest {
         @Test
         @DisplayName("Size below minimum - returns 400")
         void getMyInvitations_SizeBelowMin() throws Exception {
-            mockMvc.perform(get("/invitations")
+            mockMvc.perform(get("/api/v1/invitations")
                             .param("size", "0"))
                     .andExpect(status().isBadRequest());
 
@@ -626,7 +626,7 @@ class GroupInvitationControllerTest {
         @Test
         @DisplayName("Size above maximum - returns 400")
         void getMyInvitations_SizeAboveMax() throws Exception {
-            mockMvc.perform(get("/invitations")
+            mockMvc.perform(get("/api/v1/invitations")
                             .param("size", "101"))
                     .andExpect(status().isBadRequest());
 
@@ -647,7 +647,7 @@ class GroupInvitationControllerTest {
             when(invitationService.getMyPendingInvitations(USER_ID, 1000, 20))
                     .thenReturn(pageResponse);
 
-            mockMvc.perform(get("/invitations")
+            mockMvc.perform(get("/api/v1/invitations")
                             .param("page", "1000"))
                     .andExpect(status().isOk());
         }
@@ -666,7 +666,7 @@ class GroupInvitationControllerTest {
             when(invitationService.getMyPendingInvitations(USER_ID, 0, 100))
                     .thenReturn(pageResponse);
 
-            mockMvc.perform(get("/invitations")
+            mockMvc.perform(get("/api/v1/invitations")
                             .param("size", "100"))
                     .andExpect(status().isOk());
         }
@@ -675,7 +675,7 @@ class GroupInvitationControllerTest {
     // ==================== GET INVITATION COUNT ====================
 
     @Nested
-    @DisplayName("GET /invitations/count - getInvitationCount")
+    @DisplayName("GET /api/v1/invitations/count - getInvitationCount")
     class GetInvitationCountTests {
 
         @Test
@@ -683,7 +683,7 @@ class GroupInvitationControllerTest {
         void getInvitationCount_Success() throws Exception {
             when(invitationService.countPendingInvitations(USER_ID)).thenReturn(5L);
 
-            mockMvc.perform(get("/invitations/count"))
+            mockMvc.perform(get("/api/v1/invitations/count"))
                     .andExpect(status().isOk())
                     .andExpect(content().string("5"));
         }
@@ -693,7 +693,7 @@ class GroupInvitationControllerTest {
         void getInvitationCount_Zero() throws Exception {
             when(invitationService.countPendingInvitations(USER_ID)).thenReturn(0L);
 
-            mockMvc.perform(get("/invitations/count"))
+            mockMvc.perform(get("/api/v1/invitations/count"))
                     .andExpect(status().isOk())
                     .andExpect(content().string("0"));
         }
@@ -703,7 +703,7 @@ class GroupInvitationControllerTest {
         void getInvitationCount_LargeCount() throws Exception {
             when(invitationService.countPendingInvitations(USER_ID)).thenReturn(999999L);
 
-            mockMvc.perform(get("/invitations/count"))
+            mockMvc.perform(get("/api/v1/invitations/count"))
                     .andExpect(status().isOk())
                     .andExpect(content().string("999999"));
         }
@@ -712,7 +712,7 @@ class GroupInvitationControllerTest {
     // ==================== ACCEPT INVITATION ====================
 
     @Nested
-    @DisplayName("POST /invitations/{invitationId}/accept - acceptInvitation")
+    @DisplayName("POST /api/v1/invitations/{invitationId}/accept - acceptInvitation")
     class AcceptInvitationTests {
 
         @Test
@@ -721,7 +721,7 @@ class GroupInvitationControllerTest {
             when(invitationService.acceptInvitation(USER_ID, INVITATION_ID))
                     .thenReturn(testGroupMemberResponse);
 
-            mockMvc.perform(post("/invitations/{invitationId}/accept", INVITATION_ID))
+            mockMvc.perform(post("/api/v1/invitations/{invitationId}/accept", INVITATION_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.groupId").value(GROUP_ID.toString()))
                     .andExpect(jsonPath("$.role").value("MEMBER"))
@@ -734,7 +734,7 @@ class GroupInvitationControllerTest {
             when(invitationService.acceptInvitation(USER_ID, INVITATION_ID))
                     .thenThrow(new ValidationException("Invitation not found"));
 
-            mockMvc.perform(post("/invitations/{invitationId}/accept", INVITATION_ID))
+            mockMvc.perform(post("/api/v1/invitations/{invitationId}/accept", INVITATION_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -744,7 +744,7 @@ class GroupInvitationControllerTest {
             when(invitationService.acceptInvitation(USER_ID, INVITATION_ID))
                     .thenThrow(new ValidationException("Invitation has expired"));
 
-            mockMvc.perform(post("/invitations/{invitationId}/accept", INVITATION_ID))
+            mockMvc.perform(post("/api/v1/invitations/{invitationId}/accept", INVITATION_ID))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Invitation has expired"));
         }
@@ -755,14 +755,14 @@ class GroupInvitationControllerTest {
             when(invitationService.acceptInvitation(USER_ID, INVITATION_ID))
                     .thenThrow(new ForbiddenException("This invitation is not for you"));
 
-            mockMvc.perform(post("/invitations/{invitationId}/accept", INVITATION_ID))
+            mockMvc.perform(post("/api/v1/invitations/{invitationId}/accept", INVITATION_ID))
                     .andExpect(status().isForbidden());
         }
 
         @Test
         @DisplayName("Invalid invitation UUID - returns 400")
         void acceptInvitation_InvalidUuid() throws Exception {
-            mockMvc.perform(post("/invitations/{invitationId}/accept", "invalid-uuid"))
+            mockMvc.perform(post("/api/v1/invitations/{invitationId}/accept", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(invitationService);
@@ -772,7 +772,7 @@ class GroupInvitationControllerTest {
     // ==================== DECLINE INVITATION ====================
 
     @Nested
-    @DisplayName("POST /invitations/{invitationId}/decline - declineInvitation")
+    @DisplayName("POST /api/v1/invitations/{invitationId}/decline - declineInvitation")
     class DeclineInvitationTests {
 
         @Test
@@ -780,7 +780,7 @@ class GroupInvitationControllerTest {
         void declineInvitation_Success() throws Exception {
             doNothing().when(invitationService).declineInvitation(USER_ID, INVITATION_ID);
 
-            mockMvc.perform(post("/invitations/{invitationId}/decline", INVITATION_ID))
+            mockMvc.perform(post("/api/v1/invitations/{invitationId}/decline", INVITATION_ID))
                     .andExpect(status().isNoContent());
 
             verify(invitationService).declineInvitation(USER_ID, INVITATION_ID);
@@ -792,7 +792,7 @@ class GroupInvitationControllerTest {
             doThrow(new ValidationException("Invitation not found"))
                     .when(invitationService).declineInvitation(USER_ID, INVITATION_ID);
 
-            mockMvc.perform(post("/invitations/{invitationId}/decline", INVITATION_ID))
+            mockMvc.perform(post("/api/v1/invitations/{invitationId}/decline", INVITATION_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -802,7 +802,7 @@ class GroupInvitationControllerTest {
             doThrow(new ValidationException("Invitation has expired"))
                     .when(invitationService).declineInvitation(USER_ID, INVITATION_ID);
 
-            mockMvc.perform(post("/invitations/{invitationId}/decline", INVITATION_ID))
+            mockMvc.perform(post("/api/v1/invitations/{invitationId}/decline", INVITATION_ID))
                     .andExpect(status().isBadRequest());
         }
 
@@ -812,14 +812,14 @@ class GroupInvitationControllerTest {
             doThrow(new ForbiddenException("This invitation is not for you"))
                     .when(invitationService).declineInvitation(USER_ID, INVITATION_ID);
 
-            mockMvc.perform(post("/invitations/{invitationId}/decline", INVITATION_ID))
+            mockMvc.perform(post("/api/v1/invitations/{invitationId}/decline", INVITATION_ID))
                     .andExpect(status().isForbidden());
         }
 
         @Test
         @DisplayName("Invalid invitation UUID - returns 400")
         void declineInvitation_InvalidUuid() throws Exception {
-            mockMvc.perform(post("/invitations/{invitationId}/decline", "invalid-uuid"))
+            mockMvc.perform(post("/api/v1/invitations/{invitationId}/decline", "invalid-uuid"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(invitationService);
@@ -829,7 +829,7 @@ class GroupInvitationControllerTest {
     // ==================== JOIN BY CODE ====================
 
     @Nested
-    @DisplayName("POST /invitations/join - joinByCode")
+    @DisplayName("POST /api/v1/invitations/join - joinByCode")
     class JoinByCodeTests {
 
         @Test
@@ -838,7 +838,7 @@ class GroupInvitationControllerTest {
             when(invitationService.acceptByCode(USER_ID, "abc123xyz"))
                     .thenReturn(testGroupMemberResponse);
 
-            mockMvc.perform(post("/invitations/join")
+            mockMvc.perform(post("/api/v1/invitations/join")
                             .param("code", "abc123xyz"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.groupId").value(GROUP_ID.toString()))
@@ -851,7 +851,7 @@ class GroupInvitationControllerTest {
             when(invitationService.acceptByCode(USER_ID, "invalidcode"))
                     .thenThrow(new ValidationException("Invalid invite code"));
 
-            mockMvc.perform(post("/invitations/join")
+            mockMvc.perform(post("/api/v1/invitations/join")
                             .param("code", "invalidcode"))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Invalid invite code"));
@@ -863,7 +863,7 @@ class GroupInvitationControllerTest {
             when(invitationService.acceptByCode(USER_ID, "expiredcode"))
                     .thenThrow(new ValidationException("Invite code has expired"));
 
-            mockMvc.perform(post("/invitations/join")
+            mockMvc.perform(post("/api/v1/invitations/join")
                             .param("code", "expiredcode"))
                     .andExpect(status().isBadRequest());
         }
@@ -874,7 +874,7 @@ class GroupInvitationControllerTest {
             when(invitationService.acceptByCode(USER_ID, "abc123xyz"))
                     .thenThrow(new ValidationException("You are already a member of this group"));
 
-            mockMvc.perform(post("/invitations/join")
+            mockMvc.perform(post("/api/v1/invitations/join")
                             .param("code", "abc123xyz"))
                     .andExpect(status().isBadRequest());
         }
@@ -882,7 +882,7 @@ class GroupInvitationControllerTest {
         @Test
         @DisplayName("Missing code - returns 400")
         void joinByCode_MissingCode() throws Exception {
-            mockMvc.perform(post("/invitations/join"))
+            mockMvc.perform(post("/api/v1/invitations/join"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(invitationService);
@@ -891,7 +891,7 @@ class GroupInvitationControllerTest {
         @Test
         @DisplayName("Blank code - returns 400")
         void joinByCode_BlankCode() throws Exception {
-            mockMvc.perform(post("/invitations/join")
+            mockMvc.perform(post("/api/v1/invitations/join")
                             .param("code", "   "))
                     .andExpect(status().isBadRequest());
 
@@ -901,7 +901,7 @@ class GroupInvitationControllerTest {
         @Test
         @DisplayName("Empty code - returns 400")
         void joinByCode_EmptyCode() throws Exception {
-            mockMvc.perform(post("/invitations/join")
+            mockMvc.perform(post("/api/v1/invitations/join")
                             .param("code", ""))
                     .andExpect(status().isBadRequest());
 
@@ -912,7 +912,7 @@ class GroupInvitationControllerTest {
     // ==================== PREVIEW INVITATION ====================
 
     @Nested
-    @DisplayName("GET /invitations/preview - previewInvitation")
+    @DisplayName("GET /api/v1/invitations/preview - previewInvitation")
     class PreviewInvitationTests {
 
         @Test
@@ -921,7 +921,7 @@ class GroupInvitationControllerTest {
             when(invitationService.getInvitationByCode("abc123xyz"))
                     .thenReturn(testInvitationResponse);
 
-            mockMvc.perform(get("/invitations/preview")
+            mockMvc.perform(get("/api/v1/invitations/preview")
                             .param("code", "abc123xyz"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.groupId").value(GROUP_ID.toString()))
@@ -934,7 +934,7 @@ class GroupInvitationControllerTest {
             when(invitationService.getInvitationByCode("invalidcode"))
                     .thenThrow(new ValidationException("Invalid invite code"));
 
-            mockMvc.perform(get("/invitations/preview")
+            mockMvc.perform(get("/api/v1/invitations/preview")
                             .param("code", "invalidcode"))
                     .andExpect(status().isBadRequest());
         }
@@ -945,7 +945,7 @@ class GroupInvitationControllerTest {
             when(invitationService.getInvitationByCode("expiredcode"))
                     .thenThrow(new ValidationException("Invite code has expired"));
 
-            mockMvc.perform(get("/invitations/preview")
+            mockMvc.perform(get("/api/v1/invitations/preview")
                             .param("code", "expiredcode"))
                     .andExpect(status().isBadRequest());
         }
@@ -953,7 +953,7 @@ class GroupInvitationControllerTest {
         @Test
         @DisplayName("Missing code - returns 400")
         void previewInvitation_MissingCode() throws Exception {
-            mockMvc.perform(get("/invitations/preview"))
+            mockMvc.perform(get("/api/v1/invitations/preview"))
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(invitationService);
@@ -962,7 +962,7 @@ class GroupInvitationControllerTest {
         @Test
         @DisplayName("Blank code - returns 400")
         void previewInvitation_BlankCode() throws Exception {
-            mockMvc.perform(get("/invitations/preview")
+            mockMvc.perform(get("/api/v1/invitations/preview")
                             .param("code", "   "))
                     .andExpect(status().isBadRequest());
 
@@ -972,7 +972,7 @@ class GroupInvitationControllerTest {
         @Test
         @DisplayName("Empty code - returns 400")
         void previewInvitation_EmptyCode() throws Exception {
-            mockMvc.perform(get("/invitations/preview")
+            mockMvc.perform(get("/api/v1/invitations/preview")
                             .param("code", ""))
                     .andExpect(status().isBadRequest());
 
