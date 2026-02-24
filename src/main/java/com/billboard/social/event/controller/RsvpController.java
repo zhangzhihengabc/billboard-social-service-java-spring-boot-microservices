@@ -163,11 +163,11 @@ public class RsvpController {
             @ApiResponse(responseCode = "401", description = "Unauthorized",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<List<UUID>> getGoingUserIds(
+    public ResponseEntity<List<Long>> getGoingUserIds(
             @Parameter(description = "Event ID", required = true,
                     schema = @Schema(type = "string", format = "uuid"))
             @PathVariable UUID eventId) {
-        List<UUID> userIds = rsvpService.getGoingUserIds(eventId);
+        List<Long> userIds = rsvpService.getGoingUserIds(eventId);
         return ResponseEntity.ok(userIds);
     }
 
@@ -193,7 +193,7 @@ public class RsvpController {
             @PathVariable UUID eventId,
             @Parameter(description = "User ID to check in", required = true,
                     schema = @Schema(type = "string", format = "uuid"))
-            @PathVariable UUID userId) {
+            @PathVariable Long userId) {
         RsvpResponse response = rsvpService.checkIn(principal.getId(), eventId, userId);
         return ResponseEntity.ok(response);
     }
@@ -218,7 +218,7 @@ public class RsvpController {
             @PathVariable UUID eventId,
             @Parameter(description = "User ID to undo check-in", required = true,
                     schema = @Schema(type = "string", format = "uuid"))
-            @PathVariable UUID userId) {
+            @PathVariable Long userId) {
         RsvpResponse response = rsvpService.undoCheckIn(principal.getId(), eventId, userId);
         return ResponseEntity.ok(response);
     }
@@ -286,7 +286,7 @@ public class RsvpController {
             @PathVariable UUID eventId,
             @Parameter(description = "Co-host user ID to remove", required = true,
                     schema = @Schema(type = "string", format = "uuid"))
-            @PathVariable UUID userId) {
+            @PathVariable Long userId) {
         rsvpService.removeCoHost(principal.getId(), eventId, userId);
         return ResponseEntity.noContent().build();
     }

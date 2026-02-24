@@ -43,8 +43,8 @@ public class FollowService {
 
     @Transactional
     @CacheEvict(value = {"followStats", "followingIds"}, allEntries = true)
-    public FollowResponse follow(UUID followerId, FollowRequest request) {
-        UUID followingId = request.getUserId();
+    public FollowResponse follow(Long followerId, FollowRequest request) {
+        Long followingId = request.getUserId();
 
         // Validate not self
         if (followerId.equals(followingId)) {
@@ -87,7 +87,7 @@ public class FollowService {
 
     @Transactional
     @CacheEvict(value = {"followStats", "followingIds"}, allEntries = true)
-    public void unfollow(UUID followerId, UUID followingId) {
+    public void unfollow(Long followerId, Long followingId) {
         if (!followRepository.existsByFollowerIdAndFollowingId(followerId, followingId)) {
             throw new ResourceNotFoundException("Follow relationship not found");
         }
@@ -105,7 +105,7 @@ public class FollowService {
 
     @Transactional
     @CacheEvict(value = {"followStats"}, allEntries = true)
-    public FollowResponse updateFollow(UUID followerId, UUID followingId, UpdateFollowRequest request) {
+    public FollowResponse updateFollow(Long followerId, Long followingId, UpdateFollowRequest request) {
         Follow follow = followRepository.findByFollowerIdAndFollowingId(followerId, followingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Follow relationship not found"));
 
@@ -128,21 +128,21 @@ public class FollowService {
     // ==================== READ ====================
 
     @Transactional(readOnly = true)
-    public PageResponse<FollowResponse> getFollowers(UUID userId, int page, int size) {
+    public PageResponse<FollowResponse> getFollowers(Long userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Follow> followPage = followRepository.findByFollowingId(userId, pageRequest);
         return PageResponse.from(followPage, this::mapToFollowerResponse);
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<FollowResponse> getFollowing(UUID userId, int page, int size) {
+    public PageResponse<FollowResponse> getFollowing(Long userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Follow> followPage = followRepository.findByFollowerId(userId, pageRequest);
         return PageResponse.from(followPage, this::mapToFollowResponse);
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<FollowResponse> getCloseFriends(UUID userId, int page, int size) {
+    public PageResponse<FollowResponse> getCloseFriends(Long userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Follow> followPage = followRepository.findByFollowerIdAndIsCloseFriendTrue(userId, pageRequest);
         return PageResponse.from(followPage, this::mapToFollowResponse);
@@ -150,7 +150,7 @@ public class FollowService {
 
     @Transactional(readOnly = true)
     @Cacheable(value = "followStats", key = "#userId")
-    public FollowStatsResponse getFollowStats(UUID userId, UUID requesterId) {
+    public FollowStatsResponse getFollowStats(Long userId, Long requesterId) {
         long followersCount = followRepository.countByFollowingId(userId);
         long followingCount = followRepository.countByFollowerId(userId);
 
@@ -173,12 +173,12 @@ public class FollowService {
 
     @Transactional(readOnly = true)
     @Cacheable(value = "followingIds", key = "#userId")
-    public List<UUID> getFollowingIds(UUID userId) {
+    public List<Long> getFollowingIds(Long userId) {
         return followRepository.findFollowingIdsByFollowerId(userId);
     }
 
     @Transactional(readOnly = true)
-    public boolean isFollowing(UUID followerId, UUID followingId) {
+    public boolean isFollowing(Long followerId, Long followingId) {
         return followRepository.existsByFollowerIdAndFollowingId(followerId, followingId);
     }
 
@@ -225,7 +225,7 @@ public class FollowService {
     /**
      * Fetches user summary from identity-service with fallback
      */
-    private UserSummary fetchUserSummary(UUID userId) {
+    private UserSummary fetchUserSummary(Long userId) {
         try {
             return userServiceClient.getUserSummary(userId);
         } catch (Exception e) {

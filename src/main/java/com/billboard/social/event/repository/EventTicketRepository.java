@@ -19,9 +19,9 @@ public interface EventTicketRepository extends JpaRepository<EventTicket, UUID> 
 
     Page<EventTicket> findByEventId(UUID eventId, Pageable pageable);
 
-    Page<EventTicket> findByUserId(UUID userId, Pageable pageable);
+    Page<EventTicket> findByUserId(Long userId, Pageable pageable);
 
-    List<EventTicket> findByEventIdAndUserId(UUID eventId, UUID userId);
+    List<EventTicket> findByEventIdAndUserId(UUID eventId, Long userId);
 
     @Query("SELECT COUNT(t) FROM EventTicket t WHERE t.event.id = :eventId AND t.status = 'VALID'")
     long countValidTicketsByEventId(@Param("eventId") UUID eventId);

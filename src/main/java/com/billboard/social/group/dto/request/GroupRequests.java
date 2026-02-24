@@ -69,7 +69,7 @@ public class GroupRequests {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class InviteMemberRequest {
-        private UUID userId;
+        private Long userId;
 
         @Size(max = 255, message = "Email cannot exceed 255 characters")
         private String email;

@@ -15,24 +15,24 @@ import java.util.UUID;
 @Repository
 public interface BlockRepository extends JpaRepository<Block, UUID> {
 
-    Optional<Block> findByBlockerIdAndBlockedId(UUID blockerId, UUID blockedId);
+    Optional<Block> findByBlockerIdAndBlockedId(Long blockerId, Long blockedId);
 
-    boolean existsByBlockerIdAndBlockedId(UUID blockerId, UUID blockedId);
+    boolean existsByBlockerIdAndBlockedId(Long blockerId, Long blockedId);
 
-    Page<Block> findByBlockerId(UUID blockerId, Pageable pageable);
+    Page<Block> findByBlockerId(Long blockerId, Pageable pageable);
 
     @Query("SELECT b.blockedId FROM Block b WHERE b.blockerId = :userId")
-    List<UUID> findBlockedUserIds(@Param("userId") UUID userId);
+    List<Long> findBlockedUserIds(@Param("userId") Long userId);
 
     @Query("SELECT b.blockerId FROM Block b WHERE b.blockedId = :userId")
-    List<UUID> findBlockedByUserIds(@Param("userId") UUID userId);
+    List<Long> findBlockedByUserIds(@Param("userId") Long userId);
 
     @Query("SELECT CASE WHEN COUNT(b) > 0 THEN true ELSE false END FROM Block b " +
            "WHERE (b.blockerId = :userId1 AND b.blockedId = :userId2) OR " +
            "(b.blockerId = :userId2 AND b.blockedId = :userId1)")
-    boolean isBlockedEitherWay(@Param("userId1") UUID userId1, @Param("userId2") UUID userId2);
+    boolean isBlockedEitherWay(@Param("userId1") Long userId1, @Param("userId2") Long userId2);
 
-    long countByBlockerId(UUID blockerId);
+    long countByBlockerId(Long blockerId);
 
-    void deleteByBlockerIdAndBlockedId(UUID blockerId, UUID blockedId);
+    void deleteByBlockerIdAndBlockedId(Long blockerId, Long blockedId);
 }

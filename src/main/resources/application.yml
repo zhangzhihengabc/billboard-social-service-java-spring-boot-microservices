@@ -45,12 +45,12 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_URI:http://localhost:8762/eureka}
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
   instance:
     prefer-ip-address: true
 
 jwt:
-  secret: ${JWT_SECRET:dGhpc2lzYXZlcnlsb25nc2VjcmV0a2V5Zm9yand0dG9rZW4=}
+  secret: ${JWT_SECRET:mySecretKeyForDevelopmentOnlyDoNotUseInProduction1234567890}
   expiration: 86400000
 
 app:
@@ -94,24 +94,3 @@ social:
     max-attendees: 10000
     max-user-events: 100
     reminder-hours-before: 24
-
-# Identity service URL (for Feign client)
-identity-service:
-  url: http://localhost:8081
-
-# Mail configuration
-spring.mail:
-  host: ${MAIL_HOST:smtp.gmail.com}
-  port: ${MAIL_PORT:587}
-  username: ${MAIL_USERNAME:uditmehta100@gmail.com}
-  password: ${MAIL_PASSWORD:ndvgvsmlbxvhjefn}
-  properties:
-    mail:
-      smtp:
-        auth: true
-        starttls:
-          enable: true
-          required: true
-        connectiontimeout: 5000
-        timeout: 5000
-        writetimeout: 5000

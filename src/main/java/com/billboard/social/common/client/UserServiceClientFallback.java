@@ -4,14 +4,12 @@ import com.billboard.social.common.dto.UserSummary;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
-
 @Component
 @Slf4j
 public class UserServiceClientFallback implements UserServiceClient {
 
     @Override
-    public UserSummary getUserSummary(UUID userId) {
+    public UserSummary getUserSummary(Long userId) {
         log.warn("Fallback: Unable to fetch user summary for userId: {}", userId);
         return UserSummary.builder()
             .id(userId)

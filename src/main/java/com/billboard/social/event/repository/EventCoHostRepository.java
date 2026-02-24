@@ -14,9 +14,9 @@ import java.util.UUID;
 @Repository
 public interface EventCoHostRepository extends JpaRepository<EventCoHost, UUID> {
 
-    Optional<EventCoHost> findByEventIdAndUserId(UUID eventId, UUID userId);
+    Optional<EventCoHost> findByEventIdAndUserId(UUID eventId, Long userId);
 
-    boolean existsByEventIdAndUserId(UUID eventId, UUID userId);
+    boolean existsByEventIdAndUserId(UUID eventId, Long userId);
 
     List<EventCoHost> findByEventId(UUID eventId);
 
@@ -25,7 +25,7 @@ public interface EventCoHostRepository extends JpaRepository<EventCoHost, UUID> 
     @Query("DELETE FROM EventCoHost c WHERE c.event.id = :eventId")
     void deleteByEventId(@Param("eventId") UUID eventId);
 
-    List<EventCoHost> findByUserId(UUID userId);
+    List<EventCoHost> findByUserId(Long userId);
 
-    void deleteByEventIdAndUserId(UUID eventId, UUID userId);
+    void deleteByEventIdAndUserId(UUID eventId, Long userId);
 }

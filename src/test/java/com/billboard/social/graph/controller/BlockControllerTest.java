@@ -37,8 +37,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(GlobalExceptionHandler.class)
 class BlockControllerTest {
 
-    private static final UUID USER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-    private static final UUID BLOCKED_USER_ID = UUID.fromString("22222222-2222-2222-2222-222222222222");
+    private static final Long USER_ID = 1L;
+    private static final Long BLOCKED_USER_ID = 2L;
     private static final UUID BLOCK_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
 
     @Autowired
@@ -423,8 +423,8 @@ class BlockControllerTest {
         @Test
         @DisplayName("Success - returns user IDs")
         void getBlockedUserIds_Success() throws Exception {
-            UUID secondBlockedUser = UUID.randomUUID();
-            List<UUID> ids = List.of(BLOCKED_USER_ID, secondBlockedUser);
+            Long secondBlockedUser = 10L;
+            List<Long> ids = List.of(BLOCKED_USER_ID, secondBlockedUser);
 
             when(blockService.getBlockedUserIds(USER_ID)).thenReturn(ids);
 
@@ -448,7 +448,7 @@ class BlockControllerTest {
         @Test
         @DisplayName("Success - single blocked user")
         void getBlockedUserIds_SingleUser() throws Exception {
-            List<UUID> ids = List.of(BLOCKED_USER_ID);
+            List<Long> ids = List.of(BLOCKED_USER_ID);
 
             when(blockService.getBlockedUserIds(USER_ID)).thenReturn(ids);
 

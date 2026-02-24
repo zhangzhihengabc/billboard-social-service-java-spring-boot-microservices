@@ -47,8 +47,8 @@ class FollowServiceTest {
     private FollowService followService;
 
     // Test constants
-    private static final UUID USER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-    private static final UUID TARGET_USER_ID = UUID.fromString("22222222-2222-2222-2222-222222222222");
+    private static final Long USER_ID = 1L;
+    private static final Long TARGET_USER_ID = 2L;
     private static final UUID FOLLOW_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
 
     private Follow testFollow;
@@ -514,7 +514,7 @@ class FollowServiceTest {
         @Test
         @DisplayName("Success - multiple followers")
         void getFollowers_Multiple() {
-            UUID follower2Id = UUID.randomUUID();
+            Long follower2Id = 10L;
             Follow follow1 = Follow.builder()
                     .id(FOLLOW_ID)
                     .followerId(TARGET_USER_ID)
@@ -758,13 +758,13 @@ class FollowServiceTest {
         @Test
         @DisplayName("Success - returns following user IDs")
         void getFollowingIds_Success() {
-            UUID user2 = UUID.randomUUID();
-            UUID user3 = UUID.randomUUID();
-            List<UUID> ids = List.of(TARGET_USER_ID, user2, user3);
+            Long user2 = 10L;
+            Long user3 = 11L;
+            List<Long> ids = List.of(TARGET_USER_ID, user2, user3);
 
             when(followRepository.findFollowingIdsByFollowerId(USER_ID)).thenReturn(ids);
 
-            List<UUID> result = followService.getFollowingIds(USER_ID);
+            List<Long> result = followService.getFollowingIds(USER_ID);
 
             assertThat(result).hasSize(3);
             assertThat(result).containsExactly(TARGET_USER_ID, user2, user3);
@@ -775,7 +775,7 @@ class FollowServiceTest {
         void getFollowingIds_Empty() {
             when(followRepository.findFollowingIdsByFollowerId(USER_ID)).thenReturn(Collections.emptyList());
 
-            List<UUID> result = followService.getFollowingIds(USER_ID);
+            List<Long> result = followService.getFollowingIds(USER_ID);
 
             assertThat(result).isEmpty();
         }

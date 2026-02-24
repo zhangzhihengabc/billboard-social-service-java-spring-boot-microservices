@@ -47,7 +47,7 @@ class EventCategoryControllerTest {
     private Eventcategoryservice categoryService;
 
     // Test constants
-    private static final UUID USER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+    private static final Long USER_ID = 1L;
     private static final UUID CATEGORY_ID = UUID.fromString("22222222-2222-2222-2222-222222222222");
 
     private UserPrincipal userPrincipal;

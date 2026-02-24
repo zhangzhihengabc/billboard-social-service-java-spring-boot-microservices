@@ -30,10 +30,10 @@ public class Follow extends BaseEntity {
     private UUID id;
 
     @Column(name = "follower_id", nullable = false)
-    private UUID followerId;
+    private Long followerId;
 
     @Column(name = "following_id", nullable = false)
-    private UUID followingId;
+    private Long followingId;
 
     @Column(name = "notifications_enabled")
     @Builder.Default

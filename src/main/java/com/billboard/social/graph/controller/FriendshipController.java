@@ -125,7 +125,7 @@ public class FriendshipController {
             @Parameter(description = "ID of the friend to remove", required = true,
                     example = "550e8400-e29b-41d4-a716-446655440000",
                     schema = @Schema(type = "string", format = "uuid"))
-            @PathVariable UUID friendId) {
+            @PathVariable Long friendId) {
         friendshipService.unfriend(principal.getId(), friendId);
         return ResponseEntity.noContent().build();
     }
@@ -203,9 +203,9 @@ public class FriendshipController {
             @ApiResponse(responseCode = "401", description = "Unauthorized - Missing or invalid JWT token",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<List<UUID>> getFriendIds(
+    public ResponseEntity<List<Long>> getFriendIds(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {
-        List<UUID> friendIds = friendshipService.getFriendIds(principal.getId());
+        List<Long> friendIds = friendshipService.getFriendIds(principal.getId());
         return ResponseEntity.ok(friendIds);
     }
 
@@ -218,13 +218,13 @@ public class FriendshipController {
             @ApiResponse(responseCode = "401", description = "Unauthorized - Missing or invalid JWT token",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<List<UUID>> getMutualFriends(
+    public ResponseEntity<List<Long>> getMutualFriends(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal,
             @Parameter(description = "ID of the user to find mutual friends with", required = true,
                     example = "550e8400-e29b-41d4-a716-446655440000",
                     schema = @Schema(type = "string", format = "uuid"))
-            @PathVariable UUID userId) {
-        List<UUID> mutualFriendIds = friendshipService.getMutualFriendIds(principal.getId(), userId);
+            @PathVariable Long userId) {
+        List<Long> mutualFriendIds = friendshipService.getMutualFriendIds(principal.getId(), userId);
         return ResponseEntity.ok(mutualFriendIds);
     }
 
@@ -242,7 +242,7 @@ public class FriendshipController {
             @Parameter(description = "ID of the user to check friendship with", required = true,
                     example = "550e8400-e29b-41d4-a716-446655440000",
                     schema = @Schema(type = "string", format = "uuid"))
-            @PathVariable UUID userId) {
+            @PathVariable Long userId) {
         boolean areFriends = friendshipService.areFriends(principal.getId(), userId);
         return ResponseEntity.ok(areFriends);
     }

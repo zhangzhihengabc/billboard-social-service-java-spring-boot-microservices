@@ -17,9 +17,9 @@ import java.util.UUID;
 @Repository
 public interface ReactionRepository extends JpaRepository<Reaction, UUID> {
 
-    Optional<Reaction> findByUserIdAndContentTypeAndContentId(UUID userId, ContentType contentType, UUID contentId);
+    Optional<Reaction> findByUserIdAndContentTypeAndContentId(Long userId, ContentType contentType, UUID contentId);
 
-    boolean existsByUserIdAndContentTypeAndContentId(UUID userId, ContentType contentType, UUID contentId);
+    boolean existsByUserIdAndContentTypeAndContentId(Long userId, ContentType contentType, UUID contentId);
 
     Page<Reaction> findByContentTypeAndContentId(ContentType contentType, UUID contentId, Pageable pageable);
 
@@ -40,9 +40,9 @@ public interface ReactionRepository extends JpaRepository<Reaction, UUID> {
     @Query("SELECT r.userId FROM Reaction r WHERE r.contentType = :contentType AND r.contentId = :contentId")
     List<UUID> findUserIdsByContent(@Param("contentType") ContentType contentType, @Param("contentId") UUID contentId);
 
-    Page<Reaction> findByUserId(UUID userId, Pageable pageable);
+    Page<Reaction> findByUserId(Long userId, Pageable pageable);
 
-    void deleteByUserIdAndContentTypeAndContentId(UUID userId, ContentType contentType, UUID contentId);
+    void deleteByUserIdAndContentTypeAndContentId(Long userId, ContentType contentType, UUID contentId);
 
     void deleteByContentTypeAndContentId(ContentType contentType, UUID contentId);
 }

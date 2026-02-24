@@ -47,10 +47,10 @@ class ShareServiceTest {
     private ShareService shareService;
 
     // Test constants
-    private static final UUID USER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+    private static final Long USER_ID = 1L;
     private static final UUID CONTENT_ID = UUID.fromString("22222222-2222-2222-2222-222222222222");
-    private static final UUID CONTENT_OWNER_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
-    private static final UUID TARGET_USER_ID = UUID.fromString("44444444-4444-4444-4444-444444444444");
+    private static final Long CONTENT_OWNER_ID = 3L;
+    private static final Long TARGET_USER_ID = 4L;
     private static final UUID SHARE_ID = UUID.fromString("55555555-5555-5555-5555-555555555555");
 
     private Share testShare;
@@ -459,7 +459,7 @@ class ShareServiceTest {
         @Test
         @DisplayName("Success - multiple shares")
         void getSharesByContent_MultipleShares() {
-            UUID userId2 = UUID.randomUUID();
+            Long userId2 = 10L;
             Share share2 = Share.builder()
                     .id(UUID.randomUUID())
                     .userId(userId2)
@@ -479,7 +479,7 @@ class ShareServiceTest {
 
             when(shareRepository.findByContentTypeAndContentId(eq(ContentType.POST), eq(CONTENT_ID), any(Pageable.class)))
                     .thenReturn(page);
-            when(userServiceClient.getUserSummary(any(UUID.class))).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(any(Long.class))).thenReturn(testUserSummary);
 
             PageResponse<ShareResponse> response = shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20);
 

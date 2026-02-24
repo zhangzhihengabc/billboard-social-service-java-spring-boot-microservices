@@ -135,8 +135,8 @@ public class EventRequests {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class InviteRequest {
-        private UUID userId;
-        private java.util.List<UUID> userIds;
+        private Long userId;
+        private java.util.List<Long> userIds;
         private String email;
 
         @Size(max = 500, message = "Message cannot exceed 500 characters")
@@ -149,7 +149,7 @@ public class EventRequests {
     @AllArgsConstructor
     public static class BulkInviteRequest {
         @NotEmpty(message = "At least one user ID is required")
-        private java.util.List<UUID> userIds;
+        private java.util.List<Long> userIds;
 
         @Size(max = 500, message = "Message cannot exceed 500 characters")
         private String message;
@@ -161,7 +161,7 @@ public class EventRequests {
     @AllArgsConstructor
     public static class CoHostRequest {
         @NotNull(message = "User ID is required")
-        private UUID userId;
+        private Long userId;
     }
 
     // ==================== CATEGORY REQUESTS (Admin only) ====================
@@ -249,8 +249,8 @@ public class EventRequests {
 
         @NotNull(message = "User ID is required")
         @Schema(description = "User ID to add as co-host", required = true,
-                example = "44bce359-6715-4e69-87bf-677f332ceb3e")
-        private UUID userId;
+                example = "1")
+        private Long userId;
 
     }
 
@@ -285,7 +285,7 @@ public class EventRequests {
         private UUID eventId;
 
         @Schema(description = "Co-host user ID")
-        private UUID userId;
+        private Long userId;
 
         @Schema(description = "Can edit event details")
         private Boolean canEdit;

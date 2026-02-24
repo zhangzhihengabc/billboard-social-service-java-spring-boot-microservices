@@ -20,7 +20,7 @@ public interface GroupRepository extends JpaRepository<Group, UUID> {
 
     boolean existsBySlug(String slug);
 
-    Page<Group> findByOwnerId(UUID ownerId, Pageable pageable);
+    Page<Group> findByOwnerId(Long ownerId, Pageable pageable);
 
     Page<Group> findByGroupType(GroupType groupType, Pageable pageable);
 
@@ -42,15 +42,15 @@ public interface GroupRepository extends JpaRepository<Group, UUID> {
 
     @Query("SELECT g FROM Group g JOIN GroupMember m ON g.id = m.group.id " +
            "WHERE m.userId = :userId AND m.status = 'APPROVED'")
-    Page<Group> findGroupsByMember(@Param("userId") UUID userId, Pageable pageable);
+    Page<Group> findGroupsByMember(@Param("userId") Long userId, Pageable pageable);
 
     @Query("SELECT g.id FROM Group g JOIN GroupMember m ON g.id = m.group.id " +
            "WHERE m.userId = :userId AND m.status = 'APPROVED'")
-    List<UUID> findGroupIdsByMember(@Param("userId") UUID userId);
+    List<UUID> findGroupIdsByMember(@Param("userId") Long userId);
 
     @Query("SELECT COUNT(g) FROM Group g JOIN GroupMember m ON g.id = m.group.id " +
            "WHERE m.userId = :userId AND m.status = 'APPROVED'")
-    long countGroupsByMember(@Param("userId") UUID userId);
+    long countGroupsByMember(@Param("userId") Long userId);
 
     @Query("SELECT g FROM Group g WHERE g.categoryId = :categoryId AND g.groupType IN ('PUBLIC', 'CLOSED') " +
            "ORDER BY g.memberCount DESC")

@@ -15,7 +15,7 @@ import java.util.UUID;
 @Repository
 public interface ShareRepository extends JpaRepository<Share, UUID> {
 
-    Page<Share> findByUserId(UUID userId, Pageable pageable);
+    Page<Share> findByUserId(Long userId, Pageable pageable);
 
     Page<Share> findByContentTypeAndContentId(ContentType contentType, UUID contentId, Pageable pageable);
 
@@ -24,10 +24,10 @@ public interface ShareRepository extends JpaRepository<Share, UUID> {
     @Query("SELECT s.userId FROM Share s WHERE s.contentType = :contentType AND s.contentId = :contentId")
     List<UUID> findUserIdsByContent(@Param("contentType") ContentType contentType, @Param("contentId") UUID contentId);
 
-    boolean existsByUserIdAndContentTypeAndContentId(UUID userId, ContentType contentType, UUID contentId);
+    boolean existsByUserIdAndContentTypeAndContentId(Long userId, ContentType contentType, UUID contentId);
 
     @Query("SELECT s FROM Share s WHERE s.targetUserId = :userId AND s.isPrivateShare = true")
-    Page<Share> findPrivateSharesForUser(@Param("userId") UUID userId, Pageable pageable);
+    Page<Share> findPrivateSharesForUser(@Param("userId") Long userId, Pageable pageable);
 
     void deleteByContentTypeAndContentId(ContentType contentType, UUID contentId);
 }

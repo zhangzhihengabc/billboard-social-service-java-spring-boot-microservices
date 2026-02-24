@@ -52,7 +52,7 @@ public class GroupService {
     private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
 
     @Transactional
-    public GroupResponse createGroup(UUID userId, CreateGroupRequest request) {
+    public GroupResponse createGroup(Long userId, CreateGroupRequest request) {
         // Validate and sanitize name
         String validatedName = InputValidator.validateName(request.getName(), "Group name");
 
@@ -117,7 +117,7 @@ public class GroupService {
 
     @Transactional
     @CacheEvict(value = "groups", key = "#groupId")
-    public GroupResponse updateGroup(UUID userId, UUID groupId, UpdateGroupRequest request) {
+    public GroupResponse updateGroup(Long userId, UUID groupId, UpdateGroupRequest request) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new ValidationException("Group not found with id: " + groupId));
 
@@ -176,7 +176,7 @@ public class GroupService {
 
     @Transactional
     @CacheEvict(value = "groups", key = "#groupId")
-    public void deleteGroup(UUID userId, UUID groupId) {
+    public void deleteGroup(Long userId, UUID groupId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new ValidationException("Group not found with id: " + groupId));
 
@@ -202,7 +202,7 @@ public class GroupService {
 
     @Transactional(readOnly = true)
     @Cacheable(value = "groups", key = "#groupId")
-    public GroupResponse getGroup(UUID groupId, UUID currentUserId) {
+    public GroupResponse getGroup(UUID groupId, Long currentUserId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new ValidationException("Group not found with id: " + groupId));
 
@@ -216,7 +216,7 @@ public class GroupService {
     }
 
     @Transactional(readOnly = true)
-    public GroupResponse getGroupBySlug(String slug, UUID currentUserId) {
+    public GroupResponse getGroupBySlug(String slug, Long currentUserId) {
         if (slug == null || slug.isBlank()) {
             throw new ValidationException("Slug is required");
         }
@@ -310,17 +310,17 @@ public class GroupService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<MembershipResponse> getUserGroups(UUID userId, int page, int size) {
+    public PageResponse<MembershipResponse> getUserGroups(Long userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "joinedAt"));
         Page<GroupMember> memberships = memberRepository.findMembershipsByUser(userId, pageRequest);
         return PageResponse.from(memberships, this::mapToMembershipResponse);
     }
 
-    private boolean isMember(UUID groupId, UUID userId) {
+    private boolean isMember(UUID groupId, Long userId) {
         return memberRepository.existsByGroupIdAndUserIdAndStatus(groupId, userId, MemberStatus.APPROVED);
     }
 
-    private void checkAdminAccess(UUID userId, UUID groupId) {
+    private void checkAdminAccess(Long userId, UUID groupId) {
         GroupMember member = memberRepository.findByGroupIdAndUserId(groupId, userId)
                 .orElseThrow(() -> new ForbiddenException("You are not a member of this group"));
 
@@ -348,7 +348,7 @@ public class GroupService {
         return slug;
     }
 
-    private GroupResponse mapToGroupResponse(Group group, UUID currentUserId) {
+    private GroupResponse mapToGroupResponse(Group group, Long currentUserId) {
         GroupResponse.GroupResponseBuilder builder = GroupResponse.builder()
                 .id(group.getId())
                 .name(group.getName())

@@ -91,7 +91,7 @@ public class FollowController {
             @Parameter(description = "ID of the user to unfollow", required = true,
                     example = "550e8400-e29b-41d4-a716-446655440000",
                     schema = @Schema(type = "string", format = "uuid"))
-            @PathVariable UUID userId) {
+            @PathVariable Long userId) {
         followService.unfollow(principal.getId(), userId);
         return ResponseEntity.noContent().build();
     }
@@ -123,7 +123,7 @@ public class FollowController {
             @Parameter(description = "ID of the followed user", required = true,
                     example = "550e8400-e29b-41d4-a716-446655440000",
                     schema = @Schema(type = "string", format = "uuid"))
-            @PathVariable UUID userId,
+            @PathVariable Long userId,
             @Valid @RequestBody UpdateFollowRequest request) {
         FollowResponse response = followService.updateFollow(principal.getId(), userId, request);
         return ResponseEntity.ok(response);
@@ -258,7 +258,7 @@ public class FollowController {
             @Parameter(description = "ID of the user to get stats for", required = true,
                     example = "550e8400-e29b-41d4-a716-446655440000",
                     schema = @Schema(type = "string", format = "uuid"))
-            @PathVariable UUID userId) {
+            @PathVariable Long userId) {
         FollowStatsResponse response = followService.getFollowStats(userId, principal.getId());
         return ResponseEntity.ok(response);
     }
@@ -279,9 +279,9 @@ public class FollowController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             )
     })
-    public ResponseEntity<List<UUID>> getFollowingIds(
+    public ResponseEntity<List<Long>> getFollowingIds(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {
-        List<UUID> ids = followService.getFollowingIds(principal.getId());
+        List<Long> ids = followService.getFollowingIds(principal.getId());
         return ResponseEntity.ok(ids);
     }
 
@@ -311,7 +311,7 @@ public class FollowController {
             @Parameter(description = "ID of the user to check", required = true,
                     example = "550e8400-e29b-41d4-a716-446655440000",
                     schema = @Schema(type = "string", format = "uuid"))
-            @PathVariable UUID userId) {
+            @PathVariable Long userId) {
         boolean isFollowing = followService.isFollowing(principal.getId(), userId);
         return ResponseEntity.ok(isFollowing);
     }

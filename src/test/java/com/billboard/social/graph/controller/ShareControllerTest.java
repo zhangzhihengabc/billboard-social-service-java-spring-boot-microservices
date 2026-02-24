@@ -38,9 +38,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(GlobalExceptionHandler.class)
 class ShareControllerTest {
 
-    private static final UUID USER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+    private static final Long USER_ID = 1L;
     private static final UUID CONTENT_ID = UUID.fromString("22222222-2222-2222-2222-222222222222");
-    private static final UUID TARGET_USER_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
+    private static final Long TARGET_USER_ID = 3L;
     private static final UUID SHARE_ID = UUID.fromString("44444444-4444-4444-4444-444444444444");
 
     @Autowired

@@ -50,11 +50,11 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
 
     @Query("SELECT e FROM Event e JOIN EventRsvp r ON e.id = r.event.id " +
            "WHERE r.userId = :userId AND r.status IN ('GOING', 'MAYBE') AND e.startTime > :now")
-    Page<Event> findUserUpcomingEvents(@Param("userId") UUID userId, @Param("now") LocalDateTime now, Pageable pageable);
+    Page<Event> findUserUpcomingEvents(@Param("userId") Long userId, @Param("now") LocalDateTime now, Pageable pageable);
 
     @Query("SELECT e FROM Event e JOIN EventRsvp r ON e.id = r.event.id " +
            "WHERE r.userId = :userId AND r.status IN ('GOING', 'MAYBE') AND e.endTime < :now")
-    Page<Event> findUserPastEvents(@Param("userId") UUID userId, @Param("now") LocalDateTime now, Pageable pageable);
+    Page<Event> findUserPastEvents(@Param("userId") Long userId, @Param("now") LocalDateTime now, Pageable pageable);
 
     @Query("SELECT e FROM Event e WHERE e.startTime BETWEEN :start AND :end " +
            "AND e.status = 'PUBLISHED'")
@@ -62,9 +62,9 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
 
     @Query("SELECT e FROM Event e WHERE e.hostId = :userId OR " +
            "EXISTS (SELECT c FROM EventCoHost c WHERE c.event = e AND c.userId = :userId)")
-    Page<Event> findEventsHostedOrCohosted(@Param("userId") UUID userId, Pageable pageable);
+    Page<Event> findEventsHostedOrCohosted(@Param("userId") Long userId, Pageable pageable);
 
-    long countByHostId(UUID hostId);
+    long countByHostId(Long hostId);
 
     long countByCategoryId(UUID categoryId);
 }

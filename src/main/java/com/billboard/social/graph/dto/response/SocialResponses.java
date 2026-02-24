@@ -23,11 +23,11 @@ public class SocialResponses {
         @Schema(description = "Follow relationship ID", example = "550e8400-e29b-41d4-a716-446655440000")
         private UUID id;
 
-        @Schema(description = "ID of the follower", example = "44bce359-6715-4e69-87bf-677f332ceb3e")
-        private UUID followerId;
+        @Schema(description = "ID of the follower", example = "1")
+        private Long followerId;
 
-        @Schema(description = "ID of the user being followed", example = "c9f95fc2-639d-4b90-ac73-a1de61db8fa7")
-        private UUID followingId;
+        @Schema(description = "ID of the user being followed", example = "1")
+        private Long followingId;
 
         @Schema(description = "Whether notifications are enabled", example = "true")
         private Boolean notificationsEnabled;
@@ -53,7 +53,7 @@ public class SocialResponses {
     @Schema(description = "Follow statistics")
     public static class FollowStats {
         @Schema(description = "User ID", example = "44bce359-6715-4e69-87bf-677f332ceb3e")
-        private UUID userId;
+        private Long userId;
 
         @Schema(description = "Number of followers", example = "150")
         private Long followersCount;
@@ -69,7 +69,7 @@ public class SocialResponses {
     @Schema(description = "Follow statistics with relationship info")
     public static class FollowStatsResponse {
         @Schema(description = "User ID", example = "44bce359-6715-4e69-87bf-677f332ceb3e")
-        private UUID userId;
+        private Long userId;
 
         @Schema(description = "Number of followers", example = "150")
         private Long followersCount;
@@ -93,11 +93,11 @@ public class SocialResponses {
         @Schema(description = "Friendship ID", example = "550e8400-e29b-41d4-a716-446655440000")
         private UUID id;
 
-        @Schema(description = "ID of the requester", example = "44bce359-6715-4e69-87bf-677f332ceb3e")
-        private UUID requesterId;
+        @Schema(description = "ID of the requester", example = "1")
+        private Long requesterId;
 
-        @Schema(description = "ID of the addressee", example = "c9f95fc2-639d-4b90-ac73-a1de61db8fa7")
-        private UUID addresseeId;
+        @Schema(description = "ID of the addressee", example = "1")
+        private Long addresseeId;
 
         @Schema(description = "Friendship status", example = "ACCEPTED")
         private FriendshipStatus status;
@@ -124,7 +124,7 @@ public class SocialResponses {
     @Schema(description = "Friend response")
     public static class FriendResponse {
         @Schema(description = "Friend's user ID", example = "c9f95fc2-639d-4b90-ac73-a1de61db8fa7")
-        private UUID friendId;
+        private Long friendId;
 
         @Schema(description = "Friend's username", example = "johndoe", nullable = true)
         private String username;
@@ -144,7 +144,7 @@ public class SocialResponses {
     @Schema(description = "Friend statistics")
     public static class FriendStats {
         @Schema(description = "User ID", example = "44bce359-6715-4e69-87bf-677f332ceb3e")
-        private UUID userId;
+        private Long userId;
 
         @Schema(description = "Number of friends", example = "50")
         private Long friendsCount;
@@ -166,7 +166,7 @@ public class SocialResponses {
         private UUID id;
 
         @Schema(description = "User ID who reacted", example = "44bce359-6715-4e69-87bf-677f332ceb3e")
-        private UUID userId;
+        private Long userId;
 
         @Schema(description = "Type of content reacted to", example = "POST")
         private ContentType contentType;
@@ -241,8 +241,8 @@ public class SocialResponses {
         @Schema(description = "Share ID", example = "550e8400-e29b-41d4-a716-446655440000")
         private UUID id;
 
-        @Schema(description = "User ID who shared", example = "44bce359-6715-4e69-87bf-677f332ceb3e")
-        private UUID userId;
+        @Schema(description = "User ID who shared", example = "1")
+        private Long userId;
 
         @Schema(description = "Type of content shared", example = "POST")
         private ContentType contentType;
@@ -250,8 +250,8 @@ public class SocialResponses {
         @Schema(description = "ID of the content shared", example = "c9f95fc2-639d-4b90-ac73-a1de61db8fa7")
         private UUID contentId;
 
-        @Schema(description = "ID of the target user (if direct share)", example = "d1f95fc2-639d-4b90-ac73-a1de61db8fa8", nullable = true)
-        private UUID targetUserId;
+        @Schema(description = "ID of the target user (if direct share)", example = "1", nullable = true)
+        private Long targetUserId;
 
         @Schema(description = "Share message", example = "Check this out!", nullable = true)
         private String message;
@@ -282,8 +282,8 @@ public class SocialResponses {
         @Schema(description = "Block ID", example = "550e8400-e29b-41d4-a716-446655440000")
         private UUID id;
 
-        @Schema(description = "ID of the blocked user", example = "c9f95fc2-639d-4b90-ac73-a1de61db8fa7")
-        private UUID blockedId;
+        @Schema(description = "ID of the blocked user", example = "1")
+        private Long blockedId;
 
         @Schema(description = "Reason for blocking", example = "Spam", nullable = true)
         private String reason;
@@ -305,11 +305,11 @@ public class SocialResponses {
         @Schema(description = "Poke ID", example = "550e8400-e29b-41d4-a716-446655440000")
         private UUID id;
 
-        @Schema(description = "ID of the user who poked", example = "44bce359-6715-4e69-87bf-677f332ceb3e")
-        private UUID pokerId;
+        @Schema(description = "ID of the user who poked", example = "1")
+        private Long pokerId;
 
-        @Schema(description = "ID of the user who was poked", example = "c9f95fc2-639d-4b90-ac73-a1de61db8fa7")
-        private UUID pokedId;
+        @Schema(description = "ID of the user who was poked", example = "1")
+        private Long pokedId;
 
         @Schema(description = "Whether the poke is active", example = "true")
         private Boolean isActive;

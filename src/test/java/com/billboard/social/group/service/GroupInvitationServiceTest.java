@@ -54,8 +54,8 @@ class GroupInvitationServiceTest {
     private GroupInvitationService invitationService;
 
     // Test constants
-    private static final UUID INVITER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-    private static final UUID INVITEE_ID = UUID.fromString("22222222-2222-2222-2222-222222222222");
+    private static final Long INVITER_ID = 1L;
+    private static final Long INVITEE_ID = 2L;
     private static final UUID GROUP_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
     private static final UUID INVITATION_ID = UUID.fromString("44444444-4444-4444-4444-444444444444");
 
@@ -886,7 +886,7 @@ class GroupInvitationServiceTest {
         @Test
         @DisplayName("Invitation not for this user - throws ForbiddenException")
         void acceptInvitation_NotForUser() {
-            testInvitation.setInviteeId(UUID.randomUUID()); // Different user
+            testInvitation.setInviteeId(10L); // Different user
 
             when(invitationRepository.findById(INVITATION_ID)).thenReturn(Optional.of(testInvitation));
 
@@ -998,7 +998,7 @@ class GroupInvitationServiceTest {
         @Test
         @DisplayName("Invitation not for this user - throws ForbiddenException")
         void declineInvitation_NotForUser() {
-            testInvitation.setInviteeId(UUID.randomUUID());
+            testInvitation.setInviteeId(10L);
 
             when(invitationRepository.findById(INVITATION_ID)).thenReturn(Optional.of(testInvitation));
 

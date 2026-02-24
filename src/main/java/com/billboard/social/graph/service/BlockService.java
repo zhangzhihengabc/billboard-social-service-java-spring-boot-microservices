@@ -43,12 +43,12 @@ public class BlockService {
 
     @Transactional
     @CacheEvict(value = {"blockedIds", "friends", "friendIds", "followStats"}, allEntries = true)
-    public BlockResponse blockUser(UUID blockerId, BlockRequest request) {
+    public BlockResponse blockUser(Long blockerId, BlockRequest request) {
         if (request.getUserId() == null) {
             throw new ValidationException("User ID is required");
         }
 
-        UUID blockedId = request.getUserId();
+        Long blockedId = request.getUserId();
 
         if (blockerId.equals(blockedId)) {
             throw new ValidationException("Cannot block yourself");
@@ -95,7 +95,7 @@ public class BlockService {
 
     @Transactional
     @CacheEvict(value = "blockedIds", allEntries = true)
-    public void unblockUser(UUID blockerId, UUID blockedId) {
+    public void unblockUser(Long blockerId, Long blockedId) {
         Block block = blockRepository.findByBlockerIdAndBlockedId(blockerId, blockedId)
                 .orElseThrow(() -> new ValidationException("Block relationship not found"));
 
@@ -107,7 +107,7 @@ public class BlockService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<BlockResponse> getBlockedUsers(UUID userId, int page, int size) {
+    public PageResponse<BlockResponse> getBlockedUsers(Long userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Block> blocks = blockRepository.findByBlockerId(userId, pageRequest);
         return PageResponse.from(blocks, this::mapToBlockResponse);
@@ -115,17 +115,17 @@ public class BlockService {
 
     @Transactional(readOnly = true)
     @Cacheable(value = "blockedIds", key = "#userId")
-    public List<UUID> getBlockedUserIds(UUID userId) {
+    public List<Long> getBlockedUserIds(Long userId) {
         return blockRepository.findBlockedUserIds(userId);
     }
 
     @Transactional(readOnly = true)
-    public boolean isBlocked(UUID blockerId, UUID blockedId) {
+    public boolean isBlocked(Long blockerId, Long blockedId) {
         return blockRepository.existsByBlockerIdAndBlockedId(blockerId, blockedId);
     }
 
     @Transactional(readOnly = true)
-    public boolean isBlockedEitherWay(UUID userId1, UUID userId2) {
+    public boolean isBlockedEitherWay(Long userId1, Long userId2) {
         return blockRepository.isBlockedEitherWay(userId1, userId2);
     }
 
@@ -141,7 +141,7 @@ public class BlockService {
                 .build();
     }
 
-    private UserSummary fetchUserSummaryWithFallback(UUID userId) {
+    private UserSummary fetchUserSummaryWithFallback(Long userId) {
         try {
             UserSummary summary = userServiceClient.getUserSummary(userId);
             if (summary != null) {

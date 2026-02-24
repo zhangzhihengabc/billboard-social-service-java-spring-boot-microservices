@@ -1,5 +1,6 @@
 -- V1__social_service_schema.sql
 -- Merged from: social-graph-service, group-service, event-service
+-- User IDs are BIGINT to match SSO-service
 
 -- ======================
 -- SOCIAL GRAPH TABLES
@@ -7,8 +8,8 @@
 
 CREATE TABLE friendships (
                              id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                             requester_id UUID NOT NULL,
-                             addressee_id UUID NOT NULL,
+                             requester_id BIGINT NOT NULL,
+                             addressee_id BIGINT NOT NULL,
                              status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
                              message VARCHAR(500),
                              mutual_friends_count INTEGER DEFAULT 0,
@@ -28,8 +29,8 @@ CREATE INDEX idx_friendship_accepted ON friendships(requester_id, addressee_id) 
 
 CREATE TABLE follows (
                          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                         follower_id UUID NOT NULL,
-                         following_id UUID NOT NULL,
+                         follower_id BIGINT NOT NULL,
+                         following_id BIGINT NOT NULL,
                          notifications_enabled BOOLEAN DEFAULT TRUE,
                          is_close_friend BOOLEAN DEFAULT FALSE,
                          is_muted BOOLEAN DEFAULT FALSE,
@@ -46,8 +47,8 @@ CREATE INDEX idx_follow_close_friends ON follows(follower_id) WHERE is_close_fri
 
 CREATE TABLE blocks (
                         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        blocker_id UUID NOT NULL,
-                        blocked_id UUID NOT NULL,
+                        blocker_id BIGINT NOT NULL,
+                        blocked_id BIGINT NOT NULL,
                         reason VARCHAR(500),
                         hide_from_suggestions BOOLEAN DEFAULT TRUE,
                         block_messages BOOLEAN DEFAULT TRUE,
@@ -65,10 +66,10 @@ CREATE INDEX idx_block_blocked ON blocks(blocked_id) WHERE deleted_at IS NULL;
 
 CREATE TABLE reactions (
                            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                           user_id UUID NOT NULL,
+                           user_id BIGINT NOT NULL,
                            content_type VARCHAR(20) NOT NULL,
                            content_id UUID NOT NULL,
-                           content_owner_id UUID,
+                           content_owner_id BIGINT,
                            reaction_type VARCHAR(20) NOT NULL DEFAULT 'LIKE',
                            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                            updated_at TIMESTAMP,
@@ -86,11 +87,11 @@ CREATE INDEX idx_reaction_owner ON reactions(content_owner_id) WHERE deleted_at 
 
 CREATE TABLE shares (
                         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        user_id UUID NOT NULL,
+                        user_id BIGINT NOT NULL,
                         content_type VARCHAR(20) NOT NULL,
                         content_id UUID NOT NULL,
-                        content_owner_id UUID,
-                        target_user_id UUID,
+                        content_owner_id BIGINT,
+                        target_user_id BIGINT,
                         message VARCHAR(1000),
                         share_to_feed BOOLEAN DEFAULT TRUE,
                         share_to_story BOOLEAN DEFAULT FALSE,
@@ -108,8 +109,8 @@ CREATE INDEX idx_share_target ON shares(target_user_id) WHERE deleted_at IS NULL
 
 CREATE TABLE pokes (
                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                       poker_id UUID NOT NULL,
-                       poked_id UUID NOT NULL,
+                       poker_id BIGINT NOT NULL,
+                       poked_id BIGINT NOT NULL,
                        is_active BOOLEAN DEFAULT TRUE,
                        poked_back_at TIMESTAMP,
                        poke_count INTEGER DEFAULT 1,
@@ -125,8 +126,8 @@ CREATE INDEX idx_poke_active ON pokes(poked_id) WHERE is_active = TRUE AND delet
 
 CREATE TABLE invitations (
                              id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                             inviter_id UUID NOT NULL,
-                             invitee_id UUID,
+                             inviter_id BIGINT NOT NULL,
+                             invitee_id BIGINT,
                              invitee_email VARCHAR(255),
                              invitation_type VARCHAR(20) NOT NULL,
                              target_id UUID,
@@ -152,8 +153,8 @@ CREATE INDEX idx_invitation_code ON invitations(invite_code) WHERE invite_code I
 
 CREATE TABLE relationship_suggestions (
                                           id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                                          user_id UUID NOT NULL,
-                                          suggested_user_id UUID NOT NULL,
+                                          user_id BIGINT NOT NULL,
+                                          suggested_user_id BIGINT NOT NULL,
                                           score DECIMAL(5,2) DEFAULT 0,
                                           mutual_friends_count INTEGER DEFAULT 0,
                                           mutual_groups_count INTEGER DEFAULT 0,
@@ -196,7 +197,7 @@ CREATE TABLE groups (
                         slug VARCHAR(120) NOT NULL UNIQUE,
                         description VARCHAR(5000),
                         group_type VARCHAR(20) NOT NULL DEFAULT 'PUBLIC',
-                        owner_id UUID NOT NULL,
+                        owner_id BIGINT NOT NULL,
                         category_id UUID REFERENCES group_categories(id),
                         cover_image_url VARCHAR(500),
                         icon_url VARCHAR(500),
@@ -228,11 +229,11 @@ CREATE INDEX idx_group_popular ON groups(member_count DESC) WHERE deleted_at IS 
 CREATE TABLE group_members (
                                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                                group_id UUID NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
-                               user_id UUID NOT NULL,
+                               user_id BIGINT NOT NULL,
                                role VARCHAR(20) NOT NULL DEFAULT 'MEMBER',
                                status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
-                               invited_by UUID,
-                               approved_by UUID,
+                               invited_by BIGINT,
+                               approved_by BIGINT,
                                approved_at TIMESTAMP,
                                joined_at TIMESTAMP,
                                muted_until TIMESTAMP,
@@ -257,8 +258,8 @@ CREATE INDEX idx_group_member_approved ON group_members(group_id) WHERE status =
 CREATE TABLE group_invitations (
                                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                                    group_id UUID NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
-                                   inviter_id UUID NOT NULL,
-                                   invitee_id UUID,
+                                   inviter_id BIGINT NOT NULL,
+                                   invitee_id BIGINT,
                                    invitee_email VARCHAR(255),
                                    message VARCHAR(500),
                                    status VARCHAR(20) DEFAULT 'PENDING',
@@ -281,12 +282,12 @@ CREATE INDEX idx_group_inv_code ON group_invitations(invite_code) WHERE invite_c
 CREATE TABLE group_posts (
                              id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                              group_id UUID NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
-                             user_id UUID NOT NULL,
+                             user_id BIGINT NOT NULL,
                              content TEXT,
                              is_pinned BOOLEAN DEFAULT FALSE,
                              is_announcement BOOLEAN DEFAULT FALSE,
                              is_approved BOOLEAN DEFAULT TRUE,
-                             approved_by UUID,
+                             approved_by BIGINT,
                              approved_at TIMESTAMP,
                              like_count INTEGER DEFAULT 0,
                              comment_count INTEGER DEFAULT 0,
@@ -338,7 +339,7 @@ CREATE TABLE events (
                         title VARCHAR(200) NOT NULL,
                         slug VARCHAR(250) NOT NULL UNIQUE,
                         description TEXT,
-                        host_id UUID NOT NULL,
+                        host_id BIGINT NOT NULL,
                         group_id UUID,
                         category_id UUID REFERENCES event_categories(id),
                         event_type VARCHAR(20) NOT NULL DEFAULT 'IN_PERSON',
@@ -373,6 +374,7 @@ CREATE TABLE events (
                         show_guest_list BOOLEAN DEFAULT TRUE,
                         allow_comments BOOLEAN DEFAULT TRUE,
                         require_approval BOOLEAN DEFAULT FALSE,
+                        accepting_rsvps BOOLEAN DEFAULT TRUE,
                         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                         updated_at TIMESTAMP,
                         deleted_at TIMESTAMP,
@@ -386,11 +388,11 @@ CREATE INDEX idx_event_status ON events(status) WHERE deleted_at IS NULL;
 CREATE TABLE event_rsvps (
                              id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                              event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-                             user_id UUID NOT NULL,
+                             user_id BIGINT NOT NULL,
                              status VARCHAR(20) NOT NULL DEFAULT 'INVITED',
                              guest_count INTEGER DEFAULT 0,
                              note VARCHAR(500),
-                             invited_by UUID,
+                             invited_by BIGINT,
                              responded_at TIMESTAMP,
                              checked_in_at TIMESTAMP,
                              notifications_enabled BOOLEAN DEFAULT TRUE,
@@ -407,7 +409,7 @@ CREATE INDEX idx_event_rsvp_user ON event_rsvps(user_id) WHERE deleted_at IS NUL
 CREATE TABLE event_cohosts (
                                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                                event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-                               user_id UUID NOT NULL,
+                               user_id BIGINT NOT NULL,
                                can_edit BOOLEAN DEFAULT TRUE,
                                can_invite BOOLEAN DEFAULT TRUE,
                                can_manage_rsvps BOOLEAN DEFAULT TRUE,
@@ -421,7 +423,7 @@ CREATE TABLE event_cohosts (
 CREATE TABLE event_attendees (
                                  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                                  event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-                                 user_id UUID NOT NULL,
+                                 user_id BIGINT NOT NULL,
                                  rsvp_status VARCHAR(20) NOT NULL DEFAULT 'INVITED',
                                  rsvp_at TIMESTAMP,
                                  checked_in_at TIMESTAMP,
@@ -429,7 +431,7 @@ CREATE TABLE event_attendees (
                                  is_host BOOLEAN DEFAULT FALSE,
                                  is_co_host BOOLEAN DEFAULT FALSE,
                                  note VARCHAR(500),
-                                 invited_by UUID,
+                                 invited_by BIGINT,
                                  invited_at TIMESTAMP,
                                  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                  updated_at TIMESTAMP,
@@ -445,7 +447,7 @@ CREATE INDEX idx_attendee_status ON event_attendees(rsvp_status) WHERE deleted_a
 CREATE TABLE event_tickets (
                                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                                event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-                               user_id UUID NOT NULL,
+                               user_id BIGINT NOT NULL,
                                ticket_code VARCHAR(50) NOT NULL UNIQUE,
                                ticket_type VARCHAR(50) DEFAULT 'GENERAL',
                                price DECIMAL(10,2),

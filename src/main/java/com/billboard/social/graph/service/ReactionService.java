@@ -36,7 +36,7 @@ public class ReactionService {
     private final SocialEventPublisher eventPublisher;
 
     @Transactional
-    public ReactionResponse react(UUID userId, ReactionRequest request) {
+    public ReactionResponse react(Long userId, ReactionRequest request) {
         if (request.getContentId() == null) {
             throw new ValidationException("Content ID is required");
         }
@@ -84,7 +84,7 @@ public class ReactionService {
     }
 
     @Transactional
-    public void removeReaction(UUID userId, ContentType contentType, UUID contentId) {
+    public void removeReaction(Long userId, ContentType contentType, UUID contentId) {
         Reaction reaction = reactionRepository.findByUserIdAndContentTypeAndContentId(userId, contentType, contentId)
                 .orElseThrow(() -> new ValidationException("Reaction not found"));
 
@@ -112,7 +112,7 @@ public class ReactionService {
     }
 
     @Transactional(readOnly = true)
-    public ReactionStatsResponse getReactionStats(UUID userId, ContentType contentType, UUID contentId) {
+    public ReactionStatsResponse getReactionStats(Long userId, ContentType contentType, UUID contentId) {
         long totalCount = reactionRepository.countByContentTypeAndContentId(contentType, contentId);
 
         List<Object[]> countByType = reactionRepository.countByContentGroupedByReactionType(contentType, contentId);
@@ -143,7 +143,7 @@ public class ReactionService {
     }
 
     @Transactional(readOnly = true)
-    public boolean hasUserReacted(UUID userId, ContentType contentType, UUID contentId) {
+    public boolean hasUserReacted(Long userId, ContentType contentType, UUID contentId) {
         return reactionRepository.existsByUserIdAndContentTypeAndContentId(userId, contentType, contentId);
     }
 
@@ -161,7 +161,7 @@ public class ReactionService {
                 .build();
     }
 
-    private UserSummary fetchUserSummaryWithFallback(UUID userId) {
+    private UserSummary fetchUserSummaryWithFallback(Long userId) {
         try {
             UserSummary summary = userServiceClient.getUserSummary(userId);
             if (summary != null) {

@@ -30,7 +30,7 @@ public class EventCoHost extends BaseEntity {
     private Event event;
 
     @Column(name = "user_id", nullable = false)
-    private UUID userId;
+    private Long userId;
 
     @Column(name = "can_edit")
     @Builder.Default

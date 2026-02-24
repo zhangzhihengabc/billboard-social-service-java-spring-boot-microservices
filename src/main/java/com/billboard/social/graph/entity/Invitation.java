@@ -34,10 +34,10 @@ public class Invitation extends BaseEntity {
     private UUID id;
 
     @Column(name = "inviter_id", nullable = false)
-    private UUID inviterId;
+    private Long inviterId;
 
     @Column(name = "invitee_id")
-    private UUID inviteeId;
+    private Long inviteeId;
 
     @Column(name = "invitee_email", length = 255)
     private String inviteeEmail;

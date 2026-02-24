@@ -5,7 +5,6 @@ import com.billboard.social.common.dto.UserSummary;
 import com.billboard.social.common.exception.ForbiddenException;
 import com.billboard.social.common.exception.GlobalExceptionHandler;
 import com.billboard.social.common.exception.ValidationException;
-import com.billboard.social.common.security.JwtAuthenticationFilter;
 import com.billboard.social.common.security.UserPrincipal;
 import com.billboard.social.event.dto.request.EventRequests.AddCoHostRequest;
 import com.billboard.social.event.dto.request.EventRequests.RsvpRequest;
@@ -41,8 +40,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(GlobalExceptionHandler.class)
 class RsvpControllerTest {
 
-    private static final UUID USER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-    private static final UUID OTHER_USER_ID = UUID.fromString("22222222-2222-2222-2222-222222222222");
+    private static final Long USER_ID = 1L;
+    private static final Long OTHER_USER_ID = 2L;
     private static final UUID EVENT_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
     private static final UUID RSVP_ID = UUID.fromString("44444444-4444-4444-4444-444444444444");
     private static final UUID COHOST_ID = UUID.fromString("55555555-5555-5555-5555-555555555555");
@@ -56,16 +55,12 @@ class RsvpControllerTest {
     @MockBean
     private RsvpService rsvpService;
 
-    @MockBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    private UserPrincipal userPrincipal;
     private RsvpResponse testRsvpResponse;
     private CoHostResponse testCoHostResponse;
 
     @BeforeEach
     void setUp() {
-        userPrincipal = UserPrincipal.builder()
+        UserPrincipal userPrincipal = UserPrincipal.builder()
                 .id(USER_ID)
                 .username("testuser")
                 .email("test@example.com")
@@ -740,7 +735,7 @@ class RsvpControllerTest {
         @Test
         @DisplayName("Success - returns user IDs")
         void getGoingUserIds_Success() throws Exception {
-            List<UUID> userIds = List.of(USER_ID, OTHER_USER_ID);
+            List<Long> userIds = List.of(USER_ID, OTHER_USER_ID);
 
             when(rsvpService.getGoingUserIds(EVENT_ID)).thenReturn(userIds);
 

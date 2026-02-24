@@ -50,7 +50,7 @@ public class EventService {
     // ==================== CREATE ====================
 
     @Transactional
-    public EventResponse createEvent(UUID userId, CreateEventRequest request) {
+    public EventResponse createEvent(Long userId, CreateEventRequest request) {
         if (request == null) {
             throw new ValidationException("Request body is required");
         }
@@ -143,7 +143,7 @@ public class EventService {
 
     @Transactional
     @CacheEvict(value = "events", key = "#eventId")
-    public EventResponse updateEvent(UUID userId, UUID eventId, UpdateEventRequest request) {
+    public EventResponse updateEvent(Long userId, UUID eventId, UpdateEventRequest request) {
         if (request == null) {
             throw new ValidationException("Request body is required");
         }
@@ -202,7 +202,7 @@ public class EventService {
 
     @Transactional
     @CacheEvict(value = "events", key = "#eventId")
-    public EventResponse publishEvent(UUID userId, UUID eventId) {
+    public EventResponse publishEvent(Long userId, UUID eventId) {
         Event event = findEventById(eventId);
         checkEditAccess(userId, event);
 
@@ -221,7 +221,7 @@ public class EventService {
 
     @Transactional
     @CacheEvict(value = "events", key = "#eventId")
-    public EventResponse cancelEvent(UUID userId, UUID eventId, String reason) {
+    public EventResponse cancelEvent(Long userId, UUID eventId, String reason) {
         Event event = findEventById(eventId);
 
         if (!event.getHostId().equals(userId)) {
@@ -244,7 +244,7 @@ public class EventService {
 
     @Transactional
     @CacheEvict(value = "events", key = "#eventId")
-    public void deleteEvent(UUID userId, UUID eventId) {
+    public void deleteEvent(Long userId, UUID eventId) {
         Event event = findEventById(eventId);
 
         if (!event.getHostId().equals(userId)) {
@@ -266,14 +266,14 @@ public class EventService {
 
     @Transactional(readOnly = true)
     @Cacheable(value = "events", key = "#eventId")
-    public EventResponse getEvent(UUID eventId, UUID currentUserId) {
+    public EventResponse getEvent(UUID eventId, Long currentUserId) {
         Event event = findEventById(eventId);
         checkViewAccess(currentUserId, event);
         return mapToEventResponse(event, currentUserId);
     }
 
     @Transactional(readOnly = true)
-    public EventResponse getEventBySlug(String slug, UUID currentUserId) {
+    public EventResponse getEventBySlug(String slug, Long currentUserId) {
         if (slug == null || slug.isBlank()) {
             throw new ValidationException("Slug is required");
         }
@@ -329,7 +329,7 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<EventSummaryResponse> getUserUpcomingEvents(UUID userId, int page, int size) {
+    public PageResponse<EventSummaryResponse> getUserUpcomingEvents(Long userId, int page, int size) {
         Page<Event> events = eventRepository.findUserUpcomingEvents(
                 userId,
                 LocalDateTime.now(),
@@ -338,7 +338,7 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<EventSummaryResponse> getHostedEvents(UUID userId, int page, int size) {
+    public PageResponse<EventSummaryResponse> getHostedEvents(Long userId, int page, int size) {
         Page<Event> events = eventRepository.findEventsHostedOrCohosted(
                 userId,
                 PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "startTime")));
@@ -355,7 +355,7 @@ public class EventService {
                 .orElseThrow(() -> new ValidationException("Event not found with id: " + eventId));
     }
 
-    private void checkEditAccess(UUID userId, Event event) {
+    private void checkEditAccess(Long userId, Event event) {
         if (event.getHostId().equals(userId)) {
             return;
         }
@@ -366,7 +366,7 @@ public class EventService {
         throw new ForbiddenException("No edit permission for this event");
     }
 
-    private void checkViewAccess(UUID userId, Event event) {
+    private void checkViewAccess(Long userId, Event event) {
         if (event.getVisibility() == EventVisibility.PUBLIC) {
             return;
         }
@@ -402,7 +402,7 @@ public class EventService {
         return slug;
     }
 
-    private EventResponse mapToEventResponse(Event event, UUID currentUserId) {
+    private EventResponse mapToEventResponse(Event event, Long currentUserId) {
         EventResponse.EventResponseBuilder builder = EventResponse.builder()
                 .id(event.getId())
                 .acceptingRsvps(event.getAcceptingRsvps())
@@ -477,7 +477,7 @@ public class EventService {
                 .build();
     }
 
-    private UserSummary fetchUserSummary(UUID userId) {
+    private UserSummary fetchUserSummary(Long userId) {
         try {
             return userServiceClient.getUserSummary(userId);
         } catch (Exception e) {

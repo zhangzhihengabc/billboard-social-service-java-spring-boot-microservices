@@ -53,8 +53,8 @@ class BlockServiceTest {
     private BlockService blockService;
 
     // Test constants
-    private static final UUID USER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-    private static final UUID BLOCKED_USER_ID = UUID.fromString("22222222-2222-2222-2222-222222222222");
+    private static final Long USER_ID = 1L;
+    private static final Long BLOCKED_USER_ID = 2L;
     private static final UUID BLOCK_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
 
     private Block testBlock;
@@ -415,7 +415,7 @@ class BlockServiceTest {
         @Test
         @DisplayName("Success - multiple blocked users")
         void getBlockedUsers_Multiple() {
-            UUID blockedUser2 = UUID.randomUUID();
+            Long blockedUser2 = 10L;
             Block block2 = Block.builder()
                     .id(UUID.randomUUID())
                     .blockerId(USER_ID)
@@ -470,12 +470,12 @@ class BlockServiceTest {
         @Test
         @DisplayName("Success - returns user IDs")
         void getBlockedUserIds_Success() {
-            UUID blockedUser2 = UUID.randomUUID();
-            List<UUID> ids = List.of(BLOCKED_USER_ID, blockedUser2);
+            Long blockedUser2 = 10L;
+            List<Long> ids = List.of(BLOCKED_USER_ID, blockedUser2);
 
             when(blockRepository.findBlockedUserIds(USER_ID)).thenReturn(ids);
 
-            List<UUID> result = blockService.getBlockedUserIds(USER_ID);
+            List<Long> result = blockService.getBlockedUserIds(USER_ID);
 
             assertThat(result).hasSize(2);
             assertThat(result).containsExactly(BLOCKED_USER_ID, blockedUser2);
@@ -486,7 +486,7 @@ class BlockServiceTest {
         void getBlockedUserIds_Empty() {
             when(blockRepository.findBlockedUserIds(USER_ID)).thenReturn(Collections.emptyList());
 
-            List<UUID> result = blockService.getBlockedUserIds(USER_ID);
+            List<Long> result = blockService.getBlockedUserIds(USER_ID);
 
             assertThat(result).isEmpty();
         }

@@ -37,8 +37,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(GlobalExceptionHandler.class)
 class FriendshipControllerTest {
 
-    private static final UUID USER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-    private static final UUID FRIEND_ID = UUID.fromString("22222222-2222-2222-2222-222222222222");
+    private static final Long USER_ID = 1L;
+    private static final Long FRIEND_ID = 2L;
     private static final UUID FRIENDSHIP_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
 
     @Autowired
@@ -816,9 +816,9 @@ class FriendshipControllerTest {
         @Test
         @DisplayName("Success - returns friend IDs")
         void getFriendIds_Success() throws Exception {
-            UUID friend2 = UUID.randomUUID();
-            UUID friend3 = UUID.randomUUID();
-            List<UUID> ids = List.of(FRIEND_ID, friend2, friend3);
+            Long friend2 = 10L;
+            Long friend3 = 11L;
+            List<Long> ids = List.of(FRIEND_ID, friend2, friend3);
 
             when(friendshipService.getFriendIds(USER_ID)).thenReturn(ids);
 
@@ -858,9 +858,9 @@ class FriendshipControllerTest {
         @Test
         @DisplayName("Success - returns mutual friend IDs")
         void getMutualFriends_Success() throws Exception {
-            UUID mutual1 = UUID.randomUUID();
-            UUID mutual2 = UUID.randomUUID();
-            List<UUID> mutualIds = List.of(mutual1, mutual2);
+            Long mutual1 = 10L;
+            Long mutual2 = 11L;
+            List<Long> mutualIds = List.of(mutual1, mutual2);
 
             when(friendshipService.getMutualFriendIds(USER_ID, FRIEND_ID)).thenReturn(mutualIds);
 

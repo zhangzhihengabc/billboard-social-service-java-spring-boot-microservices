@@ -17,7 +17,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserPrincipal implements UserDetails {
 
-    private UUID id;
+    private Long id;
     private String username;
     private String email;
     private List<? extends GrantedAuthority> authorities;

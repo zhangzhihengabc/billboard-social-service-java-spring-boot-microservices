@@ -32,7 +32,7 @@ public class SocialEventPublisher {
         publish("social.followed", event);
     }
 
-    public void publishUnfollowed(UUID followerId, UUID followingId) {
+    public void publishUnfollowed(Long followerId, Long followingId) {
         Map<String, Object> event = createBaseEvent("social.unfollowed");
         event.put("followerId", followerId);
         event.put("followingId", followingId);
@@ -64,7 +64,7 @@ public class SocialEventPublisher {
         publish("social.friend_request.declined", event);
     }
 
-    public void publishUnfriended(UUID userId1, UUID userId2) {
+    public void publishUnfriended(Long userId1, Long userId2) {
         Map<String, Object> event = createBaseEvent("social.unfriended");
         event.put("userId1", userId1);
         event.put("userId2", userId2);
@@ -84,14 +84,14 @@ public class SocialEventPublisher {
         publishBlocked(block);
     }
 
-    public void publishUnblocked(UUID blockerId, UUID blockedId) {
+    public void publishUnblocked(Long blockerId, Long blockedId) {
         Map<String, Object> event = createBaseEvent("social.unblocked");
         event.put("blockerId", blockerId);
         event.put("blockedId", blockedId);
         publish("social.unblocked", event);
     }
 
-    public void publishUserUnblocked(UUID blockerId, UUID blockedId) {
+    public void publishUserUnblocked(Long blockerId, Long blockedId) {
         publishUnblocked(blockerId, blockedId);
     }
 
@@ -106,7 +106,7 @@ public class SocialEventPublisher {
         publish("social.reaction.added", event);
     }
 
-    public void publishReactionRemoved(UUID userId, String contentType, UUID contentId) {
+    public void publishReactionRemoved(Long userId, String contentType, UUID contentId) {
         Map<String, Object> event = createBaseEvent("social.reaction.removed");
         event.put("userId", userId);
         event.put("contentType", contentType);

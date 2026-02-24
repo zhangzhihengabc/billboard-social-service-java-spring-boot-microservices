@@ -35,7 +35,7 @@ public class EventRsvp extends BaseEntity {
     private Event event;
 
     @Column(name = "user_id", nullable = false)
-    private UUID userId;
+    private Long userId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
@@ -50,7 +50,7 @@ public class EventRsvp extends BaseEntity {
     private String note;
 
     @Column(name = "invited_by")
-    private UUID invitedBy;
+    private Long invitedBy;
 
     @Column(name = "responded_at")
     private LocalDateTime respondedAt;

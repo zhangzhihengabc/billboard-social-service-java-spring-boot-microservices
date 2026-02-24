@@ -49,9 +49,9 @@ class RsvpServiceTest {
     private RsvpService rsvpService;
 
     // Test constants
-    private static final UUID USER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-    private static final UUID OTHER_USER_ID = UUID.fromString("22222222-2222-2222-2222-222222222222");
-    private static final UUID HOST_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
+    private static final Long USER_ID = 1L;
+    private static final Long OTHER_USER_ID = 2L;
+    private static final Long HOST_ID = 3L;
     private static final UUID EVENT_ID = UUID.fromString("44444444-4444-4444-4444-444444444444");
     private static final UUID RSVP_ID = UUID.fromString("55555555-5555-5555-5555-555555555555");
     private static final UUID COHOST_ID = UUID.fromString("66666666-6666-6666-6666-666666666666");
@@ -713,11 +713,11 @@ class RsvpServiceTest {
         @Test
         @DisplayName("Success - returns user IDs")
         void getGoingUserIds_Success() {
-            List<UUID> userIds = List.of(USER_ID, OTHER_USER_ID);
+            List<Long> userIds = List.of(USER_ID, OTHER_USER_ID);
 
             when(rsvpRepository.findGoingUserIds(EVENT_ID)).thenReturn(userIds);
 
-            List<UUID> result = rsvpService.getGoingUserIds(EVENT_ID);
+            List<Long> result = rsvpService.getGoingUserIds(EVENT_ID);
 
             assertThat(result).hasSize(2);
             assertThat(result).containsExactly(USER_ID, OTHER_USER_ID);
@@ -728,7 +728,7 @@ class RsvpServiceTest {
         void getGoingUserIds_Empty() {
             when(rsvpRepository.findGoingUserIds(EVENT_ID)).thenReturn(Collections.emptyList());
 
-            List<UUID> result = rsvpService.getGoingUserIds(EVENT_ID);
+            List<Long> result = rsvpService.getGoingUserIds(EVENT_ID);
 
             assertThat(result).isEmpty();
         }
@@ -812,7 +812,7 @@ class RsvpServiceTest {
         @Test
         @DisplayName("Not host or co-host - throws ForbiddenException")
         void checkIn_NotHostOrCoHost() {
-            UUID randomUserId = UUID.randomUUID();
+            Long randomUserId = 10L;
 
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));
             when(coHostRepository.existsByEventIdAndUserId(EVENT_ID, randomUserId)).thenReturn(false);
@@ -942,7 +942,7 @@ class RsvpServiceTest {
         @Test
         @DisplayName("Not host or co-host - throws ForbiddenException")
         void undoCheckIn_NotHostOrCoHost() {
-            UUID randomUserId = UUID.randomUUID();
+            Long randomUserId = 10L;
             testRsvp.setStatus(RsvpStatus.CHECKED_IN);
 
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));

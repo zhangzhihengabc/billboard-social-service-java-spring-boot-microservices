@@ -33,12 +33,12 @@ public class PokeService {
     private final SocialEventPublisher eventPublisher;
 
     @Transactional
-    public PokeResponse poke(UUID pokerId, PokeRequest request) {
+    public PokeResponse poke(Long pokerId, PokeRequest request) {
         if (request.getUserId() == null) {
             throw new ValidationException("User ID is required");
         }
 
-        UUID pokedId = request.getUserId();
+        Long pokedId = request.getUserId();
 
         if (pokerId.equals(pokedId)) {
             throw new ValidationException("Cannot poke yourself");
@@ -78,7 +78,7 @@ public class PokeService {
     }
 
     @Transactional
-    public PokeResponse pokeBack(UUID userId, UUID pokeId) {
+    public PokeResponse pokeBack(Long userId, UUID pokeId) {
         Poke poke = pokeRepository.findById(pokeId)
                 .orElseThrow(() -> new ValidationException("Poke not found with id: " + pokeId));
 
@@ -118,26 +118,26 @@ public class PokeService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<PokeResponse> getReceivedPokes(UUID userId, int page, int size) {
+    public PageResponse<PokeResponse> getReceivedPokes(Long userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Poke> pokes = pokeRepository.findActivePokesForUser(userId, pageRequest);
         return PageResponse.from(pokes, this::mapToPokeResponse);
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<PokeResponse> getSentPokes(UUID userId, int page, int size) {
+    public PageResponse<PokeResponse> getSentPokes(Long userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Poke> pokes = pokeRepository.findPokesSentByUser(userId, pageRequest);
         return PageResponse.from(pokes, this::mapToPokeResponse);
     }
 
     @Transactional(readOnly = true)
-    public long getActivePokesCount(UUID userId) {
+    public long getActivePokesCount(Long userId) {
         return pokeRepository.countByPokedIdAndIsActiveTrue(userId);
     }
 
     @Transactional
-    public void dismissPoke(UUID userId, UUID pokeId) {
+    public void dismissPoke(Long userId, UUID pokeId) {
         Poke poke = pokeRepository.findById(pokeId)
                 .orElseThrow(() -> new ValidationException("Poke not found with id: " + pokeId));
 
@@ -170,7 +170,7 @@ public class PokeService {
                 .build();
     }
 
-    private UserSummary fetchUserSummaryWithFallback(UUID userId) {
+    private UserSummary fetchUserSummaryWithFallback(Long userId) {
         try {
             UserSummary summary = userServiceClient.getUserSummary(userId);
             if (summary != null) {

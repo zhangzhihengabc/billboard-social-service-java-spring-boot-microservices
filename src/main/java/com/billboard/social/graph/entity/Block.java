@@ -28,10 +28,10 @@ public class Block extends BaseEntity {
     private UUID id;
 
     @Column(name = "blocker_id", nullable = false)
-    private UUID blockerId;
+    private Long blockerId;
 
     @Column(name = "blocked_id", nullable = false)
-    private UUID blockedId;
+    private Long blockedId;
 
     @Column(name = "reason", length = 500)
     private String reason;

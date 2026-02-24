@@ -37,7 +37,7 @@ public class EventAttendee extends BaseEntity {
     private Event event;
 
     @Column(name = "user_id", nullable = false)
-    private UUID userId;
+    private Long userId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "rsvp_status", nullable = false, length = 20)
@@ -66,7 +66,7 @@ public class EventAttendee extends BaseEntity {
     private String note;
 
     @Column(name = "invited_by")
-    private UUID invitedBy;
+    private Long invitedBy;
 
     @Column(name = "invited_at")
     private LocalDateTime invitedAt;

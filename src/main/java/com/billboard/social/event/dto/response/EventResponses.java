@@ -25,7 +25,7 @@ public class EventResponses {
         @Schema(description = "Event description", nullable = true)
         private String description;
 
-        private UUID hostId;
+        private Long hostId;
 
         @Schema(description = "Group ID if group event", nullable = true)
         private UUID groupId;
@@ -154,7 +154,7 @@ public class EventResponses {
     public static class RsvpResponse {
         private UUID id;
         private UUID eventId;
-        private UUID userId;
+        private Long userId;
         private RsvpStatus status;
 
         @Schema(description = "Guest count", nullable = true)
@@ -182,7 +182,7 @@ public class EventResponses {
     public static class AttendeeResponse {
         private UUID id;
         private UUID eventId;
-        private UUID userId;
+        private Long userId;
         private RsvpStatus rsvpStatus;
 
         @Schema(description = "When user RSVPed", example = "2026-01-19T11:33:16Z", type = "string", format = "date-time", nullable = true)
@@ -212,7 +212,7 @@ public class EventResponses {
     public static class CoHostResponse {
         private UUID id;
         private UUID eventId;
-        private UUID userId;
+        private Long userId;
         private String username;
 
         @Schema(description = "Display name", nullable = true)

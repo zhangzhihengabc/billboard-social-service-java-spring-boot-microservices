@@ -40,7 +40,7 @@ public class RsvpService {
     // ==================== RSVP ACTIONS ====================
 
     @Transactional
-    public RsvpResponse rsvp(UUID userId, UUID eventId, RsvpRequest request) {
+    public RsvpResponse rsvp(Long userId, UUID eventId, RsvpRequest request) {
         if (request == null) {
             throw new ValidationException("Request body is required");
         }
@@ -117,7 +117,7 @@ public class RsvpService {
     }
 
     @Transactional
-    public void cancelRsvp(UUID userId, UUID eventId) {
+    public void cancelRsvp(Long userId, UUID eventId) {
         if (eventId == null) {
             throw new ValidationException("Event ID is required");
         }
@@ -198,7 +198,7 @@ public class RsvpService {
     }
 
     @Transactional(readOnly = true)
-    public List<UUID> getGoingUserIds(UUID eventId) {
+    public List<Long> getGoingUserIds(UUID eventId) {
         if (eventId == null) {
             throw new ValidationException("Event ID is required");
         }
@@ -208,7 +208,7 @@ public class RsvpService {
     // ==================== CHECK-IN ====================
 
     @Transactional
-    public RsvpResponse checkIn(UUID adminId, UUID eventId, UUID userId) {
+    public RsvpResponse checkIn(Long adminId, UUID eventId, Long userId) {
         if (eventId == null) {
             throw new ValidationException("Event ID is required");
         }
@@ -250,7 +250,7 @@ public class RsvpService {
     }
 
     @Transactional
-    public RsvpResponse undoCheckIn(UUID adminId, UUID eventId, UUID userId) {
+    public RsvpResponse undoCheckIn(Long adminId, UUID eventId, Long userId) {
         if (eventId == null) {
             throw new ValidationException("Event ID is required");
         }
@@ -284,7 +284,7 @@ public class RsvpService {
     // ==================== MY STATUS ====================
 
     @Transactional(readOnly = true)
-    public RsvpResponse getMyRsvpStatus(UUID userId, UUID eventId) {
+    public RsvpResponse getMyRsvpStatus(Long userId, UUID eventId) {
         if (eventId == null) {
             throw new ValidationException("Event ID is required");
         }
@@ -298,7 +298,7 @@ public class RsvpService {
     // ==================== CO-HOST MANAGEMENT ====================
 
     @Transactional
-    public CoHostResponse addCoHost(UUID hostId, UUID eventId, AddCoHostRequest request) {
+    public CoHostResponse addCoHost(Long hostId, UUID eventId, AddCoHostRequest request) {
         if (request == null) {
             throw new ValidationException("Request body is required");
         }
@@ -339,7 +339,7 @@ public class RsvpService {
     }
 
     @Transactional
-    public void removeCoHost(UUID hostId, UUID eventId, UUID userId) {
+    public void removeCoHost(Long hostId, UUID eventId, Long userId) {
         Event event = findEventById(eventId);
         checkHostAccess(hostId, event);
 
@@ -375,7 +375,7 @@ public class RsvpService {
                 .orElseThrow(() -> new ValidationException("Event not found with id: " + eventId));
     }
 
-    private void checkHostAccess(UUID userId, Event event) {
+    private void checkHostAccess(Long userId, Event event) {
         if (!event.getHostId().equals(userId)) {
             throw new ForbiddenException("Only the event host can manage co-hosts");
         }
@@ -384,7 +384,7 @@ public class RsvpService {
     /**
      * Check if user is host or co-host (co-hosts can check-in attendees)
      */
-    private void checkHostOrCoHost(UUID userId, Event event) {
+    private void checkHostOrCoHost(Long userId, Event event) {
         // Host has access
         if (event.getHostId().equals(userId)) {
             return;
@@ -436,7 +436,7 @@ public class RsvpService {
                 .build();
     }
 
-    private UserSummary fetchUserSummary(UUID userId) {
+    private UserSummary fetchUserSummary(Long userId) {
         try {
             return userServiceClient.getUserSummary(userId);
         } catch (Exception e) {

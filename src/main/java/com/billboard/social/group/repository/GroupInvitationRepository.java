@@ -17,7 +17,7 @@ import java.util.UUID;
 public interface GroupInvitationRepository extends JpaRepository<GroupInvitation, UUID> {
 
     // Find by group and invitee (unique constraint lookup)
-    Optional<GroupInvitation> findByGroupIdAndInviteeId(UUID groupId, UUID inviteeId);
+    Optional<GroupInvitation> findByGroupIdAndInviteeId(UUID groupId, Long inviteeId);
 
     // Find by invite code (for link-based invites)
     Optional<GroupInvitation> findByInviteCode(String inviteCode);
@@ -25,12 +25,12 @@ public interface GroupInvitationRepository extends JpaRepository<GroupInvitation
     // Find pending invitations for a user (not expired)
     @Query("SELECT i FROM GroupInvitation i WHERE i.inviteeId = :userId AND i.status = 'PENDING' " +
             "AND (i.expiresAt IS NULL OR i.expiresAt > :now)")
-    Page<GroupInvitation> findPendingInvitationsForUser(@Param("userId") UUID userId,
+    Page<GroupInvitation> findPendingInvitationsForUser(@Param("userId") Long userId,
                                                         @Param("now") LocalDateTime now,
                                                         Pageable pageable);
 
     // Find all invitations for a user (any status)
-    Page<GroupInvitation> findByInviteeId(UUID inviteeId, Pageable pageable);
+    Page<GroupInvitation> findByInviteeId(Long inviteeId, Pageable pageable);
 
     // Find invitations sent by a group (for admin view)
     @Query("SELECT i FROM GroupInvitation i WHERE i.group.id = :groupId AND i.status = 'PENDING' " +
@@ -45,14 +45,14 @@ public interface GroupInvitationRepository extends JpaRepository<GroupInvitation
     // Count pending invitations for user
     @Query("SELECT COUNT(i) FROM GroupInvitation i WHERE i.inviteeId = :userId AND i.status = 'PENDING' " +
             "AND (i.expiresAt IS NULL OR i.expiresAt > :now)")
-    long countPendingInvitationsForUser(@Param("userId") UUID userId, @Param("now") LocalDateTime now);
+    long countPendingInvitationsForUser(@Param("userId") Long userId, @Param("now") LocalDateTime now);
 
     // Check if pending invitation exists
     @Query("SELECT CASE WHEN COUNT(i) > 0 THEN true ELSE false END FROM GroupInvitation i " +
             "WHERE i.group.id = :groupId AND i.inviteeId = :inviteeId AND i.status = 'PENDING' " +
             "AND (i.expiresAt IS NULL OR i.expiresAt > :now)")
     boolean existsPendingInvitation(@Param("groupId") UUID groupId,
-                                    @Param("inviteeId") UUID inviteeId,
+                                    @Param("inviteeId") Long inviteeId,
                                     @Param("now") LocalDateTime now);
 
     // Find expired invitations (for cleanup job)

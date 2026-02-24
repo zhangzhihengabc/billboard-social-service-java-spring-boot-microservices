@@ -17,17 +17,17 @@ public interface PokeRepository extends JpaRepository<Poke, UUID> {
     @Query("SELECT p FROM Poke p WHERE " +
            "(p.pokerId = :userId1 AND p.pokedId = :userId2) OR " +
            "(p.pokerId = :userId2 AND p.pokedId = :userId1)")
-    Optional<Poke> findBetweenUsers(@Param("userId1") UUID userId1, @Param("userId2") UUID userId2);
+    Optional<Poke> findBetweenUsers(@Param("userId1") Long userId1, @Param("userId2") Long userId2);
 
-    Optional<Poke> findByPokerIdAndPokedId(UUID pokerId, UUID pokedId);
+    Optional<Poke> findByPokerIdAndPokedId(Long pokerId, Long pokedId);
 
     @Query("SELECT p FROM Poke p WHERE p.pokedId = :userId AND p.isActive = true")
-    Page<Poke> findActivePokesForUser(@Param("userId") UUID userId, Pageable pageable);
+    Page<Poke> findActivePokesForUser(@Param("userId") Long userId, Pageable pageable);
 
     @Query("SELECT p FROM Poke p WHERE p.pokerId = :userId")
-    Page<Poke> findPokesSentByUser(@Param("userId") UUID userId, Pageable pageable);
+    Page<Poke> findPokesSentByUser(@Param("userId") Long userId, Pageable pageable);
 
-    long countByPokedIdAndIsActiveTrue(UUID pokedId);
+    long countByPokedIdAndIsActiveTrue(Long pokedId);
 
-    boolean existsByPokerIdAndPokedIdAndIsActiveTrue(UUID pokerId, UUID pokedId);
+    boolean existsByPokerIdAndPokedIdAndIsActiveTrue(Long pokerId, Long pokedId);
 }

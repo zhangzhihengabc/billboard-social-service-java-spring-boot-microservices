@@ -52,7 +52,7 @@ public class GroupMemberService {
     // ==================== JOIN / LEAVE ====================
 
     @Transactional
-    public GroupMemberResponse joinGroup(UUID userId, UUID groupId, JoinGroupRequest request) {
+    public GroupMemberResponse joinGroup(Long userId, UUID groupId, JoinGroupRequest request) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new ResourceNotFoundException("Group", "id", groupId));
 
@@ -99,7 +99,7 @@ public class GroupMemberService {
 
     @Transactional
     @CacheEvict(value = "groups", key = "#groupId")
-    public void leaveGroup(UUID userId, UUID groupId) {
+    public void leaveGroup(Long userId, UUID groupId) {
         GroupMember member = memberRepository.findByGroupIdAndUserId(groupId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Membership not found"));
 
@@ -120,7 +120,7 @@ public class GroupMemberService {
     // ==================== GET MEMBERS ====================
 
     @Transactional(readOnly = true)
-    public GroupMemberResponse getMember(UUID groupId, UUID userId) {
+    public GroupMemberResponse getMember(UUID groupId, Long userId) {
         GroupMember member = memberRepository.findByGroupIdAndUserId(groupId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Member not found"));
         return mapToMemberResponse(member);
@@ -134,7 +134,7 @@ public class GroupMemberService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<GroupMemberResponse> getPendingMembers(UUID adminId, UUID groupId, int page, int size) {
+    public PageResponse<GroupMemberResponse> getPendingMembers(Long adminId, UUID groupId, int page, int size) {
         checkModeratorAccess(adminId, groupId);
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdAt"));
         Page<GroupMember> members = memberRepository.findPendingMembers(groupId, pageRequest);
@@ -142,7 +142,7 @@ public class GroupMemberService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<GroupMemberResponse> getBannedMembers(UUID adminId, UUID groupId, int page, int size) {
+    public PageResponse<GroupMemberResponse> getBannedMembers(Long adminId, UUID groupId, int page, int size) {
         checkModeratorAccess(adminId, groupId);
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedAt"));
         Page<GroupMember> members = memberRepository.findBannedMembers(groupId, pageRequest);
@@ -158,7 +158,7 @@ public class GroupMemberService {
     }
 
     @Transactional(readOnly = true)
-    public List<UUID> getMemberIds(UUID groupId) {
+    public List<Long> getMemberIds(UUID groupId) {
         return memberRepository.findMemberUserIds(groupId);
     }
 
@@ -177,7 +177,7 @@ public class GroupMemberService {
 
     @Transactional
     @CacheEvict(value = "groups", key = "#groupId")
-    public GroupMemberResponse approveJoinRequest(UUID adminId, UUID groupId, UUID memberId) {
+    public GroupMemberResponse approveJoinRequest(Long adminId, UUID groupId, UUID memberId) {
         checkModeratorAccess(adminId, groupId);
 
         GroupMember member = memberRepository.findById(memberId)
@@ -206,7 +206,7 @@ public class GroupMemberService {
 
     @Transactional
     @CacheEvict(value = "groups", key = "#groupId")
-    public void rejectJoinRequest(UUID adminId, UUID groupId, UUID memberId) {
+    public void rejectJoinRequest(Long adminId, UUID groupId, UUID memberId) {
         checkModeratorAccess(adminId, groupId);
 
         GroupMember member = memberRepository.findById(memberId)
@@ -228,7 +228,7 @@ public class GroupMemberService {
 
     @Transactional
     @CacheEvict(value = "groups", key = "#groupId")
-    public void removeMember(UUID adminId, UUID groupId, UUID userId) {
+    public void removeMember(Long adminId, UUID groupId, Long userId) {
         checkModeratorAccess(adminId, groupId);
 
         GroupMember member = memberRepository.findByGroupIdAndUserId(groupId, userId)
@@ -255,7 +255,7 @@ public class GroupMemberService {
 
     @Transactional
     @CacheEvict(value = "groups", key = "#groupId")
-    public GroupMemberResponse updateMemberRole(UUID adminId, UUID groupId, UUID userId, UpdateMemberRoleRequest request) {
+    public GroupMemberResponse updateMemberRole(Long adminId, UUID groupId, Long userId, UpdateMemberRoleRequest request) {
         checkAdminAccess(adminId, groupId);
 
         GroupMember member = memberRepository.findByGroupIdAndUserId(groupId, userId)
@@ -289,7 +289,7 @@ public class GroupMemberService {
 
     @Transactional
     @CacheEvict(value = "groups", key = "#groupId")
-    public GroupMemberResponse promoteToAdmin(UUID ownerId, UUID groupId, UUID userId) {
+    public GroupMemberResponse promoteToAdmin(Long ownerId, UUID groupId, Long userId) {
         // Only owner can promote to admin
         checkOwnerAccess(ownerId, groupId);
 
@@ -323,7 +323,7 @@ public class GroupMemberService {
 
     @Transactional
     @CacheEvict(value = "groups", key = "#groupId")
-    public GroupMemberResponse promoteToModerator(UUID adminId, UUID groupId, UUID userId) {
+    public GroupMemberResponse promoteToModerator(Long adminId, UUID groupId, Long userId) {
         // Admin or owner can promote to moderator
         checkAdminAccess(adminId, groupId);
 
@@ -353,7 +353,7 @@ public class GroupMemberService {
 
     @Transactional
     @CacheEvict(value = "groups", key = "#groupId")
-    public GroupMemberResponse demoteAdmin(UUID ownerId, UUID groupId, UUID userId) {
+    public GroupMemberResponse demoteAdmin(Long ownerId, UUID groupId, Long userId) {
         // Only owner can demote admin
         checkOwnerAccess(ownerId, groupId);
 
@@ -373,7 +373,7 @@ public class GroupMemberService {
 
     @Transactional
     @CacheEvict(value = "groups", key = "#groupId")
-    public GroupMemberResponse demoteModerator(UUID adminId, UUID groupId, UUID userId) {
+    public GroupMemberResponse demoteModerator(Long adminId, UUID groupId, Long userId) {
         // Admin or owner can demote moderator
         checkAdminAccess(adminId, groupId);
 
@@ -395,7 +395,7 @@ public class GroupMemberService {
 
     @Transactional
     @CacheEvict(value = "groups", key = "#groupId")
-    public GroupMemberResponse muteMember(UUID adminId, UUID groupId, UUID userId, MuteMemberRequest request) {
+    public GroupMemberResponse muteMember(Long adminId, UUID groupId, Long userId, MuteMemberRequest request) {
         checkModeratorAccess(adminId, groupId);
 
         // Validate request
@@ -425,7 +425,7 @@ public class GroupMemberService {
 
     @Transactional
     @CacheEvict(value = "groups", key = "#groupId")
-    public GroupMemberResponse unmuteMember(UUID adminId, UUID groupId, UUID userId) {
+    public GroupMemberResponse unmuteMember(Long adminId, UUID groupId, Long userId) {
         checkModeratorAccess(adminId, groupId);
 
         GroupMember member = memberRepository.findByGroupIdAndUserId(groupId, userId)
@@ -442,7 +442,7 @@ public class GroupMemberService {
 
     @Transactional
     @CacheEvict(value = "groups", key = "#groupId")
-    public void banMember(UUID adminId, UUID groupId, UUID userId, BanMemberRequest request) {
+    public void banMember(Long adminId, UUID groupId, Long userId, BanMemberRequest request) {
         checkModeratorAccess(adminId, groupId);
 
         // Validate request
@@ -477,7 +477,7 @@ public class GroupMemberService {
 
     @Transactional
     @CacheEvict(value = "groups", key = "#groupId")
-    public void unbanMember(UUID adminId, UUID groupId, UUID userId) {
+    public void unbanMember(Long adminId, UUID groupId, Long userId) {
         checkModeratorAccess(adminId, groupId);
 
         GroupMember member = memberRepository.findByGroupIdAndUserId(groupId, userId)
@@ -496,7 +496,7 @@ public class GroupMemberService {
     // ==================== SETTINGS ====================
 
     @Transactional
-    public GroupMemberResponse updateMemberSettings(UUID userId, UUID groupId, UpdateMemberSettingsRequest request) {
+    public GroupMemberResponse updateMemberSettings(Long userId, UUID groupId, UpdateMemberSettingsRequest request) {
         GroupMember member = memberRepository.findByGroupIdAndUserId(groupId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Membership not found"));
 
@@ -518,7 +518,7 @@ public class GroupMemberService {
 
     @Transactional
     @CacheEvict(value = "groups", key = "#groupId")
-    public void transferOwnership(UUID ownerId, UUID groupId, UUID newOwnerId) {
+    public void transferOwnership(Long ownerId, UUID groupId, Long newOwnerId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new ResourceNotFoundException("Group", "id", groupId));
 
@@ -550,7 +550,7 @@ public class GroupMemberService {
 
     // ==================== PRIVATE HELPERS ====================
 
-    private void checkOwnerAccess(UUID userId, UUID groupId) {
+    private void checkOwnerAccess(Long userId, UUID groupId) {
         GroupMember member = memberRepository.findByGroupIdAndUserId(groupId, userId)
                 .orElseThrow(() -> new ForbiddenException("You are not a member of this group"));
 
@@ -559,7 +559,7 @@ public class GroupMemberService {
         }
     }
 
-    private void checkAdminAccess(UUID userId, UUID groupId) {
+    private void checkAdminAccess(Long userId, UUID groupId) {
         GroupMember member = memberRepository.findByGroupIdAndUserId(groupId, userId)
                 .orElseThrow(() -> new ForbiddenException("You are not a member of this group"));
 
@@ -568,7 +568,7 @@ public class GroupMemberService {
         }
     }
 
-    private void checkModeratorAccess(UUID userId, UUID groupId) {
+    private void checkModeratorAccess(Long userId, UUID groupId) {
         GroupMember member = memberRepository.findByGroupIdAndUserId(groupId, userId)
                 .orElseThrow(() -> new ForbiddenException("You are not a member of this group"));
 
@@ -595,7 +595,7 @@ public class GroupMemberService {
                 .build();
     }
 
-    private UserSummary fetchUserSummary(UUID userId) {
+    private UserSummary fetchUserSummary(Long userId) {
         try {
             return userServiceClient.getUserSummary(userId);
         } catch (Exception e) {

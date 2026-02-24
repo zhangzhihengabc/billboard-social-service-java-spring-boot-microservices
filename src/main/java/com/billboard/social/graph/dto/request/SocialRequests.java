@@ -16,7 +16,7 @@ public class SocialRequests {
     @AllArgsConstructor
     public static class FollowRequest {
         @NotNull(message = "User ID is required")
-        private UUID userId;
+        private Long userId;
         private Boolean notificationsEnabled;
         private Boolean isCloseFriend;
     }
@@ -37,7 +37,7 @@ public class SocialRequests {
     @AllArgsConstructor
     public static class FriendRequest {
         @NotNull(message = "User ID is required")
-        private UUID userId;
+        private Long userId;
         @Size(max = 500, message = "Message cannot exceed 500 characters")
         private String message;
     }
@@ -53,7 +53,7 @@ public class SocialRequests {
         private UUID contentId;
         @NotNull(message = "Reaction type is required")
         private ReactionType reactionType;
-        private UUID contentOwnerId;
+        private Long contentOwnerId;
     }
 
     @Data
@@ -65,8 +65,8 @@ public class SocialRequests {
         private ContentType contentType;
         @NotNull(message = "Content ID is required")
         private UUID contentId;
-        private UUID contentOwnerId;
-        private UUID targetUserId;
+        private Long contentOwnerId;
+        private Long targetUserId;
         @Size(max = 1000, message = "Message cannot exceed 1000 characters")
         private String message;
         private Boolean shareToFeed;
@@ -80,7 +80,7 @@ public class SocialRequests {
     @AllArgsConstructor
     public static class BlockRequest {
         @NotNull(message = "User ID is required")
-        private UUID userId;
+        private Long userId;
         @Size(max = 500, message = "Reason cannot exceed 500 characters")
         private String reason;
         private Boolean blockMessages;
@@ -94,6 +94,6 @@ public class SocialRequests {
     @AllArgsConstructor
     public static class PokeRequest {
         @NotNull(message = "User ID is required")
-        private UUID userId;
+        private Long userId;
     }
 }

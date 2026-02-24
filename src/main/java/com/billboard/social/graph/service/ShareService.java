@@ -33,7 +33,7 @@ public class ShareService {
     private final SocialEventPublisher eventPublisher;
 
     @Transactional
-    public ShareResponse share(UUID userId, ShareRequest request) {
+    public ShareResponse share(Long userId, ShareRequest request) {
         if (request.getContentId() == null) {
             throw new ValidationException("Content ID is required");
         }
@@ -74,7 +74,7 @@ public class ShareService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<ShareResponse> getSharesByUser(UUID userId, int page, int size) {
+    public PageResponse<ShareResponse> getSharesByUser(Long userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Share> shares = shareRepository.findByUserId(userId, pageRequest);
         return PageResponse.from(shares, this::mapToShareResponse);
@@ -103,7 +103,7 @@ public class ShareService {
                 .build();
     }
 
-    private UserSummary fetchUserSummaryWithFallback(UUID userId) {
+    private UserSummary fetchUserSummaryWithFallback(Long userId) {
         try {
             UserSummary summary = userServiceClient.getUserSummary(userId);
             if (summary != null) {

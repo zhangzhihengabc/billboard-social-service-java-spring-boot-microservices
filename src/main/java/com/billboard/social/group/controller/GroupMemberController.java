@@ -128,7 +128,7 @@ public class GroupMemberController {
     })
     public ResponseEntity<GroupMemberResponse> getMember(
             @PathVariable UUID groupId,
-            @PathVariable UUID userId) {
+            @PathVariable Long userId) {
         GroupMemberResponse response = memberService.getMember(groupId, userId);
         return ResponseEntity.ok(response);
     }
@@ -206,8 +206,8 @@ public class GroupMemberController {
             @ApiResponse(responseCode = "401", description = "Unauthorized",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<List<UUID>> getMemberIds(@PathVariable UUID groupId) {
-        List<UUID> ids = memberService.getMemberIds(groupId);
+    public ResponseEntity<List<Long>> getMemberIds(@PathVariable UUID groupId) {
+        List<Long> ids = memberService.getMemberIds(groupId);
         return ResponseEntity.ok(ids);
     }
 
@@ -283,7 +283,7 @@ public class GroupMemberController {
     public ResponseEntity<Void> removeMember(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable UUID groupId,
-            @PathVariable UUID userId) {
+            @PathVariable Long userId) {
         memberService.removeMember(principal.getId(), groupId, userId);
         return ResponseEntity.noContent().build();
     }
@@ -303,7 +303,7 @@ public class GroupMemberController {
     public ResponseEntity<GroupMemberResponse> updateMemberRole(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable UUID groupId,
-            @PathVariable UUID userId,
+            @PathVariable Long userId,
             @Valid @RequestBody UpdateMemberRoleRequest request) {
         GroupMemberResponse response = memberService.updateMemberRole(principal.getId(), groupId, userId, request);
         return ResponseEntity.ok(response);
@@ -324,7 +324,7 @@ public class GroupMemberController {
     public ResponseEntity<GroupMemberResponse> promoteToAdmin(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable UUID groupId,
-            @PathVariable UUID userId) {
+            @PathVariable Long userId) {
         GroupMemberResponse response = memberService.promoteToAdmin(principal.getId(), groupId, userId);
         return ResponseEntity.ok(response);
     }
@@ -344,7 +344,7 @@ public class GroupMemberController {
     public ResponseEntity<GroupMemberResponse> promoteToModerator(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable UUID groupId,
-            @PathVariable UUID userId) {
+            @PathVariable Long userId) {
         GroupMemberResponse response = memberService.promoteToModerator(principal.getId(), groupId, userId);
         return ResponseEntity.ok(response);
     }
@@ -364,7 +364,7 @@ public class GroupMemberController {
     public ResponseEntity<GroupMemberResponse> demoteAdmin(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable UUID groupId,
-            @PathVariable UUID userId) {
+            @PathVariable Long userId) {
         GroupMemberResponse response = memberService.demoteAdmin(principal.getId(), groupId, userId);
         return ResponseEntity.ok(response);
     }
@@ -384,7 +384,7 @@ public class GroupMemberController {
     public ResponseEntity<GroupMemberResponse> demoteModerator(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable UUID groupId,
-            @PathVariable UUID userId) {
+            @PathVariable Long userId) {
         GroupMemberResponse response = memberService.demoteModerator(principal.getId(), groupId, userId);
         return ResponseEntity.ok(response);
     }
@@ -406,7 +406,7 @@ public class GroupMemberController {
     public ResponseEntity<GroupMemberResponse> muteMember(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable UUID groupId,
-            @PathVariable UUID userId,
+            @PathVariable Long userId,
             @Valid @RequestBody MuteMemberRequest request) {
         GroupMemberResponse response = memberService.muteMember(principal.getId(), groupId, userId, request);
         return ResponseEntity.ok(response);
@@ -427,7 +427,7 @@ public class GroupMemberController {
     public ResponseEntity<GroupMemberResponse> unmuteMember(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable UUID groupId,
-            @PathVariable UUID userId) {
+            @PathVariable Long userId) {
         GroupMemberResponse response = memberService.unmuteMember(principal.getId(), groupId, userId);
         return ResponseEntity.ok(response);
     }
@@ -448,7 +448,7 @@ public class GroupMemberController {
     public ResponseEntity<Void> banMember(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable UUID groupId,
-            @PathVariable UUID userId,
+            @PathVariable Long userId,
             @Valid @RequestBody(required = false) BanMemberRequest request) {
         memberService.banMember(principal.getId(), groupId, userId, request);
         return ResponseEntity.noContent().build();
@@ -468,7 +468,7 @@ public class GroupMemberController {
     public ResponseEntity<Void> unbanMember(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable UUID groupId,
-            @PathVariable UUID userId) {
+            @PathVariable Long userId) {
         memberService.unbanMember(principal.getId(), groupId, userId);
         return ResponseEntity.noContent().build();
     }
@@ -509,7 +509,7 @@ public class GroupMemberController {
     public ResponseEntity<Void> transferOwnership(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable UUID groupId,
-            @PathVariable UUID newOwnerId) {
+            @PathVariable Long newOwnerId) {
         memberService.transferOwnership(principal.getId(), groupId, newOwnerId);
         return ResponseEntity.ok().build();
     }

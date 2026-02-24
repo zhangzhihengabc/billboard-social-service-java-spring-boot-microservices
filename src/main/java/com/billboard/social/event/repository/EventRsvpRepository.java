@@ -19,9 +19,9 @@ public interface EventRsvpRepository extends JpaRepository<EventRsvp, UUID> {
 
     // ==================== FIND METHODS ====================
 
-    Optional<EventRsvp> findByEventIdAndUserId(UUID eventId, UUID userId);
+    Optional<EventRsvp> findByEventIdAndUserId(UUID eventId, Long userId);
 
-    boolean existsByEventIdAndUserId(UUID eventId, UUID userId);
+    boolean existsByEventIdAndUserId(UUID eventId, Long userId);
 
     List<EventRsvp> findByEventId(UUID eventId);
 
@@ -52,13 +52,13 @@ public interface EventRsvpRepository extends JpaRepository<EventRsvp, UUID> {
     // ==================== ID QUERIES ====================
 
     @Query("SELECT r.userId FROM EventRsvp r WHERE r.event.id = :eventId AND r.status = 'GOING'")
-    List<UUID> findGoingUserIds(@Param("eventId") UUID eventId);
+    List<Long> findGoingUserIds(@Param("eventId") UUID eventId);
 
     @Query("SELECT r.userId FROM EventRsvp r WHERE r.event.id = :eventId AND r.status = 'MAYBE'")
-    List<UUID> findMaybeUserIds(@Param("eventId") UUID eventId);
+    List<Long> findMaybeUserIds(@Param("eventId") UUID eventId);
 
     @Query("SELECT r.userId FROM EventRsvp r WHERE r.event.id = :eventId AND r.status IN ('GOING', 'MAYBE')")
-    List<UUID> findAttendingUserIds(@Param("eventId") UUID eventId);
+    List<Long> findAttendingUserIds(@Param("eventId") UUID eventId);
 
     // ==================== DELETE METHODS (Hard Delete) ====================
 

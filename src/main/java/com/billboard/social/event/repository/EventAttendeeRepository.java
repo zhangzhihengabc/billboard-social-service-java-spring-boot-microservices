@@ -17,9 +17,9 @@ import java.util.UUID;
 @Repository
 public interface EventAttendeeRepository extends JpaRepository<EventAttendee, UUID> {
 
-    Optional<EventAttendee> findByEventIdAndUserId(UUID eventId, UUID userId);
+    Optional<EventAttendee> findByEventIdAndUserId(UUID eventId, Long userId);
 
-    boolean existsByEventIdAndUserId(UUID eventId, UUID userId);
+    boolean existsByEventIdAndUserId(UUID eventId, Long userId);
 
     Page<EventAttendee> findByEventIdAndRsvpStatus(UUID eventId, RsvpStatus status, Pageable pageable);
 
@@ -51,9 +51,9 @@ public interface EventAttendeeRepository extends JpaRepository<EventAttendee, UU
     List<EventAttendee> findHosts(@Param("eventId") UUID eventId);
 
     @Query("SELECT a FROM EventAttendee a WHERE a.userId = :userId AND a.rsvpStatus IN ('GOING', 'MAYBE') ORDER BY a.event.startTime")
-    Page<EventAttendee> findUserUpcomingEvents(@Param("userId") UUID userId, Pageable pageable);
+    Page<EventAttendee> findUserUpcomingEvents(@Param("userId") Long userId, Pageable pageable);
 
-    void deleteByEventIdAndUserId(UUID eventId, UUID userId);
+    void deleteByEventIdAndUserId(UUID eventId, Long userId);
 
     @Query("SELECT a FROM EventAttendee a WHERE a.event.id = :eventId AND a.rsvpStatus IN ('GOING', 'MAYBE') ORDER BY a.rsvpAt DESC")
     Page<EventAttendee> findConfirmedAttendees(@Param("eventId") UUID eventId, Pageable pageable);

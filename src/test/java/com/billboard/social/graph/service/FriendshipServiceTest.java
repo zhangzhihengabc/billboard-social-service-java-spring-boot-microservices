@@ -50,8 +50,8 @@ class FriendshipServiceTest {
     private FriendshipService friendshipService;
 
     // Test constants
-    private static final UUID USER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-    private static final UUID FRIEND_ID = UUID.fromString("22222222-2222-2222-2222-222222222222");
+    private static final Long USER_ID = 1L;
+    private static final Long FRIEND_ID = 2L;
     private static final UUID FRIENDSHIP_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
 
     private Friendship testFriendship;
@@ -96,7 +96,7 @@ class FriendshipServiceTest {
             when(blockRepository.isBlockedEitherWay(USER_ID, FRIEND_ID)).thenReturn(false);
             when(friendshipRepository.findBetweenUsers(USER_ID, FRIEND_ID)).thenReturn(Optional.empty());
             when(friendshipRepository.countFriends(USER_ID)).thenReturn(100L);
-            when(friendshipRepository.findMutualFriendIds(USER_ID, FRIEND_ID)).thenReturn(List.of(UUID.randomUUID()));
+            when(friendshipRepository.findMutualFriendIds(USER_ID, FRIEND_ID)).thenReturn(List.of(10L));
             when(friendshipRepository.save(any(Friendship.class))).thenAnswer(invocation -> {
                 Friendship saved = invocation.getArgument(0);
                 saved.setId(FRIENDSHIP_ID);
@@ -885,12 +885,12 @@ class FriendshipServiceTest {
         @Test
         @DisplayName("Success - returns friend IDs")
         void getFriendIds_Success() {
-            UUID friend2 = UUID.randomUUID();
-            List<UUID> ids = List.of(FRIEND_ID, friend2);
+            Long friend2 = 10L;
+            List<Long> ids = List.of(FRIEND_ID, friend2);
 
             when(friendshipRepository.findFriendIds(USER_ID)).thenReturn(ids);
 
-            List<UUID> result = friendshipService.getFriendIds(USER_ID);
+            List<Long> result = friendshipService.getFriendIds(USER_ID);
 
             assertThat(result).hasSize(2);
             assertThat(result).containsExactly(FRIEND_ID, friend2);
@@ -901,7 +901,7 @@ class FriendshipServiceTest {
         void getFriendIds_Empty() {
             when(friendshipRepository.findFriendIds(USER_ID)).thenReturn(Collections.emptyList());
 
-            List<UUID> result = friendshipService.getFriendIds(USER_ID);
+            List<Long> result = friendshipService.getFriendIds(USER_ID);
 
             assertThat(result).isEmpty();
         }
@@ -916,13 +916,13 @@ class FriendshipServiceTest {
         @Test
         @DisplayName("Success - returns mutual friend IDs")
         void getMutualFriendIds_Success() {
-            UUID mutual1 = UUID.randomUUID();
-            UUID mutual2 = UUID.randomUUID();
-            List<UUID> mutualIds = List.of(mutual1, mutual2);
+            Long mutual1 = 10L;
+            Long mutual2 = 11L;
+            List<Long> mutualIds = List.of(mutual1, mutual2);
 
             when(friendshipRepository.findMutualFriendIds(USER_ID, FRIEND_ID)).thenReturn(mutualIds);
 
-            List<UUID> result = friendshipService.getMutualFriendIds(USER_ID, FRIEND_ID);
+            List<Long> result = friendshipService.getMutualFriendIds(USER_ID, FRIEND_ID);
 
             assertThat(result).hasSize(2);
         }
@@ -932,7 +932,7 @@ class FriendshipServiceTest {
         void getMutualFriendIds_Empty() {
             when(friendshipRepository.findMutualFriendIds(USER_ID, FRIEND_ID)).thenReturn(Collections.emptyList());
 
-            List<UUID> result = friendshipService.getMutualFriendIds(USER_ID, FRIEND_ID);
+            List<Long> result = friendshipService.getMutualFriendIds(USER_ID, FRIEND_ID);
 
             assertThat(result).isEmpty();
         }

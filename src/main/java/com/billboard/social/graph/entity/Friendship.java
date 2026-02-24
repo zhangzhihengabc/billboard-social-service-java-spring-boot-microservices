@@ -29,10 +29,10 @@ public class Friendship extends BaseEntity {
     private UUID id;
 
     @Column(name = "requester_id", nullable = false)
-    private UUID requesterId;
+    private Long requesterId;
 
     @Column(name = "addressee_id", nullable = false)
-    private UUID addresseeId;
+    private Long addresseeId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)

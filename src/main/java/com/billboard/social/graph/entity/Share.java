@@ -27,7 +27,7 @@ public class Share extends BaseEntity {
     private UUID id;
 
     @Column(name = "user_id", nullable = false)
-    private UUID userId;
+    private Long userId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "content_type", nullable = false, length = 20)
@@ -37,10 +37,10 @@ public class Share extends BaseEntity {
     private UUID contentId;
 
     @Column(name = "content_owner_id")
-    private UUID contentOwnerId;
+    private Long contentOwnerId;
 
     @Column(name = "target_user_id")
-    private UUID targetUserId;
+    private Long targetUserId;
 
     @Column(name = "message", length = 1000)
     private String message;

@@ -46,9 +46,9 @@ class ReactionServiceTest {
     private ReactionService reactionService;
 
     // Test constants
-    private static final UUID USER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+    private static final Long USER_ID = 1L;
     private static final UUID CONTENT_ID = UUID.fromString("22222222-2222-2222-2222-222222222222");
-    private static final UUID CONTENT_OWNER_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
+    private static final Long CONTENT_OWNER_ID = 3L;
     private static final UUID REACTION_ID = UUID.fromString("44444444-4444-4444-4444-444444444444");
 
     private Reaction testReaction;
@@ -369,7 +369,7 @@ class ReactionServiceTest {
         @Test
         @DisplayName("Success - multiple reactions")
         void getReactions_MultipleReactions() {
-            UUID userId2 = UUID.randomUUID();
+            Long userId2 = 10L;
             Reaction reaction2 = Reaction.builder()
                     .id(UUID.randomUUID())
                     .userId(userId2)
@@ -387,7 +387,7 @@ class ReactionServiceTest {
 
             when(reactionRepository.findByContentTypeAndContentId(eq(ContentType.POST), eq(CONTENT_ID), any(Pageable.class)))
                     .thenReturn(page);
-            when(userServiceClient.getUserSummary(any(UUID.class))).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(any(Long.class))).thenReturn(testUserSummary);
 
             PageResponse<ReactionResponse> response = reactionService.getReactions(ContentType.POST, CONTENT_ID, 0, 20);
 

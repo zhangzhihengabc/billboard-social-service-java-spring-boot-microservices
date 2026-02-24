@@ -37,7 +37,7 @@ public class GroupMember extends BaseEntity {
     private Group group;
 
     @Column(name = "user_id", nullable = false)
-    private UUID userId;
+    private Long userId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 20)
@@ -50,10 +50,10 @@ public class GroupMember extends BaseEntity {
     private MemberStatus status = MemberStatus.PENDING;
 
     @Column(name = "invited_by")
-    private UUID invitedBy;
+    private Long invitedBy;
 
     @Column(name = "approved_by")
-    private UUID approvedBy;
+    private Long approvedBy;
 
     @Column(name = "approved_at")
     private LocalDateTime approvedAt;
@@ -76,7 +76,7 @@ public class GroupMember extends BaseEntity {
     @Builder.Default
     private Integer contributionScore = 0;
 
-    public void approve(UUID approvedById) {
+    public void approve(Long approvedById) {
         this.status = MemberStatus.APPROVED;
         this.approvedBy = approvedById;
         this.approvedAt = LocalDateTime.now();

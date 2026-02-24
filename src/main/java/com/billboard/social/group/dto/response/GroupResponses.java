@@ -26,7 +26,7 @@ public class GroupResponses {
         private String description;
 
         private GroupType groupType;
-        private UUID ownerId;
+        private Long ownerId;
 
         @Schema(description = "Category ID", nullable = true)
         private UUID categoryId;
@@ -117,7 +117,7 @@ public class GroupResponses {
     public static class GroupMemberResponse {
         private UUID id;
         private UUID groupId;
-        private UUID userId;
+        private Long userId;
         private MemberRole role;
         private MemberStatus status;
 
@@ -171,13 +171,13 @@ public class GroupResponses {
         @Schema(description = "Group icon URL", nullable = true)
         private String groupIconUrl;
 
-        private UUID inviterId;
+        private Long inviterId;
 
         @Schema(description = "Inviter username", nullable = true)
         private String inviterName;
 
         @Schema(description = "Invitee user ID", nullable = true)
-        private UUID inviteeId;
+        private Long inviteeId;
 
         @Schema(description = "Invitee email for external invites", nullable = true)
         private String inviteeEmail;

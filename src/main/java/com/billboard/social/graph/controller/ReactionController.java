@@ -155,7 +155,7 @@ public class ReactionController {
                     example = "550e8400-e29b-41d4-a716-446655440000",
                     schema = @Schema(type = "string", format = "uuid"))
             @PathVariable UUID contentId) {
-        UUID userId = principal != null ? principal.getId() : null;
+        Long userId = principal != null ? principal.getId() : null;
         ReactionStatsResponse response = reactionService.getReactionStats(userId, contentType, contentId);
         return ResponseEntity.ok(response);
     }

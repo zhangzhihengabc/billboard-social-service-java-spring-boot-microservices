@@ -27,10 +27,10 @@ public class Poke extends BaseEntity {
     private UUID id;
 
     @Column(name = "poker_id", nullable = false)
-    private UUID pokerId;
+    private Long pokerId;
 
     @Column(name = "poked_id", nullable = false)
-    private UUID pokedId;
+    private Long pokedId;
 
     @Column(name = "is_active")
     @Builder.Default

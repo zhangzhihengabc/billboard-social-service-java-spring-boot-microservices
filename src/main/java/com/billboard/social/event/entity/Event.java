@@ -43,7 +43,7 @@ public class Event extends BaseEntity {
     private String description;
 
     @Column(name = "host_id", nullable = false)
-    private UUID hostId;
+    private Long hostId;
 
     @Column(name = "group_id")
     private UUID groupId;

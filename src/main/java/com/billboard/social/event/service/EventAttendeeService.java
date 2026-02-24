@@ -37,7 +37,7 @@ public class EventAttendeeService {
 
     @Transactional
     @CacheEvict(value = "events", key = "#eventId")
-    public AttendeeResponse rsvp(UUID userId, UUID eventId, RsvpRequest request) {
+    public AttendeeResponse rsvp(Long userId, UUID eventId, RsvpRequest request) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event", "id", eventId));
 
@@ -82,7 +82,7 @@ public class EventAttendeeService {
 
     @Transactional
     @CacheEvict(value = "events", key = "#eventId")
-    public void cancelRsvp(UUID userId, UUID eventId) {
+    public void cancelRsvp(Long userId, UUID eventId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event", "id", eventId));
 
@@ -109,7 +109,7 @@ public class EventAttendeeService {
     }
 
     @Transactional
-    public AttendeeResponse inviteUser(UUID inviterId, UUID eventId, InviteRequest request) {
+    public AttendeeResponse inviteUser(Long inviterId, UUID eventId, InviteRequest request) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event", "id", eventId));
 
@@ -119,7 +119,7 @@ public class EventAttendeeService {
             throw new ValidationException("Either userId or email is required");
         }
 
-        UUID inviteeId = request.getUserId();
+        Long inviteeId = request.getUserId();
         if (inviteeId != null && attendeeRepository.existsByEventIdAndUserId(eventId, inviteeId)) {
             throw new ValidationException("User is already invited or attending");
         }
@@ -143,7 +143,7 @@ public class EventAttendeeService {
     }
 
     @Transactional
-    public AttendeeResponse checkIn(UUID hostId, UUID eventId, UUID attendeeId) {
+    public AttendeeResponse checkIn(Long hostId, UUID eventId, UUID attendeeId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event", "id", eventId));
 
@@ -170,7 +170,7 @@ public class EventAttendeeService {
     }
 
     @Transactional
-    public AttendeeResponse promoteToCoHost(UUID hostId, UUID eventId, UUID userId) {
+    public AttendeeResponse promoteToCoHost(Long hostId, UUID eventId, Long userId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event", "id", eventId));
 
@@ -189,7 +189,7 @@ public class EventAttendeeService {
     }
 
     @Transactional
-    public void removeAttendee(UUID hostId, UUID eventId, UUID userId) {
+    public void removeAttendee(Long hostId, UUID eventId, Long userId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event", "id", eventId));
 
@@ -251,7 +251,7 @@ public class EventAttendeeService {
                 .build();
     }
 
-    private void checkHostAccess(UUID userId, Event event) {
+    private void checkHostAccess(Long userId, Event event) {
         if (event.getHostId().equals(userId)) {
             return;
         }

@@ -52,7 +52,7 @@ public class GroupInvitationService {
     // ==================== SEND INVITATION ====================
 
     @Transactional
-    public InvitationResponse inviteMember(UUID inviterId, UUID groupId, InviteMemberRequest request) {
+    public InvitationResponse inviteMember(Long inviterId, UUID groupId, InviteMemberRequest request) {
         // Validate request
         if (request == null) {
             throw new ValidationException("Request body is required");
@@ -78,7 +78,7 @@ public class GroupInvitationService {
             throw new ForbiddenException("Only moderators can invite members to this group");
         }
 
-        UUID inviteeId = request.getUserId();
+        Long inviteeId = request.getUserId();
         String inviteeEmail = request.getEmail();
         UserSummary invitee = null;
 
@@ -143,7 +143,7 @@ public class GroupInvitationService {
     // ==================== CREATE INVITE LINK ====================
 
     @Transactional
-    public InvitationResponse createInviteLink(UUID inviterId, UUID groupId, CreateInviteLinkRequest request) {
+    public InvitationResponse createInviteLink(Long inviterId, UUID groupId, CreateInviteLinkRequest request) {
         // Validate request
         if (request != null && request.getMessage() != null) {
             InputValidator.validateText(request.getMessage(), "Message", 500);
@@ -187,7 +187,7 @@ public class GroupInvitationService {
     // ==================== ACCEPT / DECLINE ====================
 
     @Transactional
-    public GroupMemberResponse acceptInvitation(UUID userId, UUID invitationId) {
+    public GroupMemberResponse acceptInvitation(Long userId, UUID invitationId) {
         GroupInvitation invitation = invitationRepository.findById(invitationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Invitation", "id", invitationId));
 
@@ -238,7 +238,7 @@ public class GroupInvitationService {
     }
 
     @Transactional
-    public void declineInvitation(UUID userId, UUID invitationId) {
+    public void declineInvitation(Long userId, UUID invitationId) {
         GroupInvitation invitation = invitationRepository.findById(invitationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Invitation", "id", invitationId));
 
@@ -260,7 +260,7 @@ public class GroupInvitationService {
     // ==================== ACCEPT BY CODE ====================
 
     @Transactional
-    public GroupMemberResponse acceptByCode(UUID userId, String inviteCode) {
+    public GroupMemberResponse acceptByCode(Long userId, String inviteCode) {
         // Validate input
         if (inviteCode == null || inviteCode.isBlank()) {
             throw new ValidationException("Invite code is required");
@@ -317,7 +317,7 @@ public class GroupInvitationService {
     // ==================== CANCEL INVITATION ====================
 
     @Transactional
-    public void cancelInvitation(UUID adminId, UUID groupId, UUID invitationId) {
+    public void cancelInvitation(Long adminId, UUID groupId, UUID invitationId) {
         checkModeratorAccess(adminId, groupId);
 
         GroupInvitation invitation = invitationRepository.findById(invitationId)
@@ -355,7 +355,7 @@ public class GroupInvitationService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<InvitationResponse> getMyPendingInvitations(UUID userId, int page, int size) {
+    public PageResponse<InvitationResponse> getMyPendingInvitations(Long userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<GroupInvitation> invitations = invitationRepository.findPendingInvitationsForUser(
                 userId, LocalDateTime.now(), pageRequest);
@@ -363,7 +363,7 @@ public class GroupInvitationService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<InvitationResponse> getGroupInvitations(UUID adminId, UUID groupId, int page, int size) {
+    public PageResponse<InvitationResponse> getGroupInvitations(Long adminId, UUID groupId, int page, int size) {
         checkModeratorAccess(adminId, groupId);
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -373,13 +373,13 @@ public class GroupInvitationService {
     }
 
     @Transactional(readOnly = true)
-    public long countPendingInvitations(UUID userId) {
+    public long countPendingInvitations(Long userId) {
         return invitationRepository.countPendingInvitationsForUser(userId, LocalDateTime.now());
     }
 
     // ==================== PRIVATE HELPERS ====================
 
-    private void checkModeratorAccess(UUID userId, UUID groupId) {
+    private void checkModeratorAccess(Long userId, UUID groupId) {
         GroupMember member = memberRepository.findByGroupIdAndUserId(groupId, userId)
                 .orElseThrow(() -> new ForbiddenException("You are not a member of this group"));
 
@@ -437,7 +437,7 @@ public class GroupInvitationService {
     }
 
     // Section 7.1 - Feign error handling with fallback
-    private UserSummary fetchUserSummary(UUID userId) {
+    private UserSummary fetchUserSummary(Long userId) {
         try {
             return userServiceClient.getUserSummary(userId);
         } catch (Exception e) {

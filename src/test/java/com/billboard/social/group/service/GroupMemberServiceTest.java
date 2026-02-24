@@ -51,10 +51,10 @@ class GroupMemberServiceTest {
     private GroupMemberService memberService;
 
     // Test constants
-    private static final UUID USER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-    private static final UUID ADMIN_ID = UUID.fromString("22222222-2222-2222-2222-222222222222");
-    private static final UUID OWNER_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
-    private static final UUID TARGET_USER_ID = UUID.fromString("44444444-4444-4444-4444-444444444444");
+    private static final Long USER_ID = 1L;
+    private static final Long ADMIN_ID = 2L;
+    private static final Long OWNER_ID = 3L;
+    private static final Long TARGET_USER_ID = 4L;
     private static final UUID GROUP_ID = UUID.fromString("55555555-5555-5555-5555-555555555555");
     private static final UUID MEMBER_ID = UUID.fromString("66666666-6666-6666-6666-666666666666");
 
@@ -515,7 +515,7 @@ class GroupMemberServiceTest {
         @DisplayName("Success - returns admins and moderators")
         void getAdminsAndModerators_Success() {
             when(memberRepository.findModerators(GROUP_ID)).thenReturn(List.of(adminMember, moderatorMember));
-            when(userServiceClient.getUserSummary(any(UUID.class))).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(any(Long.class))).thenReturn(testUserSummary);
 
             List<GroupMemberResponse> response = memberService.getAdminsAndModerators(GROUP_ID);
 
@@ -544,7 +544,7 @@ class GroupMemberServiceTest {
         void getMemberIds_Success() {
             when(memberRepository.findMemberUserIds(GROUP_ID)).thenReturn(List.of(USER_ID, TARGET_USER_ID));
 
-            List<UUID> response = memberService.getMemberIds(GROUP_ID);
+            List<Long> response = memberService.getMemberIds(GROUP_ID);
 
             assertThat(response).hasSize(2);
         }
@@ -554,7 +554,7 @@ class GroupMemberServiceTest {
         void getMemberIds_Empty() {
             when(memberRepository.findMemberUserIds(GROUP_ID)).thenReturn(Collections.emptyList());
 
-            List<UUID> response = memberService.getMemberIds(GROUP_ID);
+            List<Long> response = memberService.getMemberIds(GROUP_ID);
 
             assertThat(response).isEmpty();
         }
@@ -1548,7 +1548,7 @@ class GroupMemberServiceTest {
         @Test
         @DisplayName("Not the owner - throws ForbiddenException")
         void transferOwnership_NotOwner() {
-            testGroup.setOwnerId(UUID.randomUUID()); // Different owner
+            testGroup.setOwnerId(10L); // Different owner
 
             when(groupRepository.findById(GROUP_ID)).thenReturn(Optional.of(testGroup));
 

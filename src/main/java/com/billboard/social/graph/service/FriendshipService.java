@@ -40,12 +40,12 @@ public class FriendshipService {
     private int maxFriends;
 
     @Transactional
-    public FriendshipResponse sendFriendRequest(UUID requesterId, FriendRequest request) {
+    public FriendshipResponse sendFriendRequest(Long requesterId, FriendRequest request) {
         if (request.getUserId() == null) {
             throw new ValidationException("User ID is required");
         }
 
-        UUID addresseeId = request.getUserId();
+        Long addresseeId = request.getUserId();
 
         if (requesterId.equals(addresseeId)) {
             throw new ValidationException("Cannot send friend request to yourself");
@@ -72,7 +72,7 @@ public class FriendshipService {
             throw new ValidationException("Maximum friends limit reached");
         }
 
-        List<UUID> mutualFriendIds = friendshipRepository.findMutualFriendIds(requesterId, addresseeId);
+        List<Long> mutualFriendIds = friendshipRepository.findMutualFriendIds(requesterId, addresseeId);
 
         Friendship friendship = Friendship.builder()
                 .requesterId(requesterId)
@@ -97,7 +97,7 @@ public class FriendshipService {
 
     @Transactional
     @CacheEvict(value = {"friends", "friendIds"}, allEntries = true)
-    public FriendshipResponse acceptFriendRequest(UUID userId, UUID friendshipId) {
+    public FriendshipResponse acceptFriendRequest(Long userId, UUID friendshipId) {
         Friendship friendship = findFriendshipOrThrow(friendshipId);
 
         if (!friendship.getAddresseeId().equals(userId)) {
@@ -119,7 +119,7 @@ public class FriendshipService {
 
     @Transactional
     @CacheEvict(value = {"friends", "friendIds"}, allEntries = true)
-    public void declineFriendRequest(UUID userId, UUID friendshipId) {
+    public void declineFriendRequest(Long userId, UUID friendshipId) {
         Friendship friendship = findFriendshipOrThrow(friendshipId);
 
         if (!friendship.getAddresseeId().equals(userId)) {
@@ -136,7 +136,7 @@ public class FriendshipService {
     }
 
     @Transactional
-    public void cancelFriendRequest(UUID userId, UUID friendshipId) {
+    public void cancelFriendRequest(Long userId, UUID friendshipId) {
         Friendship friendship = findFriendshipOrThrow(friendshipId);
 
         if (!friendship.getRequesterId().equals(userId)) {
@@ -154,7 +154,7 @@ public class FriendshipService {
 
     @Transactional
     @CacheEvict(value = {"friends", "friendIds"}, allEntries = true)
-    public void unfriend(UUID userId, UUID friendId) {
+    public void unfriend(Long userId, Long friendId) {
         Friendship friendship = friendshipRepository.findBetweenUsers(userId, friendId)
                 .orElseThrow(() -> new ValidationException("Friendship not found"));
 
@@ -171,7 +171,7 @@ public class FriendshipService {
 
     @Transactional(readOnly = true)
     @Cacheable(value = "friends", key = "#userId + '_' + #page + '_' + #size")
-    public PageResponse<FriendResponse> getFriends(UUID userId, int page, int size) {
+    public PageResponse<FriendResponse> getFriends(Long userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "acceptedAt"));
         log.info("Fetching friends for user {} - page: {}, size: {}", userId, page, size);
         Page<Friendship> friendships = friendshipRepository.findAcceptedFriendships(userId, pageRequest);
@@ -180,14 +180,14 @@ public class FriendshipService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<FriendshipResponse> getPendingRequests(UUID userId, int page, int size) {
+    public PageResponse<FriendshipResponse> getPendingRequests(Long userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Friendship> requests = friendshipRepository.findPendingRequests(userId, pageRequest);
         return PageResponse.from(requests, this::mapToFriendshipResponse);
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<FriendshipResponse> getSentRequests(UUID userId, int page, int size) {
+    public PageResponse<FriendshipResponse> getSentRequests(Long userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Friendship> requests = friendshipRepository.findSentRequests(userId, pageRequest);
         return PageResponse.from(requests, this::mapToFriendshipResponse);
@@ -195,22 +195,22 @@ public class FriendshipService {
 
     @Transactional(readOnly = true)
     @Cacheable(value = "friendIds", key = "#userId")
-    public List<UUID> getFriendIds(UUID userId) {
+    public List<Long> getFriendIds(Long userId) {
         return friendshipRepository.findFriendIds(userId);
     }
 
     @Transactional(readOnly = true)
-    public List<UUID> getMutualFriendIds(UUID userId1, UUID userId2) {
+    public List<Long> getMutualFriendIds(Long userId1, Long userId2) {
         return friendshipRepository.findMutualFriendIds(userId1, userId2);
     }
 
     @Transactional(readOnly = true)
-    public boolean areFriends(UUID userId1, UUID userId2) {
+    public boolean areFriends(Long userId1, Long userId2) {
         return friendshipRepository.areFriends(userId1, userId2);
     }
 
     @Transactional(readOnly = true)
-    public long getFriendsCount(UUID userId) {
+    public long getFriendsCount(Long userId) {
         return friendshipRepository.countFriends(userId);
     }
 
@@ -219,7 +219,7 @@ public class FriendshipService {
                 .orElseThrow(() -> new ValidationException("Friendship not found with id: " + friendshipId));
     }
 
-    private void validateUserExists(UUID userId) {
+    private void validateUserExists(Long userId) {
         try {
             UserSummary user = userServiceClient.getUserSummary(userId);
             if (user == null) {
@@ -253,8 +253,8 @@ public class FriendshipService {
                 .build();
     }
 
-    private FriendResponse mapToFriendResponse(Friendship friendship, UUID userId) {
-        UUID friendId = friendship.getRequesterId().equals(userId)
+    private FriendResponse mapToFriendResponse(Friendship friendship, Long userId) {
+        Long friendId = friendship.getRequesterId().equals(userId)
                 ? friendship.getAddresseeId()
                 : friendship.getRequesterId();
 
@@ -268,7 +268,7 @@ public class FriendshipService {
                 .build();
     }
 
-    private UserSummary fetchUserSummaryWithFallback(UUID userId) {
+    private UserSummary fetchUserSummaryWithFallback(Long userId) {
         try {
             UserSummary summary = userServiceClient.getUserSummary(userId);
             if (summary != null) {

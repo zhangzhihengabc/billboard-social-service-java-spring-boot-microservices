@@ -71,7 +71,7 @@ public class GroupController {
                     example = "550e8400-e29b-41d4-a716-446655440000",
                     schema = @Schema(type = "string", format = "uuid"))
             @PathVariable UUID groupId) {
-        UUID userId = principal != null ? principal.getId() : null;
+        Long userId = principal != null ? principal.getId() : null;
         GroupResponse response = groupService.getGroup(groupId, userId);
         return ResponseEntity.ok(response);
     }
@@ -92,7 +92,7 @@ public class GroupController {
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal,
             @Parameter(description = "Slug of the group", required = true, example = "my-awesome-group")
             @PathVariable @Size(min = 1, max = 200) String slug) {
-        UUID userId = principal != null ? principal.getId() : null;
+        Long userId = principal != null ? principal.getId() : null;
         GroupResponse response = groupService.getGroupBySlug(slug, userId);
         return ResponseEntity.ok(response);
     }

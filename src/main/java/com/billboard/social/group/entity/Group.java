@@ -44,7 +44,7 @@ public class Group extends BaseEntity {
     private GroupType groupType = GroupType.PUBLIC;
 
     @Column(name = "owner_id", nullable = false)
-    private UUID ownerId;
+    private Long ownerId;
 
     @Column(name = "category_id")
     private UUID categoryId;

@@ -30,7 +30,7 @@ public class EventTicket extends BaseEntity {
     private Event event;
 
     @Column(name = "user_id", nullable = false)
-    private UUID userId;
+    private Long userId;
 
     @Column(name = "ticket_code", nullable = false, unique = true, length = 50)
     private String ticketCode;

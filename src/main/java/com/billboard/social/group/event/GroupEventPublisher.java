@@ -66,7 +66,7 @@ public class GroupEventPublisher {
         publish("group.join_request.created", event);
     }
 
-    public void publishMemberLeft(Group group, UUID userId) {
+    public void publishMemberLeft(Group group, Long userId) {
         Map<String, Object> event = createBaseEvent("group.member.left");
         event.put("groupId", group.getId());
         event.put("userId", userId);
@@ -77,7 +77,7 @@ public class GroupEventPublisher {
         publishMemberLeft(member.getGroup(), member.getUserId());
     }
 
-    public void publishMemberRemoved(Group group, UUID userId, UUID removedBy) {
+    public void publishMemberRemoved(Group group, Long userId, Long removedBy) {
         Map<String, Object> event = createBaseEvent("group.member.removed");
         event.put("groupId", group.getId());
         event.put("userId", userId);
@@ -85,7 +85,7 @@ public class GroupEventPublisher {
         publish("group.member.removed", event);
     }
 
-    public void publishMemberRemoved(GroupMember member, UUID removedBy) {
+    public void publishMemberRemoved(GroupMember member, Long removedBy) {
         publishMemberRemoved(member.getGroup(), member.getUserId(), removedBy);
     }
 
@@ -97,7 +97,7 @@ public class GroupEventPublisher {
         publish("group.member.approved", event);
     }
 
-    public void publishMemberBanned(GroupMember member, UUID bannedBy, String reason) {
+    public void publishMemberBanned(GroupMember member, Long bannedBy, String reason) {
         Map<String, Object> event = createBaseEvent("group.member.banned");
         event.put("groupId", member.getGroup().getId());
         event.put("userId", member.getUserId());

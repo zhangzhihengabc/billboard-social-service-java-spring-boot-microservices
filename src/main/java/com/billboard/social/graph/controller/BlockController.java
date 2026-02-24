@@ -67,7 +67,7 @@ public class BlockController {
             @Parameter(description = "ID of the user to unblock", required = true,
                     example = "550e8400-e29b-41d4-a716-446655440000",
                     schema = @Schema(type = "string", format = "uuid"))
-            @PathVariable UUID userId) {
+            @PathVariable Long userId) {
         blockService.unblockUser(principal.getId(), userId);
         return ResponseEntity.noContent().build();
     }
@@ -101,9 +101,9 @@ public class BlockController {
             @ApiResponse(responseCode = "401", description = "Unauthorized - Missing or invalid JWT token",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<List<UUID>> getBlockedUserIds(
+    public ResponseEntity<List<Long>> getBlockedUserIds(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {
-        List<UUID> ids = blockService.getBlockedUserIds(principal.getId());
+        List<Long> ids = blockService.getBlockedUserIds(principal.getId());
         return ResponseEntity.ok(ids);
     }
 
@@ -121,7 +121,7 @@ public class BlockController {
             @Parameter(description = "ID of the user to check", required = true,
                     example = "550e8400-e29b-41d4-a716-446655440000",
                     schema = @Schema(type = "string", format = "uuid"))
-            @PathVariable UUID userId) {
+            @PathVariable Long userId) {
         boolean isBlocked = blockService.isBlocked(principal.getId(), userId);
         return ResponseEntity.ok(isBlocked);
     }

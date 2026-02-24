@@ -18,15 +18,15 @@ import java.util.UUID;
 @Repository
 public interface GroupMemberRepository extends JpaRepository<GroupMember, UUID> {
 
-    Optional<GroupMember> findByGroupIdAndUserId(UUID groupId, UUID userId);
+    Optional<GroupMember> findByGroupIdAndUserId(UUID groupId, Long userId);
 
-    boolean existsByGroupIdAndUserId(UUID groupId, UUID userId);
+    boolean existsByGroupIdAndUserId(UUID groupId, Long userId);
 
     @Modifying
     @Query("DELETE FROM GroupMember m WHERE m.group.id = :groupId")
     void deleteByGroupId(@Param("groupId") UUID groupId);
 
-    boolean existsByGroupIdAndUserIdAndStatus(UUID groupId, UUID userId, MemberStatus status);
+    boolean existsByGroupIdAndUserIdAndStatus(UUID groupId, Long userId, MemberStatus status);
 
     Page<GroupMember> findByGroupIdAndStatus(UUID groupId, MemberStatus status, Pageable pageable);
 
@@ -45,7 +45,7 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, UUID> 
     List<GroupMember> findModerators(@Param("groupId") UUID groupId);
 
     @Query("SELECT m.userId FROM GroupMember m WHERE m.group.id = :groupId AND m.status = 'APPROVED'")
-    List<UUID> findMemberUserIds(@Param("groupId") UUID groupId);
+    List<Long> findMemberUserIds(@Param("groupId") UUID groupId);
 
     @Query("SELECT COUNT(m) FROM GroupMember m WHERE m.group.id = :groupId AND m.status = 'APPROVED'")
     long countApprovedMembers(@Param("groupId") UUID groupId);
@@ -66,10 +66,10 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, UUID> 
     long countModerators(@Param("groupId") UUID groupId);
 
     @Query("SELECT m FROM GroupMember m WHERE m.userId = :userId AND m.status = 'APPROVED'")
-    Page<GroupMember> findMembershipsByUser(@Param("userId") UUID userId, Pageable pageable);
+    Page<GroupMember> findMembershipsByUser(@Param("userId") Long userId, Pageable pageable);
 
     @Query("SELECT m FROM GroupMember m WHERE m.userId = :userId AND m.role IN ('ADMIN', 'OWNER')")
-    List<GroupMember> findAdminMembershipsByUser(@Param("userId") UUID userId);
+    List<GroupMember> findAdminMembershipsByUser(@Param("userId") Long userId);
 
-    void deleteByGroupIdAndUserId(UUID groupId, UUID userId);
+    void deleteByGroupIdAndUserId(UUID groupId, Long userId);
 }
