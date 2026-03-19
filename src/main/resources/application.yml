@@ -9,7 +9,7 @@ spring:
     time-zone: UTC
     date-format: "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
   application:
-    name: social-service
+    name: billboard-social-service
   datasource:
     url: jdbc:postgresql://localhost:5432/billboard_social
     username: ${DB_USERNAME:postgres}
