@@ -19,8 +19,8 @@ spring:
     name: billboard-social-service
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/billboard_social}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:password}
+    username: ${DB_USERNAME:billboard_user}
+    password: ${DB_PASSWORD:BillboardPine2026!}
     hikari:
       maximum-pool-size: 20
       minimum-idle: 5
