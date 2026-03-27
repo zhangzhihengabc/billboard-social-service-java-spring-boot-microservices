@@ -1,7 +1,13 @@
 server:
   port: 8082
 
+esports:
+  backend:
+    url: ${ESPORTS_BACKEND_URL:http://localhost:8084}
+
 spring:
+  config:
+    import: optional:configserver:${CONFIG_SERVER_URI:http://localhost:8888}
   jackson:
     # Format dates in ISO 8601 with timezone
     serialization:
@@ -11,9 +17,9 @@ spring:
   application:
     name: billboard-social-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/billboard_social
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/billboard_social}
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:root}
+    password: ${DB_PASSWORD:password}
     hikari:
       maximum-pool-size: 20
       minimum-idle: 5
@@ -28,11 +34,6 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
-  rabbitmq:
-    host: ${RABBITMQ_HOST:localhost}
-    port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USERNAME:guest}
-    password: ${RABBITMQ_PASSWORD:guest}
   data:
     redis:
       host: ${REDIS_HOST:localhost}
