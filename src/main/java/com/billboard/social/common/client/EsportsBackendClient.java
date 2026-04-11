@@ -8,6 +8,9 @@ import com.billboard.social.common.dto.TeamSummaryDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 @FeignClient(name = "esports-backend",
         url = "${esports.backend.url}",
@@ -58,4 +61,16 @@ public interface EsportsBackendClient {
      */
     @GetMapping("/api/statistics/players/{playerId}")
     PlayerStatisticsDto getPlayerStatistics(@PathVariable("playerId") Long playerId);
+
+    /**
+     * Friends-finder: search players by region/skill (esports-backend).
+     * Set {@code esports.backend.url} to include context path if the API is under one (e.g. {@code /egame}).
+     */
+    @GetMapping("/api/players/search/criteria")
+    List<PlayerDto> searchPlayersByCriteria(
+            @RequestParam(value = "region", required = false) String region,
+            @RequestParam(value = "minSkillLevel", required = false) Integer minSkillLevel,
+            @RequestParam(value = "maxSkillLevel", required = false) Integer maxSkillLevel,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "20") int size);
 }

@@ -7,6 +7,10 @@ esports:
 
 
 spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP:billboard-social-service}
   config:
     import: optional:configserver:${CONFIG_SERVER_URI:http://localhost:8888}
   jackson:
@@ -56,6 +60,12 @@ jwt:
   expiration: 86400000
 
 app:
+  kafka:
+    topic: ${APP_KAFKA_TOPIC:social-events}
+  friends-finder:
+    suggestion-cron: ${FRIENDS_FINDER_SUGGESTION_CRON:0 0 3 * * *}
+    suggestion-lookback-days: ${FRIENDS_FINDER_LOOKBACK_DAYS:30}
+    suggestion-purge-days: ${FRIENDS_FINDER_PURGE_DAYS:60}
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:3000,http://localhost:8080}
   rabbitmq:
