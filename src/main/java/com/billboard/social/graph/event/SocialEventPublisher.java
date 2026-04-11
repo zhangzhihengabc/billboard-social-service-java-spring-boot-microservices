@@ -3,8 +3,8 @@ package com.billboard.social.graph.event;
 import com.billboard.social.graph.entity.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -17,10 +17,10 @@ import java.util.UUID;
 @Slf4j
 public class SocialEventPublisher {
 
-    private final RabbitTemplate rabbitTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Value("${app.rabbitmq.exchange:social-events}")
-    private String exchange;
+    @Value("${app.kafka.topic:social-events}")
+    private String topic;
 
     // Follow events
     public void publishFollowed(Follow follow) {
@@ -155,9 +155,9 @@ public class SocialEventPublisher {
         return event;
     }
 
-    private void publish(String routingKey, Map<String, Object> event) {
+    public void publish(String routingKey, Map<String, Object> event) {
         try {
-            rabbitTemplate.convertAndSend(exchange, routingKey, event);
+            kafkaTemplate.send(topic, routingKey, event);
             log.debug("Published event: {} with routing key: {}", event.get("eventType"), routingKey);
         } catch (Exception e) {
             log.error("Failed to publish event: {} - {}", event.get("eventType"), e.getMessage());

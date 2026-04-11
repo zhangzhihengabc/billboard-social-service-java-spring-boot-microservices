@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -45,5 +46,12 @@ public class EsportsBackendClientFallback implements EsportsBackendClient {
         // Return null — rank gate will be skipped (soft gate behaviour)
         log.warn("EsportsBackendClient fallback: getPlayerStatistics for player={}", playerId);
         return null;
+    }
+
+    @Override
+    public List<PlayerDto> searchPlayersByCriteria(String region, Integer minSkillLevel,
+                                                     Integer maxSkillLevel, int page, int size) {
+        log.warn("EsportsBackendClient fallback: searchPlayersByCriteria region={} page={}", region, page);
+        return Collections.emptyList();
     }
 }
