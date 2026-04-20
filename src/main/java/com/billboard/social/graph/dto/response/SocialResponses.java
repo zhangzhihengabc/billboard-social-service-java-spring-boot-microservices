@@ -300,6 +300,23 @@ public class SocialResponses {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @Schema(description = "Friend presence response")
+    public static class FriendPresenceResponse {
+
+        @Schema(description = "Friend's user ID", example = "2")
+        private Long userId;
+
+        @Schema(description = "Friend's username", example = "johndoe")
+        private String username;
+
+        @Schema(description = "Whether the friend is currently online", example = "true")
+        private boolean online;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Schema(description = "Poke response")
     public static class PokeResponse {
         @Schema(description = "Poke ID", example = "550e8400-e29b-41d4-a716-446655440000")
