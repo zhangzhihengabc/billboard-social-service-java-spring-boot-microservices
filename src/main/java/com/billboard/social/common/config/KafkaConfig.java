@@ -55,6 +55,11 @@ public class KafkaConfig {
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
                 "org.springframework.kafka.support.serializer.JsonSerializer");
+
+        config.put(ProducerConfig.ACKS_CONFIG, "all");
+        config.put(ProducerConfig.RETRIES_CONFIG, 3);
+        config.put(ProducerConfig.LINGER_MS_CONFIG, 1);
+
         return new DefaultKafkaProducerFactory<>(config);
     }
 
