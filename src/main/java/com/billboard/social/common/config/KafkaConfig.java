@@ -1,5 +1,4 @@
 package com.billboard.social.common.config;
-
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -16,7 +15,6 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +29,13 @@ public class KafkaConfig {
 
     @Value("${spring.kafka.consumer.group-id:billboard-social-service}")
     private String consumerGroupId;
+
+    // SASL Authentication
+    @Value("${KAFKA_USERNAME:admin}")
+    private String kafkaUsername;
+
+    @Value("${KAFKA_PASSWORD:}")
+    private String kafkaPassword;
 
     @Bean
     public NewTopic socialEventsTopic() {
@@ -48,10 +53,25 @@ public class KafkaConfig {
                 .build();
     }
 
-    @Bean
-    public ProducerFactory<String, Object> producerFactory() {
+    private Map<String, Object> getCommonConfig() {
         Map<String, Object> config = new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        
+        // Add SASL authentication if password is provided
+        if (kafkaPassword != null && !kafkaPassword.isEmpty()) {
+            config.put("security.protocol", "SASL_PLAINTEXT");
+            config.put("sasl.mechanism", "PLAIN");
+            config.put("sasl.jaas.config",
+                String.format("org.apache.kafka.common.security.plain.PlainLoginModule required username=\"%s\" password=\"%s\";",
+                    kafkaUsername, kafkaPassword));
+        }
+        
+        return config;
+    }
+
+    @Bean
+    public ProducerFactory<String, Object> producerFactory() {
+        Map<String, Object> config = getCommonConfig();
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
                 "org.springframework.kafka.support.serializer.JsonSerializer");
@@ -70,8 +90,7 @@ public class KafkaConfig {
 
     @Bean
     public ConsumerFactory<String, Object> consumerFactory() {
-        Map<String, Object> config = new HashMap<>();
-        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        Map<String, Object> config = getCommonConfig();
         config.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
         config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
