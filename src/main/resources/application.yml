@@ -3,6 +3,7 @@ server:
   servlet:
     context-path: /social
 
+
 esports:
   backend:
     url: ${ESPORTS_BACKEND_URL:http://localhost:8084}
