@@ -28,7 +28,7 @@ import org.springframework.context.annotation.Configuration;
         ),
         servers = {
                 @Server(url = "http://localhost:8082", description = "Local Development Server"),
-                @Server(url = "https://api.billboard.com/social", description = "Production Server")
+                @Server(url = "https://apigateway.pineapps.online/social", description = "Production Server")
         }
 )
 @SecurityScheme(
