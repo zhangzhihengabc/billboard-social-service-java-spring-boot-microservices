@@ -77,4 +77,9 @@ public interface EventRsvpRepository extends JpaRepository<EventRsvp, UUID> {
 
     @Query("SELECT r FROM EventRsvp r WHERE r.userId = :userId")
     Page<EventRsvp> findByUserId(@Param("userId") UUID userId, Pageable pageable);
+
+    @Query("SELECT r.userId FROM EventRsvp r WHERE r.event.id = :eventId AND r.status = 'INVITED'")
+    List<Long> findInvitedUserIds(@Param("eventId") UUID eventId);
+
+    List<EventRsvp> findByEventIdAndUserIdIn(UUID eventId, List<Long> userIds);
 }

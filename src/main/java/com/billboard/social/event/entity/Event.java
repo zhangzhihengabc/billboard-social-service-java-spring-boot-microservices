@@ -51,6 +51,9 @@ public class Event extends BaseEntity {
     @Column(name = "category_id")
     private UUID categoryId;
 
+    @Column(name = "organisation_id")
+    private Long organisationId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "event_type", nullable = false, length = 20)
     @Builder.Default

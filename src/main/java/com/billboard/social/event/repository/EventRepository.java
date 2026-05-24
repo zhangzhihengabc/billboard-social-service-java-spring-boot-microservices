@@ -67,4 +67,11 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     long countByHostId(Long hostId);
 
     long countByCategoryId(UUID categoryId);
+
+    @Query("SELECT e FROM Event e WHERE e.organisationId = :orgId " +
+           "AND e.startTime >= :start AND e.startTime <= :end ORDER BY e.startTime ASC")
+    List<Event> findByOrganisationIdAndDateRange(
+            @Param("orgId") Long orgId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
 }
