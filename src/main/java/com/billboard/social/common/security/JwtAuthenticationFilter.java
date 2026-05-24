@@ -146,7 +146,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getRequestURI();
+        // Use getServletPath() instead of getRequestURI() so that the context-path
+        // prefix (/social) is already stripped. This ensures swagger/actuator paths
+        // are correctly identified regardless of the context-path value.
+        String path = request.getServletPath();
         // Skip filter for public endpoints
         return path.startsWith("/swagger-ui") ||
                 path.startsWith("/v3/api-docs") ||
