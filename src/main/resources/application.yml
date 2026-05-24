@@ -81,7 +81,7 @@ jwt:
   # Since jwt.secret is a custom property (not spring.* namespace), Spring Boot does NOT auto-bind
   # SECURITY_JWT_SECRET to it. Without this fix, the service uses the hardcoded dev secret
   # and ALL JWT validation breaks in production.
-  secret: ${SECURITY_JWT_SECRET:${JWT_SECRET:mySecretKeyForDevelopmentOnlyDoNotUseInProduction1234567890}}
+  secret: "mySecretKeyForDevelopmentOnlyDoNotUseInProduction1234567890"
   expiration: 86400000
 
 app:
