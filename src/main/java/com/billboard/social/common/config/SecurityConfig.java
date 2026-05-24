@@ -2,8 +2,10 @@ package com.billboard.social.common.config;
 
 import com.billboard.social.common.security.CustomAccessDeniedHandler;
 import com.billboard.social.common.security.CustomAuthenticationEntryPoint;
+import com.billboard.social.common.security.InternalApiKeyFilter;
 import com.billboard.social.common.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -28,6 +30,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final InternalApiKeyFilter internalApiKeyFilter;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
@@ -42,8 +45,20 @@ public class SecurityConfig {
             // Actuator
             "/actuator/**",
             "/actuator/health",
-            "/actuator/info"
+            "/actuator/info",
+            // Internal S2S — auth handled by InternalApiKeyFilter
+            "/api/v1/internal/**"
     };
+
+    // Prevent Spring Boot from double-registering InternalApiKeyFilter as a servlet filter.
+    // It is managed exclusively inside the Spring Security filter chain.
+    @Bean
+    public FilterRegistrationBean<InternalApiKeyFilter> internalApiKeyFilterRegistration(
+            InternalApiKeyFilter filter) {
+        FilterRegistrationBean<InternalApiKeyFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -62,6 +77,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // All other endpoints require authentication
                         .anyRequest().authenticated())
+                .addFilterBefore(internalApiKeyFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

@@ -13,6 +13,83 @@ import java.util.UUID;
 
 public class EventRequests {
 
+    // ==================== INTERNAL / S2S REQUESTS ====================
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class InternalCreateEventRequest {
+        @NotBlank(message = "Title is required")
+        @Size(min = 3, max = 200, message = "Title must be between 3 and 200 characters")
+        private String title;
+
+        @Size(max = 10000, message = "Description cannot exceed 10000 characters")
+        private String description;
+
+        @NotNull(message = "organisationId is required")
+        @jakarta.validation.constraints.Positive(message = "organisationId must be positive")
+        private Long organisationId;
+
+        @NotNull(message = "hostId is required")
+        @jakarta.validation.constraints.Positive(message = "hostId must be positive")
+        private Long hostId;
+
+        private UUID groupId;
+        private UUID categoryId;
+        private com.billboard.social.event.entity.enums.EventType eventType;
+        private com.billboard.social.event.entity.enums.EventVisibility visibility;
+        private String coverImageUrl;
+
+        @NotNull(message = "Start time is required")
+        private LocalDateTime startTime;
+        private LocalDateTime endTime;
+        private String timezone;
+        private Boolean isAllDay;
+
+        private String venueName;
+        private String address;
+        private String city;
+        private String country;
+        private Double latitude;
+        private Double longitude;
+        private String onlineUrl;
+        private String onlinePlatform;
+
+        @Min(value = 1, message = "Maximum attendees must be at least 1")
+        private Integer maxAttendees;
+        private Boolean isTicketed;
+        @DecimalMin(value = "0.00", message = "Ticket price cannot be negative")
+        private java.math.BigDecimal ticketPrice;
+        private String ticketCurrency;
+
+        private Boolean allowGuests;
+        @Min(value = 0) @Max(value = 10)
+        private Integer guestsPerRsvp;
+        private Boolean showGuestList;
+        private Boolean allowComments;
+        private Boolean requireApproval;
+
+        private com.billboard.social.event.entity.enums.EventStatus status;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class BulkRsvpRequest {
+        @NotEmpty(message = "At least one user ID is required")
+        @Size(max = 1000, message = "Cannot bulk RSVP more than 1000 users at once")
+        private java.util.List<Long> userIds;
+
+        @NotNull(message = "Status is required")
+        private com.billboard.social.event.entity.enums.RsvpStatus status;
+
+        @NotNull(message = "organisationId is required")
+        @jakarta.validation.constraints.Positive(message = "organisationId must be positive")
+        private Long organisationId;
+    }
+
     @Data
     @Builder
     @NoArgsConstructor

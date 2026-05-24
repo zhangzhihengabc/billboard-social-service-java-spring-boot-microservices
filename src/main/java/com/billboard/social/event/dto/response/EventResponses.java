@@ -243,6 +243,15 @@ public class EventResponses {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class BulkRsvpResult {
+        private int created;
+        private int alreadyExists;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class CategoryResponse {
         private UUID id;
         private String name;

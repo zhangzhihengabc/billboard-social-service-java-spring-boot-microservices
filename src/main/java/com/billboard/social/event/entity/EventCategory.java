@@ -47,4 +47,7 @@ public class EventCategory extends BaseEntity {
     @Column(name = "is_active")
     @Builder.Default
     private Boolean isActive = true;
+
+    @Column(name = "organisation_id")
+    private Long organisationId;
 }
