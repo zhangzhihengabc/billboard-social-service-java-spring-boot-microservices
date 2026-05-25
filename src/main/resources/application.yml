@@ -1,139 +1,20 @@
-server:
-  port: 8082
-  servlet:
-    context-path: /social
-
-
-esports:
-  backend:
-    url: ${ESPORTS_BACKEND_URL:http://localhost:8084}
-
-
 spring:
-  kafka:
-    # CHANGED: Docker env on .167 sets SPRING_KAFKA_BOOTSTRAP_SERVERS but code was reading KAFKA_BOOTSTRAP_SERVERS.
-    # The explicit ${KAFKA_BOOTSTRAP_SERVERS:...} placeholder was overriding Spring Boot's auto-binding,
-    # causing fallback to localhost:9092. Nested fallback accepts both env var names.
-    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}}
-    consumer:
-      group-id: ${KAFKA_CONSUMER_GROUP:billboard-social-service}
-  config:
-    import: optional:configserver:${CONFIG_SERVER_URI:http://localhost:8888}
-  jackson:
-    # Format dates in ISO 8601 with timezone
-    serialization:
-      write-dates-as-timestamps: false
-    time-zone: UTC
-    date-format: "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
   application:
     name: billboard-social-service
-  datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/billboard_social}
-    # CHANGED: Docker env on .167 sets SPRING_DATASOURCE_USERNAME / SPRING_DATASOURCE_PASSWORD.
-    # Spring auto-binding does handle these, but the explicit ${DB_USERNAME} placeholder was taking
-    # priority and masking the Docker env. Nested fallback makes precedence explicit and avoids confusion.
-    username: ${SPRING_DATASOURCE_USERNAME:${DB_USERNAME:billboard_user}}
-    password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD:BillboardPine2026!}}
-    hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-    show-sql: false
-  flyway:
-    enabled: true
-    locations: classpath:db/migration
-  data:
-    redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:8tJSGqZ1g9raKtH2g31xqD2rSlFAchRV}
-  cache:
-    type: redis
-    redis:
-      time-to-live: 3600000
 
-eureka:
-  client:
-    service-url:
-      # CHANGED: Docker env on .167 sets EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE but code was reading EUREKA_URI.
-      # Service was falling back to localhost:8761 and failing to register with Eureka on .102.
-      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:${EUREKA_URI:http://localhost:8761/eureka}}
-    # ADDED: Explicit registration flags (were relying on defaults before — now self-documenting).
-    register-with-eureka: true
-    fetch-registry: true
-  instance:
-    prefer-ip-address: true
-    # ADDED: Unique instance-id prevents stale registrations after container restart.
-    # Without this, Eureka can show ghost instances for up to 90s after a redeploy.
-    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-    # ADDED: Heartbeat every 30s, expire after 90s of silence.
-    # Matches the integration document and Eureka best practices for Docker deployments.
-    lease-renewal-interval-in-seconds: 30
-    lease-expiration-duration-in-seconds: 90
+  config:
+    import: "configserver:${CONFIG_SERVER_URL:https://configurationcentral.pineapps.online}"
 
-jwt:
-  # CHANGED: Docker env on .167 sets SECURITY_JWT_SECRET but code was reading JWT_SECRET.
-  # Since jwt.secret is a custom property (not spring.* namespace), Spring Boot does NOT auto-bind
-  # SECURITY_JWT_SECRET to it. Without this fix, the service uses the hardcoded dev secret
-  # and ALL JWT validation breaks in production.
-  secret: "mySecretKeyForDevelopmentOnlyDoNotUseInProduction1234567890"
-  expiration: 86400000
-
-app:
-  internal:
-    api-key: ${INTERNAL_API_KEY:internal-service-key-dev-only}
-  kafka:
-    topic: ${APP_KAFKA_TOPIC:social-events}
-  friends-finder:
-    suggestion-cron: ${FRIENDS_FINDER_SUGGESTION_CRON:0 0 3 * * *}
-    suggestion-lookback-days: ${FRIENDS_FINDER_LOOKBACK_DAYS:30}
-    suggestion-purge-days: ${FRIENDS_FINDER_PURGE_DAYS:60}
-  cors:
-    allowed-origins: ${CORS_ORIGINS:http://localhost:3000,http://localhost:8080}
-  rabbitmq:
-    exchange: social-events
-  mail:
-    from: ${MAIL_FROM:uditmehta100@gmail.com}
-  base-url: ${APP_BASE_URL:http://localhost:3000}
-  group:
-    invitation:
-      default-expiration-days: 7
-      max-pending-per-user: 100
-
-management:
-  health:
-    redis:
-      enabled: false
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics
-  endpoint:
-    health:
-      show-details: always
-
-logging:
-  level:
-    com.billboard.social: DEBUG
-    org.springframework.security: INFO
-
-# Merged service domains
-social:
-  graph:
-    max-friends: 5000
-    max-followers: 100000
-    max-blocks: 1000
-  group:
-    max-members: 50000
-    max-admins: 100
-    max-user-groups: 500
-  event:
-    max-attendees: 10000
-    max-user-events: 100
-    reminder-hours-before: 24
+  cloud:
+    config:
+      uri: "${CONFIG_SERVER_URL:https://configurationcentral.pineapps.online}"
+      username: "${CONFIG_USER_NAME:configuser}"
+      password: "${CONFIG_PASSWORD:configpassword}"
+      fail-fast: true
+      retry:
+        initial-interval: 1000
+        max-attempts: 6
+        max-interval: 2000
+        multiplier: 1.1
+    bus:
+      enabled: true
