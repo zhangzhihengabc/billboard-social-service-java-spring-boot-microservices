@@ -37,6 +37,9 @@ public class EventRsvp extends BaseEntity {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @Column(name = "organisation_id")
+    private Long organisationId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     @Builder.Default

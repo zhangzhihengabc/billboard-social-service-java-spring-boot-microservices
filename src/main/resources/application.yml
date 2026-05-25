@@ -86,6 +86,8 @@ jwt:
   expiration: 86400000
 
 app:
+  internal:
+    api-key: ${INTERNAL_API_KEY:internal-service-key-dev-only}
   kafka:
     topic: ${APP_KAFKA_TOPIC:social-events}
   friends-finder:
