@@ -52,6 +52,7 @@ spring:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:8tJSGqZ1g9raKtH2g31xqD2rSlFAchRV}
   cache:
     type: redis
     redis:
@@ -104,6 +105,9 @@ app:
       max-pending-per-user: 100
 
 management:
+  health:
+    redis:
+      enabled: false
   endpoints:
     web:
       exposure:
