@@ -3,11 +3,15 @@ spring:
     name: billboard-social-service
 
   config:
-    import: "configserver:${CONFIG_SERVER_URL:https://configurationcentral.pineapps.online}"
+    import: "optional:configserver:http://103.95.132.167:8888"
+
+  data:
+    redis:
+      password: 8tJSGqZ1g9raKtH2g31xqD2rSlFAchRV
 
   cloud:
     config:
-      uri: "${CONFIG_SERVER_URL:https://configurationcentral.pineapps.online}"
+      uri: "http://103.95.132.167:8888"
       username: "${CONFIG_USER_NAME:configuser}"
       password: "${CONFIG_PASSWORD:configpassword}"
       fail-fast: true
@@ -18,3 +22,8 @@ spring:
         multiplier: 1.1
     bus:
       enabled: true
+
+management:
+  health:
+    rabbit:
+      enabled: false
