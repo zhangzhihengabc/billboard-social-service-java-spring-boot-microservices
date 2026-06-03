@@ -106,4 +106,25 @@ public interface FollowRepository extends JpaRepository<Follow, UUID> {
             "WHERE f1.followerId = :userId " +
             "AND EXISTS (SELECT 1 FROM Follow f2 WHERE f2.followerId = f1.followingId AND f2.followingId = :userId)")
     List<UUID> findMutualFollows(@Param("userId") Long userId);
+
+    // ==================== SUGGESTED USERS — POPULAR FALLBACK ====================
+
+    /**
+     * Added for Suggested Users feature (cold-start fallback).
+     *
+     * Find the most-followed user IDs on the platform, excluding a given set of user IDs.
+     * Used when a new user has no friends — we suggest popular accounts instead.
+     */
+    @Query(value = """
+            SELECT f.following_id AS user_id, COUNT(*) AS follower_count
+            FROM follows f
+            WHERE f.deleted_at IS NULL
+              AND f.following_id NOT IN (:excludedIds)
+            GROUP BY f.following_id
+            ORDER BY follower_count DESC
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<Object[]> findMostFollowedUserIds(
+            @Param("excludedIds") List<Long> excludedIds,
+            @Param("limit") int limit);
 }
