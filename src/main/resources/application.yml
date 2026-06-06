@@ -1,7 +1,7 @@
 server:
-  port: 8082
+  port: "${SERVER_PORT:8082}"
   servlet:
-    context-path: /social
+    context-path: "${SERVER_CONTEXT_PATH:/social}"
 
 
 esports:
@@ -11,14 +11,22 @@ esports:
 
 spring:
   kafka:
-    # CHANGED: Docker env on .167 sets SPRING_KAFKA_BOOTSTRAP_SERVERS but code was reading KAFKA_BOOTSTRAP_SERVERS.
-    # The explicit ${KAFKA_BOOTSTRAP_SERVERS:...} placeholder was overriding Spring Boot's auto-binding,
-    # causing fallback to localhost:9092. Nested fallback accepts both env var names.
-    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}}
+    # Production broker requires SASL_PLAINTEXT (matches SchoolERP). Override broker via KAFKA_BOOTSTRAP_SERVERS.
+    bootstrap-servers: "${KAFKA_BOOTSTRAP_SERVERS:103.95.132.102:9092}"
+    properties:
+      security.protocol: SASL_PLAINTEXT
+      sasl.mechanism: PLAIN
+      sasl.jaas.config: >-
+        org.apache.kafka.common.security.plain.PlainLoginModule required
+        username="${KAFKA_USERNAME:admin}"
+        password="${KAFKA_PASSWORD:changeme}";
     consumer:
       group-id: ${KAFKA_CONSUMER_GROUP:billboard-social-service}
   config:
     import: optional:configserver:${CONFIG_SERVER_URI:http://localhost:8888}
+  cloud:
+    bus:
+      enabled: true
   jackson:
     # Format dates in ISO 8601 with timezone
     serialization:
@@ -60,9 +68,8 @@ spring:
 eureka:
   client:
     service-url:
-      # CHANGED: Docker env on .167 sets EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE but code was reading EUREKA_URI.
-      # Service was falling back to localhost:8761 and failing to register with Eureka on .102.
-      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:${EUREKA_URI:http://localhost:8761/eureka}}
+      # Defaults to the production Eureka (matches SchoolERP). Override via EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE.
+      defaultZone: "${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:https://eurekauser:EurekaPass2026!@eureka.pineapps.online/eureka/}"
     # ADDED: Explicit registration flags (were relying on defaults before — now self-documenting).
     register-with-eureka: true
     fetch-registry: true
@@ -77,11 +84,8 @@ eureka:
     lease-expiration-duration-in-seconds: 90
 
 jwt:
-  # CHANGED: Docker env on .167 sets SECURITY_JWT_SECRET but code was reading JWT_SECRET.
-  # Since jwt.secret is a custom property (not spring.* namespace), Spring Boot does NOT auto-bind
-  # SECURITY_JWT_SECRET to it. Without this fix, the service uses the hardcoded dev secret
-  # and ALL JWT validation breaks in production.
-  secret: "mySecretKeyForDevelopmentOnlyDoNotUseInProduction1234567890"
+  # Externalized via JWT_SECRET. Dev default kept for local development only — override in production.
+  secret: "${JWT_SECRET:mySecretKeyForDevelopmentOnlyDoNotUseInProduction1234567890}"
   expiration: 86400000
 
 app:
@@ -109,7 +113,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: health,info,metrics,busrefresh,refresh
   endpoint:
     health:
       show-details: always
