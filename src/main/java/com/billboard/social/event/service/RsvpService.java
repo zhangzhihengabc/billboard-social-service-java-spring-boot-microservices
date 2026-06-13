@@ -5,6 +5,7 @@ import com.billboard.social.common.dto.UserSummary;
 import com.billboard.social.common.exception.ForbiddenException;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.common.client.UserServiceClient;
+import com.billboard.social.common.client.UserSummaryResolver;
 import com.billboard.social.common.security.InputValidator;
 import com.billboard.social.event.dto.request.EventRequests.*;
 import com.billboard.social.event.dto.response.EventResponses;
@@ -35,6 +36,7 @@ public class RsvpService {
     private final EventRsvpRepository rsvpRepository;
     private final EventCoHostRepository coHostRepository;
     private final UserServiceClient userServiceClient;
+    private final UserSummaryResolver userSummaryResolver;
     private final EventEventPublisher eventPublisher;
 
     // ==================== RSVP ACTIONS ====================
@@ -423,7 +425,7 @@ public class RsvpService {
                 .respondedAt(rsvp.getRespondedAt())
                 .checkedInAt(rsvp.getCheckedInAt())
                 .notificationsEnabled(rsvp.getNotificationsEnabled())
-                .user(fetchUserSummary(rsvp.getUserId()))
+                .user(userSummaryResolver.resolveForDisplay(rsvp.getUserId()))
                 .build();
     }
 
@@ -432,19 +434,7 @@ public class RsvpService {
                 .id(coHost.getId())
                 .eventId(coHost.getEvent().getId())
                 .userId(coHost.getUserId())
-                .user(fetchUserSummary(coHost.getUserId()))
+                .user(userSummaryResolver.resolveForDisplay(coHost.getUserId()))
                 .build();
-    }
-
-    private UserSummary fetchUserSummary(Long userId) {
-        try {
-            return userServiceClient.getUserSummary(userId);
-        } catch (Exception e) {
-            log.warn("Failed to fetch user summary for {}: {}", userId, e.getMessage());
-            return UserSummary.builder()
-                    .id(userId)
-                    .username("Unknown")
-                    .build();
-        }
     }
 }

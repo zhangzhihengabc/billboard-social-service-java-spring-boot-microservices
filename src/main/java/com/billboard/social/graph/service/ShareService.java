@@ -11,7 +11,6 @@ import com.billboard.social.graph.event.SocialEventPublisher;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.graph.repository.BlockRepository;
 import com.billboard.social.graph.repository.ShareRepository;
-import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -86,7 +85,7 @@ public class ShareService {
     }
 
     private ShareResponse mapToShareResponse(Share share) {
-        UserSummary userSummary = fetchUserSummaryWithFallback(share.getUserId());
+        UserSummary userSummary = userServiceClient.getUserSummary(share.getUserId());
 
         return ShareResponse.builder()
                 .id(share.getId())
@@ -100,29 +99,6 @@ public class ShareService {
                 .isPrivateShare(share.getIsPrivateShare())
                 .createdAt(share.getCreatedAt())
                 .user(userSummary)
-                .build();
-    }
-
-    private UserSummary fetchUserSummaryWithFallback(Long userId) {
-        try {
-            UserSummary summary = userServiceClient.getUserSummary(userId);
-            if (summary != null) {
-                return summary;
-            }
-            log.warn("User summary returned null for userId: {}", userId);
-        } catch (FeignException.NotFound e) {
-            log.warn("User not found in identity-service: {}", userId);
-        } catch (FeignException e) {
-            log.warn("Identity service unavailable for userId {}: Status {}", userId, e.status());
-        } catch (Exception e) {
-            log.warn("Failed to fetch user summary for userId {}: {} - {}",
-                    userId, e.getClass().getSimpleName(), e.getMessage());
-        }
-
-        return UserSummary.builder()
-                .id(userId)
-                .username("Unknown")
-                .email("unknown@gmail.com")
                 .build();
     }
 }

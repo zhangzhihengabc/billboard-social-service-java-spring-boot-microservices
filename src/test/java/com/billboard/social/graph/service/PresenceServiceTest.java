@@ -181,8 +181,8 @@ class PresenceServiceTest {
         }
 
         @Test
-        @DisplayName("Falls back to 'Unknown' username when identity service is unavailable")
-        void getOnlineFriends_IdentityServiceDown_UsesUnknownFallback() {
+        @DisplayName("SSO 5xx — throws, never returns unknown@gmail.com")
+        void getOnlineFriends_IdentityServiceDown_Throws() {
             when(friendshipRepository.findFriendIds(USER_ID)).thenReturn(List.of(FRIEND_ID_1));
             when(redisTemplate.hasKey("presence:" + FRIEND_ID_1)).thenReturn(Boolean.TRUE);
 
@@ -192,17 +192,13 @@ class PresenceServiceTest {
             when(userServiceClient.getUserSummary(FRIEND_ID_1))
                     .thenThrow(new FeignException.ServiceUnavailable("Service unavailable", dummyRequest, null, null));
 
-            List<FriendPresenceResponse> result = presenceService.getOnlineFriends(USER_ID);
-
-            assertThat(result).hasSize(1);
-            assertThat(result.get(0).getUserId()).isEqualTo(FRIEND_ID_1);
-            assertThat(result.get(0).getUsername()).isEqualTo("Unknown");
-            assertThat(result.get(0).isOnline()).isTrue();
+            assertThatThrownBy(() -> presenceService.getOnlineFriends(USER_ID))
+                    .isInstanceOf(FeignException.class);
         }
 
         @Test
-        @DisplayName("Falls back to 'Unknown' username when identity service returns 404")
-        void getOnlineFriends_UserNotFoundInIdentityService_UsesUnknownFallback() {
+        @DisplayName("SSO 404 — throws, never returns unknown@gmail.com")
+        void getOnlineFriends_UserNotFoundInIdentityService_Throws() {
             when(friendshipRepository.findFriendIds(USER_ID)).thenReturn(List.of(FRIEND_ID_1));
             when(redisTemplate.hasKey("presence:" + FRIEND_ID_1)).thenReturn(Boolean.TRUE);
 
@@ -212,15 +208,13 @@ class PresenceServiceTest {
             when(userServiceClient.getUserSummary(FRIEND_ID_1))
                     .thenThrow(new FeignException.NotFound("Not found", dummyRequest, null, null));
 
-            List<FriendPresenceResponse> result = presenceService.getOnlineFriends(USER_ID);
-
-            assertThat(result).hasSize(1);
-            assertThat(result.get(0).getUsername()).isEqualTo("Unknown");
+            assertThatThrownBy(() -> presenceService.getOnlineFriends(USER_ID))
+                    .isInstanceOf(FeignException.NotFound.class);
         }
 
         @Test
-        @DisplayName("Falls back to 'Unknown' when identity service returns null UserSummary")
-        void getOnlineFriends_NullUserSummary_UsesUnknownFallback() {
+        @DisplayName("SSO returns null — username is null, no fake email")
+        void getOnlineFriends_NullUserSummary_UsernameNull() {
             when(friendshipRepository.findFriendIds(USER_ID)).thenReturn(List.of(FRIEND_ID_1));
             when(redisTemplate.hasKey("presence:" + FRIEND_ID_1)).thenReturn(Boolean.TRUE);
             when(userServiceClient.getUserSummary(FRIEND_ID_1)).thenReturn(null);
@@ -228,29 +222,23 @@ class PresenceServiceTest {
             List<FriendPresenceResponse> result = presenceService.getOnlineFriends(USER_ID);
 
             assertThat(result).hasSize(1);
-            assertThat(result.get(0).getUsername()).isEqualTo("Unknown");
+            assertThat(result.get(0).getUsername()).isNull();
         }
 
         @Test
-        @DisplayName("One failing identity lookup does not prevent other friends from being returned")
-        void getOnlineFriends_OneIdentityLookupFails_OtherFriendsStillReturned() {
-            when(friendshipRepository.findFriendIds(USER_ID)).thenReturn(List.of(FRIEND_ID_1, FRIEND_ID_2));
+        @DisplayName("Any failing SSO lookup causes the whole presence call to throw")
+        void getOnlineFriends_OneLookupFails_WholeCallThrows() {
+            when(friendshipRepository.findFriendIds(USER_ID)).thenReturn(List.of(FRIEND_ID_1));
             when(redisTemplate.hasKey("presence:" + FRIEND_ID_1)).thenReturn(Boolean.TRUE);
-            when(redisTemplate.hasKey("presence:" + FRIEND_ID_2)).thenReturn(Boolean.TRUE);
 
             Request dummyRequest = Request.create(
                     Request.HttpMethod.GET, "/api/v1/auth/2/summary",
                     Map.of(), null, new RequestTemplate());
             when(userServiceClient.getUserSummary(FRIEND_ID_1))
                     .thenThrow(new FeignException.NotFound("Not found", dummyRequest, null, null));
-            when(userServiceClient.getUserSummary(FRIEND_ID_2)).thenReturn(
-                    UserSummary.builder().id(FRIEND_ID_2).username("bob").email("bob@test.com").build());
 
-            List<FriendPresenceResponse> result = presenceService.getOnlineFriends(USER_ID);
-
-            assertThat(result).hasSize(2);
-            assertThat(result).extracting(FriendPresenceResponse::getUsername)
-                    .containsExactlyInAnyOrder("Unknown", "bob");
+            assertThatThrownBy(() -> presenceService.getOnlineFriends(USER_ID))
+                    .isInstanceOf(FeignException.NotFound.class);
         }
     }
 }

@@ -1023,7 +1023,7 @@ class FriendshipServiceTest {
         }
 
         @Test
-        @DisplayName("Returns null - uses fallback")
+        @DisplayName("SSO returns null — username is null, no fake email")
         void fetchUserSummaryWithFallback_ReturnsNull() {
             setupFriendsPage();
             when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(null);
@@ -1031,11 +1031,11 @@ class FriendshipServiceTest {
             PageResponse<FriendResponse> response = friendshipService.getFriends(USER_ID, 0, 20);
 
             assertThat(response.getContent().get(0).getFriendId()).isEqualTo(FRIEND_ID);
-            assertThat(response.getContent().get(0).getUsername()).isEqualTo("Unknown");
+            assertThat(response.getContent().get(0).getUsername()).isNull();
         }
 
         @Test
-        @DisplayName("FeignException.NotFound - uses fallback")
+        @DisplayName("FeignException.NotFound — throws, never returns unknown@gmail.com")
         void fetchUserSummaryWithFallback_FeignNotFound() {
             setupFriendsPage();
             Request feignRequest = Request.create(Request.HttpMethod.GET, "/users",
@@ -1043,13 +1043,12 @@ class FriendshipServiceTest {
             when(userServiceClient.getUserSummary(FRIEND_ID))
                     .thenThrow(new FeignException.NotFound("Not found", feignRequest, null, null));
 
-            PageResponse<FriendResponse> response = friendshipService.getFriends(USER_ID, 0, 20);
-
-            assertThat(response.getContent().get(0).getUsername()).isEqualTo("Unknown");
+            assertThatThrownBy(() -> friendshipService.getFriends(USER_ID, 0, 20))
+                    .isInstanceOf(FeignException.NotFound.class);
         }
 
         @Test
-        @DisplayName("FeignException (other) - uses fallback")
+        @DisplayName("FeignException (5xx) — throws, never returns unknown@gmail.com")
         void fetchUserSummaryWithFallback_FeignOther() {
             setupFriendsPage();
             Request feignRequest = Request.create(Request.HttpMethod.GET, "/users",
@@ -1057,21 +1056,20 @@ class FriendshipServiceTest {
             when(userServiceClient.getUserSummary(FRIEND_ID))
                     .thenThrow(new FeignException.ServiceUnavailable("Service unavailable", feignRequest, null, null));
 
-            PageResponse<FriendResponse> response = friendshipService.getFriends(USER_ID, 0, 20);
-
-            assertThat(response.getContent().get(0).getUsername()).isEqualTo("Unknown");
+            assertThatThrownBy(() -> friendshipService.getFriends(USER_ID, 0, 20))
+                    .isInstanceOf(FeignException.class);
         }
 
         @Test
-        @DisplayName("Generic Exception - uses fallback")
+        @DisplayName("Generic Exception — throws, never returns unknown@gmail.com")
         void fetchUserSummaryWithFallback_GenericException() {
             setupFriendsPage();
             when(userServiceClient.getUserSummary(FRIEND_ID))
                     .thenThrow(new RuntimeException("Connection failed"));
 
-            PageResponse<FriendResponse> response = friendshipService.getFriends(USER_ID, 0, 20);
-
-            assertThat(response.getContent().get(0).getUsername()).isEqualTo("Unknown");
+            assertThatThrownBy(() -> friendshipService.getFriends(USER_ID, 0, 20))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("Connection failed");
         }
     }
 

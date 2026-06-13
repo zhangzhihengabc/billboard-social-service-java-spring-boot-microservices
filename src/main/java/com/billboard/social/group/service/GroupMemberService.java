@@ -2,7 +2,7 @@ package com.billboard.social.group.service;
 
 import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.dto.UserSummary;
-import com.billboard.social.common.client.UserServiceClient;
+import com.billboard.social.common.client.UserSummaryResolver;
 import com.billboard.social.group.dto.request.GroupRequests.*;
 import com.billboard.social.group.dto.response.GroupResponses.*;
 import com.billboard.social.group.entity.Group;
@@ -40,7 +40,7 @@ public class GroupMemberService {
     private final GroupRepository groupRepository;
     private final GroupMemberRepository memberRepository;
     private final GroupInvitationRepository invitationRepository;
-    private final UserServiceClient userServiceClient;
+    private final UserSummaryResolver userSummaryResolver;
     private final GroupEventPublisher eventPublisher;
 
     @Value("${app.group.max-members:100000}")
@@ -578,7 +578,7 @@ public class GroupMemberService {
     }
 
     private GroupMemberResponse mapToMemberResponse(GroupMember member) {
-        UserSummary userSummary = fetchUserSummary(member.getUserId());
+        UserSummary userSummary = userSummaryResolver.resolveForDisplay(member.getUserId());
 
         return GroupMemberResponse.builder()
                 .id(member.getId())
@@ -595,15 +595,4 @@ public class GroupMemberService {
                 .build();
     }
 
-    private UserSummary fetchUserSummary(Long userId) {
-        try {
-            return userServiceClient.getUserSummary(userId);
-        } catch (Exception e) {
-            log.warn("Failed to fetch user summary for {}: {}", userId, e.getMessage());
-            return UserSummary.builder()
-                    .id(userId)
-                    .username("Unknown")
-                    .build();
-        }
-    }
 }

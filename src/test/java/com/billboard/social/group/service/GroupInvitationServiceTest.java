@@ -1,6 +1,7 @@
 package com.billboard.social.group.service;
 
 import com.billboard.social.common.client.UserServiceClient;
+import com.billboard.social.common.client.UserSummaryResolver;
 import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.dto.UserSummary;
 import com.billboard.social.common.exception.ForbiddenException;
@@ -19,7 +20,6 @@ import com.billboard.social.group.entity.enums.MemberStatus;
 import com.billboard.social.group.repository.GroupInvitationRepository;
 import com.billboard.social.group.repository.GroupMemberRepository;
 import com.billboard.social.group.repository.GroupRepository;
-import feign.FeignException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -49,6 +49,9 @@ class GroupInvitationServiceTest {
 
     @Mock
     private UserServiceClient userServiceClient;
+
+    @Mock
+    private UserSummaryResolver userSummaryResolver;
 
     @InjectMocks
     private GroupInvitationService invitationService;
@@ -160,7 +163,7 @@ class GroupInvitationServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID)).thenReturn(inviterSummary);
 
             InvitationResponse response = invitationService.inviteMember(INVITER_ID, GROUP_ID, request);
 
@@ -192,7 +195,7 @@ class GroupInvitationServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID)).thenReturn(inviterSummary);
 
             InvitationResponse response = invitationService.inviteMember(INVITER_ID, GROUP_ID, request);
 
@@ -216,7 +219,7 @@ class GroupInvitationServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID)).thenReturn(inviterSummary);
 
             InvitationResponse response = invitationService.inviteMember(INVITER_ID, GROUP_ID, request);
 
@@ -243,7 +246,7 @@ class GroupInvitationServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID)).thenReturn(inviterSummary);
 
             InvitationResponse response = invitationService.inviteMember(INVITER_ID, GROUP_ID, request);
 
@@ -269,7 +272,7 @@ class GroupInvitationServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID)).thenReturn(inviterSummary);
 
             InvitationResponse response = invitationService.inviteMember(INVITER_ID, GROUP_ID, request);
 
@@ -295,7 +298,7 @@ class GroupInvitationServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID)).thenReturn(inviterSummary);
 
             InvitationResponse response = invitationService.inviteMember(INVITER_ID, GROUP_ID, request);
 
@@ -321,7 +324,7 @@ class GroupInvitationServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID)).thenReturn(inviterSummary);
 
             InvitationResponse response = invitationService.inviteMember(INVITER_ID, GROUP_ID, request);
 
@@ -354,7 +357,7 @@ class GroupInvitationServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID)).thenReturn(inviterSummary);
 
             InvitationResponse response = invitationService.inviteMember(INVITER_ID, GROUP_ID, request);
 
@@ -381,7 +384,7 @@ class GroupInvitationServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID)).thenReturn(inviterSummary);
 
             InvitationResponse response = invitationService.inviteMember(INVITER_ID, GROUP_ID, request);
 
@@ -407,7 +410,7 @@ class GroupInvitationServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID)).thenReturn(inviterSummary);
 
             InvitationResponse response = invitationService.inviteMember(INVITER_ID, GROUP_ID, request);
 
@@ -622,7 +625,7 @@ class GroupInvitationServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID)).thenReturn(inviterSummary);
 
             InvitationResponse response = invitationService.createInviteLink(INVITER_ID, GROUP_ID, request);
 
@@ -642,7 +645,7 @@ class GroupInvitationServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID)).thenReturn(inviterSummary);
 
             InvitationResponse response = invitationService.createInviteLink(INVITER_ID, GROUP_ID, null);
 
@@ -664,7 +667,7 @@ class GroupInvitationServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID)).thenReturn(inviterSummary);
 
             InvitationResponse response = invitationService.createInviteLink(INVITER_ID, GROUP_ID, request);
 
@@ -684,7 +687,7 @@ class GroupInvitationServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID)).thenReturn(inviterSummary);
 
             InvitationResponse response = invitationService.createInviteLink(INVITER_ID, GROUP_ID, null);
 
@@ -775,7 +778,7 @@ class GroupInvitationServiceTest {
                 return saved;
             });
             when(groupRepository.save(any(Group.class))).thenReturn(testGroup);
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITEE_ID)).thenReturn(inviteeSummary);
 
             GroupMemberResponse response = invitationService.acceptInvitation(INVITEE_ID, INVITATION_ID);
 
@@ -804,7 +807,7 @@ class GroupInvitationServiceTest {
                 return saved;
             });
             when(groupRepository.save(any(Group.class))).thenReturn(testGroup);
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITEE_ID)).thenReturn(inviteeSummary);
 
             GroupMemberResponse response = invitationService.acceptInvitation(INVITEE_ID, INVITATION_ID);
 
@@ -848,7 +851,7 @@ class GroupInvitationServiceTest {
                 return saved;
             });
             when(groupRepository.save(any(Group.class))).thenReturn(testGroup);
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITEE_ID)).thenReturn(inviteeSummary);
 
             GroupMemberResponse response = invitationService.acceptInvitation(INVITEE_ID, INVITATION_ID);
 
@@ -1041,7 +1044,7 @@ class GroupInvitationServiceTest {
                 return saved;
             });
             when(groupRepository.save(any(Group.class))).thenReturn(testGroup);
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITEE_ID)).thenReturn(inviteeSummary);
 
             GroupMemberResponse response = invitationService.acceptByCode(INVITEE_ID, "abc123xyz");
 
@@ -1067,7 +1070,7 @@ class GroupInvitationServiceTest {
                 return saved;
             });
             when(groupRepository.save(any(Group.class))).thenReturn(testGroup);
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITEE_ID)).thenReturn(inviteeSummary);
 
             GroupMemberResponse response = invitationService.acceptByCode(INVITEE_ID, "abc123xyz");
 
@@ -1104,7 +1107,7 @@ class GroupInvitationServiceTest {
                 return saved;
             });
             when(groupRepository.save(any(Group.class))).thenReturn(testGroup);
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITEE_ID)).thenReturn(inviteeSummary);
 
             GroupMemberResponse response = invitationService.acceptByCode(INVITEE_ID, "abc123xyz");
 
@@ -1126,7 +1129,7 @@ class GroupInvitationServiceTest {
                 return saved;
             });
             when(groupRepository.save(any(Group.class))).thenReturn(testGroup);
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITEE_ID)).thenReturn(inviteeSummary);
 
             GroupMemberResponse response = invitationService.acceptByCode(INVITEE_ID, "  abc123xyz  ");
 
@@ -1287,7 +1290,7 @@ class GroupInvitationServiceTest {
         @DisplayName("Success - returns invitation")
         void getInvitation_Success() {
             when(invitationRepository.findById(INVITATION_ID)).thenReturn(Optional.of(testInvitation));
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID)).thenReturn(inviterSummary);
 
             InvitationResponse response = invitationService.getInvitation(INVITATION_ID);
 
@@ -1315,7 +1318,7 @@ class GroupInvitationServiceTest {
         @DisplayName("Success - returns invitation")
         void getInvitationByCode_Success() {
             when(invitationRepository.findByInviteCode("abc123xyz")).thenReturn(Optional.of(testInvitation));
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID)).thenReturn(inviterSummary);
 
             InvitationResponse response = invitationService.getInvitationByCode("abc123xyz");
 
@@ -1327,7 +1330,7 @@ class GroupInvitationServiceTest {
         @DisplayName("Success - trims whitespace from code")
         void getInvitationByCode_TrimsCode() {
             when(invitationRepository.findByInviteCode("abc123xyz")).thenReturn(Optional.of(testInvitation));
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID)).thenReturn(inviterSummary);
 
             InvitationResponse response = invitationService.getInvitationByCode("  abc123xyz  ");
 
@@ -1372,7 +1375,7 @@ class GroupInvitationServiceTest {
             Page<GroupInvitation> page = new PageImpl<>(List.of(testInvitation), PageRequest.of(0, 20), 1);
             when(invitationRepository.findPendingInvitationsForUser(eq(INVITEE_ID), any(LocalDateTime.class), any(Pageable.class)))
                     .thenReturn(page);
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID)).thenReturn(inviterSummary);
 
             PageResponse<InvitationResponse> response = invitationService.getMyPendingInvitations(INVITEE_ID, 0, 20);
 
@@ -1405,7 +1408,7 @@ class GroupInvitationServiceTest {
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITER_ID)).thenReturn(Optional.of(moderatorMember));
             when(invitationRepository.findPendingInvitationsByGroup(eq(GROUP_ID), any(LocalDateTime.class), any(Pageable.class)))
                     .thenReturn(page);
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID)).thenReturn(inviterSummary);
 
             PageResponse<InvitationResponse> response = invitationService.getGroupInvitations(INVITER_ID, GROUP_ID, 0, 20);
 
@@ -1472,7 +1475,7 @@ class GroupInvitationServiceTest {
         @DisplayName("Success - returns user summary")
         void fetchUserSummary_Success() {
             when(invitationRepository.findById(INVITATION_ID)).thenReturn(Optional.of(testInvitation));
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenReturn(inviterSummary);
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID)).thenReturn(inviterSummary);
 
             InvitationResponse response = invitationService.getInvitation(INVITATION_ID);
 
@@ -1480,27 +1483,33 @@ class GroupInvitationServiceTest {
         }
 
         @Test
-        @DisplayName("User service fails - returns fallback")
+        @DisplayName("SSO failure - resolver returns id-only UserSummary (null username, null email)")
         void fetchUserSummary_FallsBack() {
             when(invitationRepository.findById(INVITATION_ID)).thenReturn(Optional.of(testInvitation));
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenThrow(new RuntimeException("Service unavailable"));
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID))
+                    .thenReturn(UserSummary.builder().id(INVITER_ID).build());
 
             InvitationResponse response = invitationService.getInvitation(INVITATION_ID);
 
             assertThat(response.getInviter()).isNotNull();
-            assertThat(response.getInviter().getUsername()).isEqualTo("Unknown");
+            assertThat(response.getInviter().getId()).isEqualTo(INVITER_ID);
+            assertThat(response.getInviter().getUsername()).isNull();
+            assertThat(response.getInviter().getEmail()).isNull();
         }
 
         @Test
-        @DisplayName("FeignException - returns fallback")
+        @DisplayName("SSO 404 - resolver returns id-only UserSummary (null username, null email)")
         void fetchUserSummary_FeignExceptionFallsBack() {
             when(invitationRepository.findById(INVITATION_ID)).thenReturn(Optional.of(testInvitation));
-            when(userServiceClient.getUserSummary(INVITER_ID)).thenThrow(mock(FeignException.class));
+            when(userSummaryResolver.resolveForDisplay(INVITER_ID))
+                    .thenReturn(UserSummary.builder().id(INVITER_ID).build());
 
             InvitationResponse response = invitationService.getInvitation(INVITATION_ID);
 
             assertThat(response.getInviter()).isNotNull();
-            assertThat(response.getInviter().getUsername()).isEqualTo("Unknown");
+            assertThat(response.getInviter().getId()).isEqualTo(INVITER_ID);
+            assertThat(response.getInviter().getUsername()).isNull();
+            assertThat(response.getInviter().getEmail()).isNull();
         }
     }
 }
