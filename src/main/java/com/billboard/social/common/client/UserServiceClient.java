@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(name = "sso-service",
         configuration = FeignConfig.class,
-        fallback = UserServiceClientFallback.class)
+        fallbackFactory = UserServiceClientFallbackFactory.class)
 public interface UserServiceClient {
 
     @GetMapping("/api/v1/auth/{userId}/summary")

@@ -662,20 +662,18 @@ class ShareServiceTest {
         }
 
         @Test
-        @DisplayName("Returns null - uses fallback")
+        @DisplayName("SSO returns null — user field is null, no fake email")
         void fetchUserSummaryWithFallback_ReturnsNull() {
             setupSharesPage();
             when(userServiceClient.getUserSummary(USER_ID)).thenReturn(null);
 
             PageResponse<ShareResponse> response = shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20);
 
-            assertThat(response.getContent().get(0).getUser()).isNotNull();
-            assertThat(response.getContent().get(0).getUser().getId()).isEqualTo(USER_ID);
-            assertThat(response.getContent().get(0).getUser().getUsername()).isEqualTo("Unknown");
+            assertThat(response.getContent().get(0).getUser()).isNull();
         }
 
         @Test
-        @DisplayName("FeignException.NotFound - uses fallback")
+        @DisplayName("FeignException.NotFound — throws, never returns unknown@gmail.com")
         void fetchUserSummaryWithFallback_FeignNotFound() {
             setupSharesPage();
             Request feignRequest = Request.create(Request.HttpMethod.GET, "/users",
@@ -683,13 +681,12 @@ class ShareServiceTest {
             when(userServiceClient.getUserSummary(USER_ID))
                     .thenThrow(new FeignException.NotFound("Not found", feignRequest, null, null));
 
-            PageResponse<ShareResponse> response = shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20);
-
-            assertThat(response.getContent().get(0).getUser().getUsername()).isEqualTo("Unknown");
+            assertThatThrownBy(() -> shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20))
+                    .isInstanceOf(FeignException.NotFound.class);
         }
 
         @Test
-        @DisplayName("FeignException (other) - uses fallback")
+        @DisplayName("FeignException (5xx) — throws, never returns unknown@gmail.com")
         void fetchUserSummaryWithFallback_FeignOther() {
             setupSharesPage();
             Request feignRequest = Request.create(Request.HttpMethod.GET, "/users",
@@ -697,21 +694,20 @@ class ShareServiceTest {
             when(userServiceClient.getUserSummary(USER_ID))
                     .thenThrow(new FeignException.ServiceUnavailable("Service unavailable", feignRequest, null, null));
 
-            PageResponse<ShareResponse> response = shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20);
-
-            assertThat(response.getContent().get(0).getUser().getUsername()).isEqualTo("Unknown");
+            assertThatThrownBy(() -> shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20))
+                    .isInstanceOf(FeignException.class);
         }
 
         @Test
-        @DisplayName("Generic Exception - uses fallback")
+        @DisplayName("Generic Exception — throws, never returns unknown@gmail.com")
         void fetchUserSummaryWithFallback_GenericException() {
             setupSharesPage();
             when(userServiceClient.getUserSummary(USER_ID))
                     .thenThrow(new RuntimeException("Connection failed"));
 
-            PageResponse<ShareResponse> response = shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20);
-
-            assertThat(response.getContent().get(0).getUser().getUsername()).isEqualTo("Unknown");
+            assertThatThrownBy(() -> shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("Connection failed");
         }
     }
 

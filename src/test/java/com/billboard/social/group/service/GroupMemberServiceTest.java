@@ -1,6 +1,6 @@
 package com.billboard.social.group.service;
 
-import com.billboard.social.common.client.UserServiceClient;
+import com.billboard.social.common.client.UserSummaryResolver;
 import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.dto.UserSummary;
 import com.billboard.social.common.exception.ForbiddenException;
@@ -16,7 +16,6 @@ import com.billboard.social.group.entity.enums.MemberStatus;
 import com.billboard.social.group.event.GroupEventPublisher;
 import com.billboard.social.group.repository.GroupMemberRepository;
 import com.billboard.social.group.repository.GroupRepository;
-import feign.FeignException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -42,7 +41,7 @@ class GroupMemberServiceTest {
     private GroupMemberRepository memberRepository;
 
     @Mock
-    private UserServiceClient userServiceClient;
+    private UserSummaryResolver userSummaryResolver;
 
     @Mock
     private GroupEventPublisher eventPublisher;
@@ -170,7 +169,7 @@ class GroupMemberServiceTest {
                 return saved;
             });
             when(groupRepository.save(any(Group.class))).thenReturn(testGroup);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             GroupMemberResponse response = memberService.joinGroup(USER_ID, GROUP_ID, request);
 
@@ -193,7 +192,7 @@ class GroupMemberServiceTest {
                 saved.setId(MEMBER_ID);
                 return saved;
             });
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             GroupMemberResponse response = memberService.joinGroup(USER_ID, GROUP_ID, request);
 
@@ -219,7 +218,7 @@ class GroupMemberServiceTest {
                 return saved;
             });
             when(groupRepository.save(any(Group.class))).thenReturn(testGroup);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             GroupMemberResponse response = memberService.joinGroup(USER_ID, GROUP_ID, request);
 
@@ -238,7 +237,7 @@ class GroupMemberServiceTest {
                 return saved;
             });
             when(groupRepository.save(any(Group.class))).thenReturn(testGroup);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             GroupMemberResponse response = memberService.joinGroup(USER_ID, GROUP_ID, null);
 
@@ -261,7 +260,7 @@ class GroupMemberServiceTest {
                 return saved;
             });
             when(groupRepository.save(any(Group.class))).thenReturn(testGroup);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             GroupMemberResponse response = memberService.joinGroup(USER_ID, GROUP_ID, request);
 
@@ -372,7 +371,7 @@ class GroupMemberServiceTest {
         @DisplayName("Success - returns member")
         void getMember_Success() {
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, USER_ID)).thenReturn(Optional.of(regularMember));
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             GroupMemberResponse response = memberService.getMember(GROUP_ID, USER_ID);
 
@@ -401,7 +400,7 @@ class GroupMemberServiceTest {
         void getMembers_Success() {
             Page<GroupMember> page = new PageImpl<>(List.of(regularMember), PageRequest.of(0, 20), 1);
             when(memberRepository.findApprovedMembers(eq(GROUP_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             PageResponse<GroupMemberResponse> response = memberService.getMembers(GROUP_ID, 0, 20);
 
@@ -440,7 +439,7 @@ class GroupMemberServiceTest {
             Page<GroupMember> page = new PageImpl<>(List.of(pendingMember), PageRequest.of(0, 20), 1);
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, ADMIN_ID)).thenReturn(Optional.of(adminMember));
             when(memberRepository.findPendingMembers(eq(GROUP_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             PageResponse<GroupMemberResponse> response = memberService.getPendingMembers(ADMIN_ID, GROUP_ID, 0, 20);
 
@@ -488,7 +487,7 @@ class GroupMemberServiceTest {
             Page<GroupMember> page = new PageImpl<>(List.of(bannedMember), PageRequest.of(0, 20), 1);
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, ADMIN_ID)).thenReturn(Optional.of(adminMember));
             when(memberRepository.findBannedMembers(eq(GROUP_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             PageResponse<GroupMemberResponse> response = memberService.getBannedMembers(ADMIN_ID, GROUP_ID, 0, 20);
 
@@ -515,7 +514,7 @@ class GroupMemberServiceTest {
         @DisplayName("Success - returns admins and moderators")
         void getAdminsAndModerators_Success() {
             when(memberRepository.findModerators(GROUP_ID)).thenReturn(List.of(adminMember, moderatorMember));
-            when(userServiceClient.getUserSummary(any(Long.class))).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(any(Long.class))).thenReturn(testUserSummary);
 
             List<GroupMemberResponse> response = memberService.getAdminsAndModerators(GROUP_ID);
 
@@ -603,7 +602,7 @@ class GroupMemberServiceTest {
             when(memberRepository.findById(MEMBER_ID)).thenReturn(Optional.of(pendingMember));
             when(memberRepository.save(any(GroupMember.class))).thenAnswer(invocation -> invocation.getArgument(0));
             when(groupRepository.save(any(Group.class))).thenReturn(testGroup);
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             GroupMemberResponse response = memberService.approveJoinRequest(ADMIN_ID, GROUP_ID, MEMBER_ID);
 
@@ -838,7 +837,7 @@ class GroupMemberServiceTest {
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, ADMIN_ID)).thenReturn(Optional.of(adminMember));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, TARGET_USER_ID)).thenReturn(Optional.of(targetMember));
             when(memberRepository.save(any(GroupMember.class))).thenAnswer(invocation -> invocation.getArgument(0));
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             GroupMemberResponse response = memberService.updateMemberRole(ADMIN_ID, GROUP_ID, TARGET_USER_ID, request);
 
@@ -871,7 +870,7 @@ class GroupMemberServiceTest {
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, TARGET_USER_ID)).thenReturn(Optional.of(targetMember));
             when(memberRepository.findAdmins(GROUP_ID)).thenReturn(List.of(adminMember));
             when(memberRepository.save(any(GroupMember.class))).thenAnswer(invocation -> invocation.getArgument(0));
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             GroupMemberResponse response = memberService.updateMemberRole(OWNER_ID, GROUP_ID, TARGET_USER_ID, request);
 
@@ -935,7 +934,7 @@ class GroupMemberServiceTest {
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, TARGET_USER_ID)).thenReturn(Optional.of(targetMember));
             when(memberRepository.findAdmins(GROUP_ID)).thenReturn(List.of(adminMember));
             when(memberRepository.save(any(GroupMember.class))).thenAnswer(invocation -> invocation.getArgument(0));
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             GroupMemberResponse response = memberService.promoteToAdmin(OWNER_ID, GROUP_ID, TARGET_USER_ID);
 
@@ -1017,7 +1016,7 @@ class GroupMemberServiceTest {
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, ADMIN_ID)).thenReturn(Optional.of(adminMember));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, TARGET_USER_ID)).thenReturn(Optional.of(targetMember));
             when(memberRepository.save(any(GroupMember.class))).thenAnswer(invocation -> invocation.getArgument(0));
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             GroupMemberResponse response = memberService.promoteToModerator(ADMIN_ID, GROUP_ID, TARGET_USER_ID);
 
@@ -1093,7 +1092,7 @@ class GroupMemberServiceTest {
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, OWNER_ID)).thenReturn(Optional.of(ownerMember));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, ADMIN_ID)).thenReturn(Optional.of(adminMember));
             when(memberRepository.save(any(GroupMember.class))).thenAnswer(invocation -> invocation.getArgument(0));
-            when(userServiceClient.getUserSummary(ADMIN_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(ADMIN_ID)).thenReturn(testUserSummary);
 
             GroupMemberResponse response = memberService.demoteAdmin(OWNER_ID, GROUP_ID, ADMIN_ID);
 
@@ -1134,7 +1133,7 @@ class GroupMemberServiceTest {
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, ADMIN_ID)).thenReturn(Optional.of(adminMember));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, USER_ID)).thenReturn(Optional.of(moderatorMember));
             when(memberRepository.save(any(GroupMember.class))).thenAnswer(invocation -> invocation.getArgument(0));
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             GroupMemberResponse response = memberService.demoteModerator(ADMIN_ID, GROUP_ID, USER_ID);
 
@@ -1180,7 +1179,7 @@ class GroupMemberServiceTest {
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, ADMIN_ID)).thenReturn(Optional.of(adminMember));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, TARGET_USER_ID)).thenReturn(Optional.of(targetMember));
             when(memberRepository.save(any(GroupMember.class))).thenAnswer(invocation -> invocation.getArgument(0));
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             GroupMemberResponse response = memberService.muteMember(ADMIN_ID, GROUP_ID, TARGET_USER_ID, request);
 
@@ -1236,7 +1235,7 @@ class GroupMemberServiceTest {
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, ADMIN_ID)).thenReturn(Optional.of(adminMember));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, TARGET_USER_ID)).thenReturn(Optional.of(targetMember));
             when(memberRepository.save(any(GroupMember.class))).thenAnswer(invocation -> invocation.getArgument(0));
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             GroupMemberResponse response = memberService.muteMember(ADMIN_ID, GROUP_ID, TARGET_USER_ID, request);
 
@@ -1280,7 +1279,7 @@ class GroupMemberServiceTest {
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, ADMIN_ID)).thenReturn(Optional.of(adminMember));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, TARGET_USER_ID)).thenReturn(Optional.of(targetMember));
             when(memberRepository.save(any(GroupMember.class))).thenAnswer(invocation -> invocation.getArgument(0));
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             GroupMemberResponse response = memberService.unmuteMember(ADMIN_ID, GROUP_ID, TARGET_USER_ID);
 
@@ -1470,7 +1469,7 @@ class GroupMemberServiceTest {
 
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, USER_ID)).thenReturn(Optional.of(regularMember));
             when(memberRepository.save(any(GroupMember.class))).thenAnswer(invocation -> invocation.getArgument(0));
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             GroupMemberResponse response = memberService.updateMemberSettings(USER_ID, GROUP_ID, request);
 
@@ -1486,7 +1485,7 @@ class GroupMemberServiceTest {
 
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, USER_ID)).thenReturn(Optional.of(regularMember));
             when(memberRepository.save(any(GroupMember.class))).thenAnswer(invocation -> invocation.getArgument(0));
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             GroupMemberResponse response = memberService.updateMemberSettings(USER_ID, GROUP_ID, request);
 
@@ -1618,7 +1617,7 @@ class GroupMemberServiceTest {
         @DisplayName("Success - returns user summary")
         void fetchUserSummary_Success() {
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, USER_ID)).thenReturn(Optional.of(regularMember));
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             GroupMemberResponse response = memberService.getMember(GROUP_ID, USER_ID);
 
@@ -1626,27 +1625,33 @@ class GroupMemberServiceTest {
         }
 
         @Test
-        @DisplayName("User service fails - returns fallback")
+        @DisplayName("SSO failure - resolver returns id-only UserSummary (null username, null email)")
         void fetchUserSummary_FallsBack() {
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, USER_ID)).thenReturn(Optional.of(regularMember));
-            when(userServiceClient.getUserSummary(USER_ID)).thenThrow(new RuntimeException("Service unavailable"));
+            when(userSummaryResolver.resolveForDisplay(USER_ID))
+                    .thenReturn(UserSummary.builder().id(USER_ID).build());
 
             GroupMemberResponse response = memberService.getMember(GROUP_ID, USER_ID);
 
             assertThat(response.getUser()).isNotNull();
-            assertThat(response.getUser().getUsername()).isEqualTo("Unknown");
+            assertThat(response.getUser().getId()).isEqualTo(USER_ID);
+            assertThat(response.getUser().getUsername()).isNull();
+            assertThat(response.getUser().getEmail()).isNull();
         }
 
         @Test
-        @DisplayName("FeignException - returns fallback")
+        @DisplayName("SSO 404 - resolver returns id-only UserSummary (null username, null email)")
         void fetchUserSummary_FeignExceptionFallsBack() {
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, USER_ID)).thenReturn(Optional.of(regularMember));
-            when(userServiceClient.getUserSummary(USER_ID)).thenThrow(mock(FeignException.class));
+            when(userSummaryResolver.resolveForDisplay(USER_ID))
+                    .thenReturn(UserSummary.builder().id(USER_ID).build());
 
             GroupMemberResponse response = memberService.getMember(GROUP_ID, USER_ID);
 
             assertThat(response.getUser()).isNotNull();
-            assertThat(response.getUser().getUsername()).isEqualTo("Unknown");
+            assertThat(response.getUser().getId()).isEqualTo(USER_ID);
+            assertThat(response.getUser().getUsername()).isNull();
+            assertThat(response.getUser().getEmail()).isNull();
         }
     }
 }

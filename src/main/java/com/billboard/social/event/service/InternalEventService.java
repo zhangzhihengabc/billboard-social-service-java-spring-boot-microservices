@@ -1,6 +1,6 @@
 package com.billboard.social.event.service;
 
-import com.billboard.social.common.client.UserServiceClient;
+import com.billboard.social.common.client.UserSummaryResolver;
 import com.billboard.social.common.dto.UserSummary;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.event.dto.request.EventRequests.BulkRsvpRequest;
@@ -42,7 +42,7 @@ public class InternalEventService {
     private final EventRsvpRepository rsvpRepository;
     private final EventCoHostRepository coHostRepository;
     private final EventCategoryRepository categoryRepository;
-    private final UserServiceClient userServiceClient;
+    private final UserSummaryResolver userSummaryResolver;
 
     private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
     private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
@@ -261,10 +261,10 @@ public class InternalEventService {
                     .ifPresent(cat -> builder.categoryName(cat.getName()));
         }
 
-        builder.host(fetchUserSummary(event.getHostId()));
+        builder.host(userSummaryResolver.resolveForDisplay(event.getHostId()));
 
         List<UserSummary> coHosts = coHostRepository.findByEventId(event.getId()).stream()
-                .map(ch -> fetchUserSummary(ch.getUserId()))
+                .map(ch -> userSummaryResolver.resolveForDisplay(ch.getUserId()))
                 .collect(Collectors.toList());
         builder.coHosts(coHosts);
 
@@ -287,15 +287,6 @@ public class InternalEventService {
                 .ticketPrice(event.getTicketPrice())
                 .ticketCurrency(event.getTicketCurrency())
                 .build();
-    }
-
-    private UserSummary fetchUserSummary(Long userId) {
-        try {
-            return userServiceClient.getUserSummary(userId);
-        } catch (Exception e) {
-            log.warn("Failed to fetch user summary for userId={}: {}", userId, e.getMessage());
-            return UserSummary.builder().id(userId).username("Unknown").build();
-        }
     }
 
     private String generateSlug(String input) {

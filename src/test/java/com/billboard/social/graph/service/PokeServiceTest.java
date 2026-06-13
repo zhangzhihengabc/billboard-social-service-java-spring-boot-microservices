@@ -580,20 +580,18 @@ class PokeServiceTest {
         }
 
         @Test
-        @DisplayName("Returns null - uses fallback")
+        @DisplayName("SSO returns null — poker field is null, no fake email")
         void fetchUserSummaryWithFallback_ReturnsNull() {
             setupPokesPage();
             when(userServiceClient.getUserSummary(USER_ID)).thenReturn(null);
 
             PageResponse<PokeResponse> response = pokeService.getReceivedPokes(USER_ID, 0, 20);
 
-            assertThat(response.getContent().get(0).getPoker()).isNotNull();
-            assertThat(response.getContent().get(0).getPoker().getId()).isEqualTo(USER_ID);
-            assertThat(response.getContent().get(0).getPoker().getUsername()).isEqualTo("Unknown");
+            assertThat(response.getContent().get(0).getPoker()).isNull();
         }
 
         @Test
-        @DisplayName("FeignException.NotFound - uses fallback")
+        @DisplayName("FeignException.NotFound — throws, never returns unknown@gmail.com")
         void fetchUserSummaryWithFallback_FeignNotFound() {
             setupPokesPage();
             Request feignRequest = Request.create(Request.HttpMethod.GET, "/users",
@@ -601,13 +599,12 @@ class PokeServiceTest {
             when(userServiceClient.getUserSummary(USER_ID))
                     .thenThrow(new FeignException.NotFound("Not found", feignRequest, null, null));
 
-            PageResponse<PokeResponse> response = pokeService.getReceivedPokes(USER_ID, 0, 20);
-
-            assertThat(response.getContent().get(0).getPoker().getUsername()).isEqualTo("Unknown");
+            assertThatThrownBy(() -> pokeService.getReceivedPokes(USER_ID, 0, 20))
+                    .isInstanceOf(FeignException.NotFound.class);
         }
 
         @Test
-        @DisplayName("FeignException (other) - uses fallback")
+        @DisplayName("FeignException (5xx) — throws, never returns unknown@gmail.com")
         void fetchUserSummaryWithFallback_FeignOther() {
             setupPokesPage();
             Request feignRequest = Request.create(Request.HttpMethod.GET, "/users",
@@ -615,21 +612,20 @@ class PokeServiceTest {
             when(userServiceClient.getUserSummary(USER_ID))
                     .thenThrow(new FeignException.ServiceUnavailable("Service unavailable", feignRequest, null, null));
 
-            PageResponse<PokeResponse> response = pokeService.getReceivedPokes(USER_ID, 0, 20);
-
-            assertThat(response.getContent().get(0).getPoker().getUsername()).isEqualTo("Unknown");
+            assertThatThrownBy(() -> pokeService.getReceivedPokes(USER_ID, 0, 20))
+                    .isInstanceOf(FeignException.class);
         }
 
         @Test
-        @DisplayName("Generic Exception - uses fallback")
+        @DisplayName("Generic Exception — throws, never returns unknown@gmail.com")
         void fetchUserSummaryWithFallback_GenericException() {
             setupPokesPage();
             when(userServiceClient.getUserSummary(USER_ID))
                     .thenThrow(new RuntimeException("Connection failed"));
 
-            PageResponse<PokeResponse> response = pokeService.getReceivedPokes(USER_ID, 0, 20);
-
-            assertThat(response.getContent().get(0).getPoker().getUsername()).isEqualTo("Unknown");
+            assertThatThrownBy(() -> pokeService.getReceivedPokes(USER_ID, 0, 20))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("Connection failed");
         }
     }
 

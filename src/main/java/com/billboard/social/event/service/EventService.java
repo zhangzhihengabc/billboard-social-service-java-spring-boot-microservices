@@ -4,7 +4,7 @@ import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.dto.UserSummary;
 import com.billboard.social.common.exception.ForbiddenException;
 import com.billboard.social.common.exception.ValidationException;
-import com.billboard.social.common.client.UserServiceClient;
+import com.billboard.social.common.client.UserSummaryResolver;
 import com.billboard.social.common.security.InputValidator;
 import com.billboard.social.event.dto.request.EventRequests.*;
 import com.billboard.social.event.dto.response.EventResponses.*;
@@ -38,7 +38,7 @@ public class EventService {
     private final EventRsvpRepository rsvpRepository;
     private final EventCoHostRepository coHostRepository;
     private final EventCategoryRepository categoryRepository;
-    private final UserServiceClient userServiceClient;
+    private final UserSummaryResolver userSummaryResolver;
     private final EventEventPublisher eventPublisher;
 
     @Value("${app.event.max-user-events:100}")
@@ -443,11 +443,11 @@ public class EventService {
         }
 
         // Host info (with Feign fallback)
-        builder.host(fetchUserSummary(event.getHostId()));
+        builder.host(userSummaryResolver.resolveForDisplay(event.getHostId()));
 
         // Co-hosts (with Feign fallback)
         List<UserSummary> coHosts = coHostRepository.findByEventId(event.getId()).stream()
-                .map(ch -> fetchUserSummary(ch.getUserId()))
+                .map(ch -> userSummaryResolver.resolveForDisplay(ch.getUserId()))
                 .collect(Collectors.toList());
         builder.coHosts(coHosts);
 
@@ -477,15 +477,4 @@ public class EventService {
                 .build();
     }
 
-    private UserSummary fetchUserSummary(Long userId) {
-        try {
-            return userServiceClient.getUserSummary(userId);
-        } catch (Exception e) {
-            log.warn("Failed to fetch user summary for {}: {}", userId, e.getMessage());
-            return UserSummary.builder()
-                    .id(userId)
-                    .username("Unknown")
-                    .build();
-        }
-    }
 }

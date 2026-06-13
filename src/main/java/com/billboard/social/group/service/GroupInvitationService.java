@@ -3,6 +3,7 @@ package com.billboard.social.group.service;
 import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.dto.UserSummary;
 import com.billboard.social.common.client.UserServiceClient;
+import com.billboard.social.common.client.UserSummaryResolver;
 import com.billboard.social.common.exception.ForbiddenException;
 import com.billboard.social.common.exception.ResourceNotFoundException;
 import com.billboard.social.common.exception.ValidationException;
@@ -40,6 +41,7 @@ public class GroupInvitationService {
     private final GroupMemberRepository memberRepository;
     private final GroupInvitationRepository invitationRepository;
     private final UserServiceClient userServiceClient;
+    private final UserSummaryResolver userSummaryResolver;
 
     @Value("${app.group.invitation.default-expiration-days:7}")
     private int defaultExpirationDays;
@@ -82,9 +84,9 @@ public class GroupInvitationService {
         String inviteeEmail = request.getEmail();
         UserSummary invitee = null;
 
-        // Case 1: Invite by User ID - fetch user's email
+        // Case 1: Invite by User ID - fetch user's email (validation: propagate on SSO failure)
         if (inviteeId != null) {
-            invitee = fetchUserSummary(inviteeId);
+            invitee = userServiceClient.getUserSummary(inviteeId);
             inviteeEmail = invitee.getEmail();  // Get email from user service
 
             if (inviteeEmail == null || inviteeEmail.isBlank()) {
@@ -396,7 +398,7 @@ public class GroupInvitationService {
 
     private InvitationResponse mapToInvitationResponse(GroupInvitation invitation) {
         Group group = invitation.getGroup();
-        UserSummary inviter = fetchUserSummary(invitation.getInviterId());
+        UserSummary inviter = userSummaryResolver.resolveForDisplay(invitation.getInviterId());
 
         return InvitationResponse.builder()
                 .id(invitation.getId())
@@ -419,7 +421,7 @@ public class GroupInvitationService {
     }
 
     private GroupMemberResponse mapToMemberResponse(GroupMember member) {
-        UserSummary userSummary = fetchUserSummary(member.getUserId());
+        UserSummary userSummary = userSummaryResolver.resolveForDisplay(member.getUserId());
 
         return GroupMemberResponse.builder()
                 .id(member.getId())
@@ -436,16 +438,4 @@ public class GroupInvitationService {
                 .build();
     }
 
-    // Section 7.1 - Feign error handling with fallback
-    private UserSummary fetchUserSummary(Long userId) {
-        try {
-            return userServiceClient.getUserSummary(userId);
-        } catch (Exception e) {
-            log.warn("Failed to fetch user summary for {}: {}", userId, e.getMessage());
-            return UserSummary.builder()
-                    .id(userId)
-                    .username("Unknown")
-                    .build();
-        }
-    }
 }
