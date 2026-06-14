@@ -2,6 +2,7 @@ package com.billboard.social.graph.service;
 
 import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.dto.UserSummary;
+import com.billboard.social.common.dto.ApiResponse;
 import com.billboard.social.common.client.UserServiceClient;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.graph.dto.request.SocialRequests.BlockRequest;
@@ -111,7 +112,7 @@ class BlockServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             BlockResponse response = blockService.blockUser(USER_ID, request);
 
@@ -144,7 +145,7 @@ class BlockServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             BlockResponse response = blockService.blockUser(USER_ID, request);
 
@@ -175,7 +176,7 @@ class BlockServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             blockService.blockUser(USER_ID, request);
 
@@ -207,7 +208,7 @@ class BlockServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             blockService.blockUser(USER_ID, request);
 
@@ -246,7 +247,7 @@ class BlockServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             blockService.blockUser(USER_ID, request);
 
@@ -386,7 +387,7 @@ class BlockServiceTest {
             );
 
             when(blockRepository.findByBlockerId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<BlockResponse> response = blockService.getBlockedUsers(USER_ID, 0, 20);
 
@@ -435,8 +436,8 @@ class BlockServiceTest {
                     .build();
 
             when(blockRepository.findByBlockerId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(testUserSummary);
-            when(userServiceClient.getUserSummary(blockedUser2)).thenReturn(userSummary2);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(testUserSummary));
+            when(userServiceClient.getUserSummary(blockedUser2)).thenReturn(apiResponse(userSummary2));
 
             PageResponse<BlockResponse> response = blockService.getBlockedUsers(USER_ID, 0, 20);
 
@@ -546,18 +547,18 @@ class BlockServiceTest {
         }
     }
 
-    // ==================== FETCH USER SUMMARY WITH FALLBACK ====================
+    // ==================== SSO LOOKUP BEHAVIOUR ====================
 
     @Nested
-    @DisplayName("fetchUserSummaryWithFallback")
-    class FetchUserSummaryWithFallbackTests {
+    @DisplayName("SSO getUserSummary — no fabrication")
+    class SsoLookupTests {
 
         @Test
-        @DisplayName("Success - returns user summary")
+        @DisplayName("Success - returns real user summary")
         void fetchUserSummary_Success() {
             Page<Block> page = new PageImpl<>(List.of(testBlock), PageRequest.of(0, 20), 1);
             when(blockRepository.findByBlockerId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<BlockResponse> response = blockService.getBlockedUsers(USER_ID, 0, 20);
 
@@ -566,20 +567,19 @@ class BlockServiceTest {
         }
 
         @Test
-        @DisplayName("Returns null - fallback to unknown")
+        @DisplayName("SSO returns null — blockedUser is null, no fake email")
         void fetchUserSummary_ReturnsNull() {
             Page<Block> page = new PageImpl<>(List.of(testBlock), PageRequest.of(0, 20), 1);
             when(blockRepository.findByBlockerId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(null);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(null));
 
             PageResponse<BlockResponse> response = blockService.getBlockedUsers(USER_ID, 0, 20);
 
-            assertThat(response.getContent().get(0).getBlockedUser()).isNotNull();
-            assertThat(response.getContent().get(0).getBlockedUser().getUsername()).isEqualTo("Unknown");
+            assertThat(response.getContent().get(0).getBlockedUser()).isNull();
         }
 
         @Test
-        @DisplayName("FeignException.NotFound - fallback to unknown")
+        @DisplayName("FeignException.NotFound — throws, never returns unknown@gmail.com")
         void fetchUserSummary_FeignNotFound() {
             Page<Block> page = new PageImpl<>(List.of(testBlock), PageRequest.of(0, 20), 1);
             when(blockRepository.findByBlockerId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
@@ -588,14 +588,12 @@ class BlockServiceTest {
             when(userServiceClient.getUserSummary(BLOCKED_USER_ID))
                     .thenThrow(new FeignException.NotFound("Not found", request, null, null));
 
-            PageResponse<BlockResponse> response = blockService.getBlockedUsers(USER_ID, 0, 20);
-
-            assertThat(response.getContent().get(0).getBlockedUser()).isNotNull();
-            assertThat(response.getContent().get(0).getBlockedUser().getUsername()).isEqualTo("Unknown");
+            assertThatThrownBy(() -> blockService.getBlockedUsers(USER_ID, 0, 20))
+                    .isInstanceOf(FeignException.NotFound.class);
         }
 
         @Test
-        @DisplayName("FeignException (other) - fallback to unknown")
+        @DisplayName("FeignException (5xx) — throws, never returns unknown@gmail.com")
         void fetchUserSummary_FeignOtherException() {
             Page<Block> page = new PageImpl<>(List.of(testBlock), PageRequest.of(0, 20), 1);
             when(blockRepository.findByBlockerId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
@@ -604,25 +602,21 @@ class BlockServiceTest {
             when(userServiceClient.getUserSummary(BLOCKED_USER_ID))
                     .thenThrow(new FeignException.ServiceUnavailable("Service down", request, null, null));
 
-            PageResponse<BlockResponse> response = blockService.getBlockedUsers(USER_ID, 0, 20);
-
-            assertThat(response.getContent().get(0).getBlockedUser()).isNotNull();
-            assertThat(response.getContent().get(0).getBlockedUser().getUsername()).isEqualTo("Unknown");
+            assertThatThrownBy(() -> blockService.getBlockedUsers(USER_ID, 0, 20))
+                    .isInstanceOf(FeignException.class);
         }
 
         @Test
-        @DisplayName("Generic Exception - fallback to unknown")
+        @DisplayName("Generic Exception — throws, never returns unknown@gmail.com")
         void fetchUserSummary_GenericException() {
             Page<Block> page = new PageImpl<>(List.of(testBlock), PageRequest.of(0, 20), 1);
             when(blockRepository.findByBlockerId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
             when(userServiceClient.getUserSummary(BLOCKED_USER_ID))
                     .thenThrow(new RuntimeException("Connection timeout"));
 
-            PageResponse<BlockResponse> response = blockService.getBlockedUsers(USER_ID, 0, 20);
-
-            assertThat(response.getContent().get(0).getBlockedUser()).isNotNull();
-            assertThat(response.getContent().get(0).getBlockedUser().getUsername()).isEqualTo("Unknown");
-            assertThat(response.getContent().get(0).getBlockedUser().getId()).isEqualTo(BLOCKED_USER_ID);
+            assertThatThrownBy(() -> blockService.getBlockedUsers(USER_ID, 0, 20))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("Connection timeout");
         }
     }
 
@@ -639,7 +633,7 @@ class BlockServiceTest {
 
             Page<Block> page = new PageImpl<>(List.of(testBlock), PageRequest.of(0, 20), 1);
             when(blockRepository.findByBlockerId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<BlockResponse> response = blockService.getBlockedUsers(USER_ID, 0, 20);
 
@@ -659,11 +653,18 @@ class BlockServiceTest {
 
             Page<Block> page = new PageImpl<>(List.of(testBlock), PageRequest.of(0, 20), 1);
             when(blockRepository.findByBlockerId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<BlockResponse> response = blockService.getBlockedUsers(USER_ID, 0, 20);
 
             assertThat(response.getContent().get(0).getReason()).isNull();
         }
+    }
+
+    private static ApiResponse<UserSummary> apiResponse(UserSummary summary) {
+        ApiResponse<UserSummary> response = new ApiResponse<>();
+        response.setSuccess(summary != null);
+        response.setData(summary);
+        return response;
     }
 }

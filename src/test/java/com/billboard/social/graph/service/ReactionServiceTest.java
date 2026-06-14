@@ -3,6 +3,7 @@ package com.billboard.social.graph.service;
 import com.billboard.social.common.client.UserServiceClient;
 import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.dto.UserSummary;
+import com.billboard.social.common.dto.ApiResponse;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.graph.dto.request.SocialRequests.ReactionRequest;
 import com.billboard.social.graph.dto.response.SocialResponses.ReactionResponse;
@@ -97,7 +98,7 @@ class ReactionServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             ReactionResponse response = reactionService.react(USER_ID, request);
 
@@ -131,7 +132,7 @@ class ReactionServiceTest {
             when(reactionRepository.findByUserIdAndContentTypeAndContentId(USER_ID, ContentType.POST, CONTENT_ID))
                     .thenReturn(Optional.of(existingReaction));
             when(reactionRepository.save(any(Reaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             ReactionResponse response = reactionService.react(USER_ID, request);
 
@@ -225,7 +226,7 @@ class ReactionServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             ReactionResponse response = reactionService.react(USER_ID, request);
 
@@ -249,7 +250,7 @@ class ReactionServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             ReactionResponse response = reactionService.react(USER_ID, request);
 
@@ -322,7 +323,7 @@ class ReactionServiceTest {
 
             when(reactionRepository.findByContentTypeAndContentId(eq(ContentType.POST), eq(CONTENT_ID), any(Pageable.class)))
                     .thenReturn(page);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<ReactionResponse> response = reactionService.getReactions(ContentType.POST, CONTENT_ID, 0, 20);
 
@@ -387,7 +388,7 @@ class ReactionServiceTest {
 
             when(reactionRepository.findByContentTypeAndContentId(eq(ContentType.POST), eq(CONTENT_ID), any(Pageable.class)))
                     .thenReturn(page);
-            when(userServiceClient.getUserSummary(any(Long.class))).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(any(Long.class))).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<ReactionResponse> response = reactionService.getReactions(ContentType.POST, CONTENT_ID, 0, 20);
 
@@ -413,7 +414,7 @@ class ReactionServiceTest {
             when(reactionRepository.findByContentAndReactionType(
                     eq(ContentType.POST), eq(CONTENT_ID), eq(ReactionType.LIKE), any(Pageable.class)))
                     .thenReturn(page);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<ReactionResponse> response = reactionService.getReactionsByType(
                     ContentType.POST, CONTENT_ID, ReactionType.LIKE, 0, 20);
@@ -435,7 +436,7 @@ class ReactionServiceTest {
             when(reactionRepository.findByContentAndReactionType(
                     eq(ContentType.POST), eq(CONTENT_ID), eq(ReactionType.LOVE), any(Pageable.class)))
                     .thenReturn(page);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<ReactionResponse> response = reactionService.getReactionsByType(
                     ContentType.POST, CONTENT_ID, ReactionType.LOVE, 0, 20);
@@ -667,7 +668,7 @@ class ReactionServiceTest {
         @DisplayName("Success - returns user summary")
         void fetchUserSummaryWithFallback_Success() {
             setupReactionsPage();
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<ReactionResponse> response = reactionService.getReactions(ContentType.POST, CONTENT_ID, 0, 20);
 
@@ -676,20 +677,18 @@ class ReactionServiceTest {
         }
 
         @Test
-        @DisplayName("Returns null - uses fallback")
+        @DisplayName("SSO returns null — user field is null, no fake email")
         void fetchUserSummaryWithFallback_ReturnsNull() {
             setupReactionsPage();
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(null);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(null));
 
             PageResponse<ReactionResponse> response = reactionService.getReactions(ContentType.POST, CONTENT_ID, 0, 20);
 
-            assertThat(response.getContent().get(0).getUser()).isNotNull();
-            assertThat(response.getContent().get(0).getUser().getId()).isEqualTo(USER_ID);
-            assertThat(response.getContent().get(0).getUser().getUsername()).isEqualTo("Unknown");
+            assertThat(response.getContent().get(0).getUser()).isNull();
         }
 
         @Test
-        @DisplayName("FeignException.NotFound - uses fallback")
+        @DisplayName("FeignException.NotFound — throws, never returns unknown@gmail.com")
         void fetchUserSummaryWithFallback_FeignNotFound() {
             setupReactionsPage();
             Request feignRequest = Request.create(Request.HttpMethod.GET, "/users",
@@ -697,13 +696,12 @@ class ReactionServiceTest {
             when(userServiceClient.getUserSummary(USER_ID))
                     .thenThrow(new FeignException.NotFound("Not found", feignRequest, null, null));
 
-            PageResponse<ReactionResponse> response = reactionService.getReactions(ContentType.POST, CONTENT_ID, 0, 20);
-
-            assertThat(response.getContent().get(0).getUser().getUsername()).isEqualTo("Unknown");
+            assertThatThrownBy(() -> reactionService.getReactions(ContentType.POST, CONTENT_ID, 0, 20))
+                    .isInstanceOf(FeignException.NotFound.class);
         }
 
         @Test
-        @DisplayName("FeignException (other) - uses fallback")
+        @DisplayName("FeignException (5xx) — throws, never returns unknown@gmail.com")
         void fetchUserSummaryWithFallback_FeignOther() {
             setupReactionsPage();
             Request feignRequest = Request.create(Request.HttpMethod.GET, "/users",
@@ -711,21 +709,20 @@ class ReactionServiceTest {
             when(userServiceClient.getUserSummary(USER_ID))
                     .thenThrow(new FeignException.ServiceUnavailable("Service unavailable", feignRequest, null, null));
 
-            PageResponse<ReactionResponse> response = reactionService.getReactions(ContentType.POST, CONTENT_ID, 0, 20);
-
-            assertThat(response.getContent().get(0).getUser().getUsername()).isEqualTo("Unknown");
+            assertThatThrownBy(() -> reactionService.getReactions(ContentType.POST, CONTENT_ID, 0, 20))
+                    .isInstanceOf(FeignException.class);
         }
 
         @Test
-        @DisplayName("Generic Exception - uses fallback")
+        @DisplayName("Generic Exception — throws, never returns unknown@gmail.com")
         void fetchUserSummaryWithFallback_GenericException() {
             setupReactionsPage();
             when(userServiceClient.getUserSummary(USER_ID))
                     .thenThrow(new RuntimeException("Connection failed"));
 
-            PageResponse<ReactionResponse> response = reactionService.getReactions(ContentType.POST, CONTENT_ID, 0, 20);
-
-            assertThat(response.getContent().get(0).getUser().getUsername()).isEqualTo("Unknown");
+            assertThatThrownBy(() -> reactionService.getReactions(ContentType.POST, CONTENT_ID, 0, 20))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("Connection failed");
         }
     }
 
@@ -741,7 +738,7 @@ class ReactionServiceTest {
             Page<Reaction> page = new PageImpl<>(List.of(testReaction), PageRequest.of(0, 20), 1);
             when(reactionRepository.findByContentTypeAndContentId(eq(ContentType.POST), eq(CONTENT_ID), any(Pageable.class)))
                     .thenReturn(page);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<ReactionResponse> response = reactionService.getReactions(ContentType.POST, CONTENT_ID, 0, 20);
 
@@ -754,5 +751,12 @@ class ReactionServiceTest {
             assertThat(reactionResponse.getCreatedAt()).isNotNull();
             assertThat(reactionResponse.getUser()).isNotNull();
         }
+    }
+
+    private static ApiResponse<UserSummary> apiResponse(UserSummary summary) {
+        ApiResponse<UserSummary> response = new ApiResponse<>();
+        response.setSuccess(summary != null);
+        response.setData(summary);
+        return response;
     }
 }

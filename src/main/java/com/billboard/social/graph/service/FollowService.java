@@ -1,6 +1,6 @@
 package com.billboard.social.graph.service;
 
-import com.billboard.social.common.client.UserServiceClient;
+import com.billboard.social.common.client.UserSummaryResolver;
 import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.dto.UserSummary;
 import com.billboard.social.common.exception.ResourceNotFoundException;
@@ -33,7 +33,7 @@ public class FollowService {
 
     private final FollowRepository followRepository;
     private final BlockRepository blockRepository;
-    private final UserServiceClient userServiceClient;
+    private final UserSummaryResolver userSummaryResolver;
     private final SocialEventPublisher eventPublisher;
 
     @Value("${social.follow.max-following:5000}")
@@ -189,7 +189,7 @@ public class FollowService {
      * Used for: getFollowing, getCloseFriends
      */
     private FollowResponse mapToFollowResponse(Follow follow) {
-        UserSummary userSummary = fetchUserSummary(follow.getFollowingId());
+        UserSummary userSummary = userSummaryResolver.resolveForDisplay(follow.getFollowingId());
 
         return FollowResponse.builder()
                 .id(follow.getId())
@@ -208,7 +208,7 @@ public class FollowService {
      * Used for: getFollowers
      */
     private FollowResponse mapToFollowerResponse(Follow follow) {
-        UserSummary userSummary = fetchUserSummary(follow.getFollowerId());
+        UserSummary userSummary = userSummaryResolver.resolveForDisplay(follow.getFollowerId());
 
         return FollowResponse.builder()
                 .id(follow.getId())
@@ -222,19 +222,4 @@ public class FollowService {
                 .build();
     }
 
-    /**
-     * Fetches user summary from identity-service with fallback
-     */
-    private UserSummary fetchUserSummary(Long userId) {
-        try {
-            return userServiceClient.getUserSummary(userId).getData();
-        } catch (Exception e) {
-            log.warn("Failed to fetch user summary for {}: {}", userId, e.getMessage());
-            return UserSummary.builder()
-                    .id(userId)
-                    .username("Unknown")
-                    .email("unknown@gmail.com")
-                    .build();
-        }
-    }
 }

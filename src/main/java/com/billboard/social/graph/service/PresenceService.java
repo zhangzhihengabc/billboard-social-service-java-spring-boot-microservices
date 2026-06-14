@@ -4,7 +4,7 @@ import com.billboard.social.common.client.UserServiceClient;
 import com.billboard.social.common.dto.UserSummary;
 import com.billboard.social.graph.dto.response.SocialResponses.FriendPresenceResponse;
 import com.billboard.social.graph.repository.FriendshipRepository;
-import feign.FeignException;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -77,10 +77,10 @@ public class PresenceService {
         List<FriendPresenceResponse> onlineFriends = friendIds.stream()
                 .filter(this::isOnline)
                 .map(friendId -> {
-                    UserSummary summary = fetchUserSummaryWithFallback(friendId);
+                    UserSummary summary = userServiceClient.getUserSummary(friendId).getData();
                     return FriendPresenceResponse.builder()
                             .userId(friendId)
-                            .username(summary.getUsername())
+                            .username(summary != null ? summary.getUsername() : null)
                             .online(true)
                             .build();
                 })
@@ -94,32 +94,4 @@ public class PresenceService {
     // Private helpers
     // -------------------------------------------------------------------------
 
-    /**
-     * Fetches a UserSummary from the sso-service. Returns a safe fallback on
-     * any error so that a single unavailable user does not break the whole
-     * presence list.
-     */
-    private UserSummary fetchUserSummaryWithFallback(Long userId) {
-        try {
-            UserSummary summary = userServiceClient.getUserSummary(userId).getData();
-            if (summary != null) {
-                return summary;
-            }
-            log.warn("User summary returned null for userId: {}", userId);
-        } catch (FeignException.NotFound e) {
-            log.warn("User not found in identity-service: {}", userId);
-        } catch (FeignException e) {
-            log.warn("Identity service unavailable for userId {}: Status {}", userId, e.status());
-        } catch (Exception e) {
-            log.warn("Failed to fetch user summary for userId {}: {} - {}",
-                    userId, e.getClass().getSimpleName(), e.getMessage());
-        }
-
-        // Return a safe stub so the caller always gets a valid object
-        return UserSummary.builder()
-                .id(userId)
-                .username("Unknown")
-                .email("unknown@gmail.com")
-                .build();
-    }
 }

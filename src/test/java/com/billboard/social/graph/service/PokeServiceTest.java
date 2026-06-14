@@ -3,6 +3,7 @@ package com.billboard.social.graph.service;
 import com.billboard.social.common.client.UserServiceClient;
 import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.dto.UserSummary;
+import com.billboard.social.common.dto.ApiResponse;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.graph.dto.request.SocialRequests.PokeRequest;
 import com.billboard.social.graph.dto.response.SocialResponses.PokeResponse;
@@ -93,7 +94,7 @@ class PokeServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PokeResponse response = pokeService.poke(USER_ID, request);
 
@@ -125,7 +126,7 @@ class PokeServiceTest {
             when(blockRepository.isBlockedEitherWay(USER_ID, TARGET_USER_ID)).thenReturn(false);
             when(pokeRepository.findByPokerIdAndPokedId(USER_ID, TARGET_USER_ID)).thenReturn(Optional.of(existingPoke));
             when(pokeRepository.save(any(Poke.class))).thenAnswer(invocation -> invocation.getArgument(0));
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PokeResponse response = pokeService.poke(USER_ID, request);
 
@@ -229,7 +230,7 @@ class PokeServiceTest {
                     .id(TARGET_USER_ID)
                     .username("poker")
                     .build();
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(pokerSummary);
+            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(apiResponse(pokerSummary));
 
             PokeResponse response = pokeService.pokeBack(USER_ID, POKE_ID);
 
@@ -279,7 +280,7 @@ class PokeServiceTest {
                     .id(TARGET_USER_ID)
                     .username("poker")
                     .build();
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(pokerSummary);
+            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(apiResponse(pokerSummary));
 
             PokeResponse response = pokeService.pokeBack(USER_ID, POKE_ID);
 
@@ -377,7 +378,7 @@ class PokeServiceTest {
             );
 
             when(pokeRepository.findActivePokesForUser(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<PokeResponse> response = pokeService.getReceivedPokes(USER_ID, 0, 20);
 
@@ -435,7 +436,7 @@ class PokeServiceTest {
             );
 
             when(pokeRepository.findPokesSentByUser(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<PokeResponse> response = pokeService.getSentPokes(USER_ID, 0, 20);
 
@@ -571,7 +572,7 @@ class PokeServiceTest {
         @DisplayName("Success - returns user summary")
         void fetchUserSummaryWithFallback_Success() {
             setupPokesPage();
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<PokeResponse> response = pokeService.getReceivedPokes(USER_ID, 0, 20);
 
@@ -580,20 +581,18 @@ class PokeServiceTest {
         }
 
         @Test
-        @DisplayName("Returns null - uses fallback")
+        @DisplayName("SSO returns null — poker field is null, no fake email")
         void fetchUserSummaryWithFallback_ReturnsNull() {
             setupPokesPage();
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(null);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(null));
 
             PageResponse<PokeResponse> response = pokeService.getReceivedPokes(USER_ID, 0, 20);
 
-            assertThat(response.getContent().get(0).getPoker()).isNotNull();
-            assertThat(response.getContent().get(0).getPoker().getId()).isEqualTo(USER_ID);
-            assertThat(response.getContent().get(0).getPoker().getUsername()).isEqualTo("Unknown");
+            assertThat(response.getContent().get(0).getPoker()).isNull();
         }
 
         @Test
-        @DisplayName("FeignException.NotFound - uses fallback")
+        @DisplayName("FeignException.NotFound — throws, never returns unknown@gmail.com")
         void fetchUserSummaryWithFallback_FeignNotFound() {
             setupPokesPage();
             Request feignRequest = Request.create(Request.HttpMethod.GET, "/users",
@@ -601,13 +600,12 @@ class PokeServiceTest {
             when(userServiceClient.getUserSummary(USER_ID))
                     .thenThrow(new FeignException.NotFound("Not found", feignRequest, null, null));
 
-            PageResponse<PokeResponse> response = pokeService.getReceivedPokes(USER_ID, 0, 20);
-
-            assertThat(response.getContent().get(0).getPoker().getUsername()).isEqualTo("Unknown");
+            assertThatThrownBy(() -> pokeService.getReceivedPokes(USER_ID, 0, 20))
+                    .isInstanceOf(FeignException.NotFound.class);
         }
 
         @Test
-        @DisplayName("FeignException (other) - uses fallback")
+        @DisplayName("FeignException (5xx) — throws, never returns unknown@gmail.com")
         void fetchUserSummaryWithFallback_FeignOther() {
             setupPokesPage();
             Request feignRequest = Request.create(Request.HttpMethod.GET, "/users",
@@ -615,21 +613,20 @@ class PokeServiceTest {
             when(userServiceClient.getUserSummary(USER_ID))
                     .thenThrow(new FeignException.ServiceUnavailable("Service unavailable", feignRequest, null, null));
 
-            PageResponse<PokeResponse> response = pokeService.getReceivedPokes(USER_ID, 0, 20);
-
-            assertThat(response.getContent().get(0).getPoker().getUsername()).isEqualTo("Unknown");
+            assertThatThrownBy(() -> pokeService.getReceivedPokes(USER_ID, 0, 20))
+                    .isInstanceOf(FeignException.class);
         }
 
         @Test
-        @DisplayName("Generic Exception - uses fallback")
+        @DisplayName("Generic Exception — throws, never returns unknown@gmail.com")
         void fetchUserSummaryWithFallback_GenericException() {
             setupPokesPage();
             when(userServiceClient.getUserSummary(USER_ID))
                     .thenThrow(new RuntimeException("Connection failed"));
 
-            PageResponse<PokeResponse> response = pokeService.getReceivedPokes(USER_ID, 0, 20);
-
-            assertThat(response.getContent().get(0).getPoker().getUsername()).isEqualTo("Unknown");
+            assertThatThrownBy(() -> pokeService.getReceivedPokes(USER_ID, 0, 20))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("Connection failed");
         }
     }
 
@@ -646,7 +643,7 @@ class PokeServiceTest {
 
             Page<Poke> page = new PageImpl<>(List.of(testPoke), PageRequest.of(0, 20), 1);
             when(pokeRepository.findActivePokesForUser(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<PokeResponse> response = pokeService.getReceivedPokes(USER_ID, 0, 20);
 
@@ -668,11 +665,18 @@ class PokeServiceTest {
 
             Page<Poke> page = new PageImpl<>(List.of(testPoke), PageRequest.of(0, 20), 1);
             when(pokeRepository.findActivePokesForUser(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<PokeResponse> response = pokeService.getReceivedPokes(USER_ID, 0, 20);
 
             assertThat(response.getContent().get(0).getPokedBackAt()).isNull();
         }
+    }
+
+    private static ApiResponse<UserSummary> apiResponse(UserSummary summary) {
+        ApiResponse<UserSummary> response = new ApiResponse<>();
+        response.setSuccess(summary != null);
+        response.setData(summary);
+        return response;
     }
 }

@@ -10,7 +10,6 @@ import com.billboard.social.graph.event.SocialEventPublisher;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.graph.repository.BlockRepository;
 import com.billboard.social.graph.repository.PokeRepository;
-import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -156,7 +155,7 @@ public class PokeService {
     }
 
     private PokeResponse mapToPokeResponse(Poke poke) {
-        UserSummary userSummary = fetchUserSummaryWithFallback(poke.getPokerId());
+        UserSummary userSummary = userServiceClient.getUserSummary(poke.getPokerId()).getData();
 
         return PokeResponse.builder()
                 .id(poke.getId())
@@ -167,29 +166,6 @@ public class PokeService {
                 .pokedBackAt(poke.getPokedBackAt())
                 .createdAt(poke.getCreatedAt())
                 .poker(userSummary)
-                .build();
-    }
-
-    private UserSummary fetchUserSummaryWithFallback(Long userId) {
-        try {
-            UserSummary summary = userServiceClient.getUserSummary(userId).getData();
-            if (summary != null) {
-                return summary;
-            }
-            log.warn("User summary returned null for userId: {}", userId);
-        } catch (FeignException.NotFound e) {
-            log.warn("User not found in identity-service: {}", userId);
-        } catch (FeignException e) {
-            log.warn("Identity service unavailable for userId {}: Status {}", userId, e.status());
-        } catch (Exception e) {
-            log.warn("Failed to fetch user summary for userId {}: {} - {}",
-                    userId, e.getClass().getSimpleName(), e.getMessage());
-        }
-
-        return UserSummary.builder()
-                .id(userId)
-                .username("Unknown")
-                .email("unknown@gmail.com")
                 .build();
     }
 }

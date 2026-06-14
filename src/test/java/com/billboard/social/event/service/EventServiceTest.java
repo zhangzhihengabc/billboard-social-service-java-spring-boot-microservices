@@ -2,9 +2,10 @@ package com.billboard.social.event.service;
 
 import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.dto.UserSummary;
+import com.billboard.social.common.dto.ApiResponse;
 import com.billboard.social.common.exception.ForbiddenException;
 import com.billboard.social.common.exception.ValidationException;
-import com.billboard.social.common.client.UserServiceClient;
+import com.billboard.social.common.client.UserSummaryResolver;
 import com.billboard.social.common.security.InputValidator;
 import com.billboard.social.event.dto.request.EventRequests.CreateEventRequest;
 import com.billboard.social.event.dto.request.EventRequests.UpdateEventRequest;
@@ -45,7 +46,7 @@ class EventServiceTest {
     private EventCategoryRepository categoryRepository;
 
     @Mock
-    private UserServiceClient userServiceClient;
+    private UserSummaryResolver userSummaryResolver;
 
     @Mock
     private EventEventPublisher eventPublisher;
@@ -164,7 +165,7 @@ class EventServiceTest {
                     return saved;
                 });
                 when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(null);
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
                 when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
                 EventResponse response = eventService.createEvent(USER_ID, request);
@@ -200,7 +201,7 @@ class EventServiceTest {
                     return saved;
                 });
                 when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(null);
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
                 when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
                 eventService.createEvent(USER_ID, request);
@@ -230,7 +231,7 @@ class EventServiceTest {
                     return saved;
                 });
                 when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(null);
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
                 when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
                 eventService.createEvent(USER_ID, request);
@@ -260,7 +261,7 @@ class EventServiceTest {
                     return saved;
                 });
                 when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(null);
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
                 when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
                 eventService.createEvent(USER_ID, request);
@@ -290,7 +291,7 @@ class EventServiceTest {
                     return saved;
                 });
                 when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(null);
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
                 when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
                 eventService.createEvent(USER_ID, request);
@@ -322,7 +323,7 @@ class EventServiceTest {
                     return saved;
                 });
                 when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(null);
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
                 when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
                 EventResponse response = eventService.createEvent(USER_ID, request);
@@ -354,7 +355,7 @@ class EventServiceTest {
                     return saved;
                 });
                 when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(null);
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
                 when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
                 EventResponse response = eventService.createEvent(USER_ID, request);
@@ -381,7 +382,7 @@ class EventServiceTest {
                 return saved;
             });
             when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(null);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
             when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
             EventResponse response = eventService.createEvent(USER_ID, request);
@@ -440,7 +441,7 @@ class EventServiceTest {
                     return saved;
                 });
                 when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(null);
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
                 when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
                 eventService.createEvent(USER_ID, request);
@@ -481,7 +482,7 @@ class EventServiceTest {
                     return saved;
                 });
                 when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(null);
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
                 when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
                 EventResponse response = eventService.createEvent(USER_ID, request);
@@ -565,7 +566,7 @@ class EventServiceTest {
                     return saved;
                 });
                 when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(null);
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
                 when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
                 eventService.createEvent(USER_ID, request);
@@ -596,7 +597,7 @@ class EventServiceTest {
                     return saved;
                 });
                 when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(null);
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
                 when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
                 eventService.createEvent(USER_ID, request);
@@ -624,7 +625,7 @@ class EventServiceTest {
                     return saved;
                 });
                 when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(null);
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
                 when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
                 eventService.createEvent(USER_ID, request);
@@ -655,7 +656,7 @@ class EventServiceTest {
                     return saved;
                 });
                 when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(null);
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
                 when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
                 eventService.createEvent(USER_ID, request);
@@ -685,7 +686,7 @@ class EventServiceTest {
                     return saved;
                 });
                 when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(null);
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
                 when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
                 eventService.createEvent(USER_ID, request);
@@ -715,7 +716,7 @@ class EventServiceTest {
                     return saved;
                 });
                 when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(null);
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
                 when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
                 eventService.createEvent(USER_ID, request);
@@ -768,7 +769,7 @@ class EventServiceTest {
                 when(categoryRepository.findById(CATEGORY_ID)).thenReturn(Optional.of(testCategory));
                 when(eventRepository.existsBySlug(anyString())).thenReturn(false);
                 when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
                 when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
                 EventResponse response = eventService.updateEvent(USER_ID, EVENT_ID, request);
@@ -792,7 +793,7 @@ class EventServiceTest {
                 assertThat(saved.getCoverImageUrl()).isEqualTo("https://example.com/new-image.jpg");
                 return saved;
             });
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
             when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
             EventResponse response = eventService.updateEvent(USER_ID, EVENT_ID, request);
@@ -823,9 +824,9 @@ class EventServiceTest {
                 when(coHostRepository.findByEventIdAndUserId(EVENT_ID, USER_ID)).thenReturn(Optional.of(coHost));
                 when(eventRepository.existsBySlug(anyString())).thenReturn(false);
                 when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-                when(userServiceClient.getUserSummary(OTHER_USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(OTHER_USER_ID)).thenReturn(testUserSummary);
                 when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(List.of(coHost));
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
                 EventResponse response = eventService.updateEvent(USER_ID, EVENT_ID, request);
 
@@ -923,7 +924,7 @@ class EventServiceTest {
 
                 when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));
                 when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
                 when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
                 eventService.updateEvent(USER_ID, EVENT_ID, request);
@@ -939,7 +940,7 @@ class EventServiceTest {
 
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));
             when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
             when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
             EventResponse response = eventService.updateEvent(USER_ID, EVENT_ID, request);
@@ -961,7 +962,7 @@ class EventServiceTest {
 
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));
             when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
             when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
             EventResponse response = eventService.publishEvent(USER_ID, EVENT_ID);
@@ -1023,7 +1024,7 @@ class EventServiceTest {
 
                 when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));
                 when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
                 when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
                 EventResponse response = eventService.cancelEvent(USER_ID, EVENT_ID, "Weather conditions");
@@ -1039,7 +1040,7 @@ class EventServiceTest {
         void cancelEvent_WithoutReason() {
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));
             when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
             when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
             EventResponse response = eventService.cancelEvent(USER_ID, EVENT_ID, null);
@@ -1053,7 +1054,7 @@ class EventServiceTest {
         void cancelEvent_BlankReason() {
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));
             when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
             when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
             eventService.cancelEvent(USER_ID, EVENT_ID, "   ");
@@ -1143,7 +1144,7 @@ class EventServiceTest {
             testEvent.setVisibility(EventVisibility.PUBLIC);
 
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
             when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
             EventResponse response = eventService.getEvent(EVENT_ID, USER_ID);
@@ -1158,7 +1159,7 @@ class EventServiceTest {
             testEvent.setVisibility(EventVisibility.PUBLIC);
 
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
             when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
             EventResponse response = eventService.getEvent(EVENT_ID, null);
@@ -1174,7 +1175,7 @@ class EventServiceTest {
             testEvent.setVisibility(EventVisibility.PRIVATE);
 
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
             when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
             EventResponse response = eventService.getEvent(EVENT_ID, USER_ID);
@@ -1191,7 +1192,7 @@ class EventServiceTest {
 
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));
             when(rsvpRepository.existsByEventIdAndUserId(EVENT_ID, USER_ID)).thenReturn(true);
-            when(userServiceClient.getUserSummary(OTHER_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(OTHER_USER_ID)).thenReturn(testUserSummary);
             when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
             when(coHostRepository.existsByEventIdAndUserId(EVENT_ID, USER_ID)).thenReturn(false);
 
@@ -1209,7 +1210,7 @@ class EventServiceTest {
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));
             when(rsvpRepository.existsByEventIdAndUserId(EVENT_ID, USER_ID)).thenReturn(false);
             when(coHostRepository.existsByEventIdAndUserId(EVENT_ID, USER_ID)).thenReturn(true);
-            when(userServiceClient.getUserSummary(OTHER_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(OTHER_USER_ID)).thenReturn(testUserSummary);
             when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
             EventResponse response = eventService.getEvent(EVENT_ID, USER_ID);
@@ -1277,7 +1278,7 @@ class EventServiceTest {
                         .thenReturn("test-event");
 
                 when(eventRepository.findBySlug("test-event")).thenReturn(Optional.of(testEvent));
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
                 when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
                 EventResponse response = eventService.getEventBySlug("test-event", USER_ID);
@@ -1482,17 +1483,19 @@ class EventServiceTest {
     class HelperMethodTests {
 
         @Test
-        @DisplayName("fetchUserSummary - returns fallback on exception")
+        @DisplayName("SSO failure - resolver returns id-only UserSummary (null username, null email)")
         void fetchUserSummary_Fallback() {
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));
-            when(userServiceClient.getUserSummary(USER_ID)).thenThrow(new RuntimeException("Service unavailable"));
+            when(userSummaryResolver.resolveForDisplay(USER_ID))
+                    .thenReturn(UserSummary.builder().id(USER_ID).build());
             when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
             EventResponse response = eventService.getEvent(EVENT_ID, USER_ID);
 
             assertThat(response.getHost()).isNotNull();
             assertThat(response.getHost().getId()).isEqualTo(USER_ID);
-            assertThat(response.getHost().getUsername()).isEqualTo("Unknown");
+            assertThat(response.getHost().getUsername()).isNull();
+            assertThat(response.getHost().getEmail()).isNull();
         }
 
         @Test
@@ -1502,7 +1505,7 @@ class EventServiceTest {
 
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));
             when(categoryRepository.findById(CATEGORY_ID)).thenReturn(Optional.of(testCategory));
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
             when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
             EventResponse response = eventService.getEvent(EVENT_ID, USER_ID);
@@ -1516,7 +1519,7 @@ class EventServiceTest {
             testEvent.setCategoryId(null);
 
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
             when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
             EventResponse response = eventService.getEvent(EVENT_ID, USER_ID);
@@ -1539,8 +1542,8 @@ class EventServiceTest {
                     .build();
 
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
-            when(userServiceClient.getUserSummary(OTHER_USER_ID)).thenReturn(coHostSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(OTHER_USER_ID)).thenReturn(coHostSummary);
             when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(List.of(coHost));
 
             EventResponse response = eventService.getEvent(EVENT_ID, USER_ID);
@@ -1553,7 +1556,7 @@ class EventServiceTest {
         @DisplayName("mapToEventResponse - currentUserId null skips user context")
         void mapToEventResponse_NullCurrentUserId() {
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
             when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
             EventResponse response = eventService.getEvent(EVENT_ID, null);
@@ -1605,11 +1608,18 @@ class EventServiceTest {
                     return saved;
                 });
                 when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(null);
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
                 when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(Collections.emptyList());
 
                 eventService.createEvent(USER_ID, request);
             }
         }
+    }
+
+    private static ApiResponse<UserSummary> apiResponse(UserSummary summary) {
+        ApiResponse<UserSummary> response = new ApiResponse<>();
+        response.setSuccess(summary != null);
+        response.setData(summary);
+        return response;
     }
 }

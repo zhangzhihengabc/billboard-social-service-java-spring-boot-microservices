@@ -2,9 +2,11 @@ package com.billboard.social.event.service;
 
 import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.dto.UserSummary;
+import com.billboard.social.common.dto.ApiResponse;
 import com.billboard.social.common.exception.ForbiddenException;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.common.client.UserServiceClient;
+import com.billboard.social.common.client.UserSummaryResolver;
 import com.billboard.social.common.security.InputValidator;
 import com.billboard.social.event.dto.request.EventRequests.AddCoHostRequest;
 import com.billboard.social.event.dto.request.EventRequests.RsvpRequest;
@@ -41,6 +43,9 @@ class RsvpServiceTest {
 
     @Mock
     private UserServiceClient userServiceClient;
+
+    @Mock
+    private UserSummaryResolver userSummaryResolver;
 
     @Mock
     private EventEventPublisher eventPublisher;
@@ -131,7 +136,7 @@ class RsvpServiceTest {
                     return saved;
                 });
                 when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-                when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+                when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
                 RsvpResponse response = rsvpService.rsvp(USER_ID, EVENT_ID, request);
 
@@ -156,7 +161,7 @@ class RsvpServiceTest {
                 return saved;
             });
             when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             RsvpResponse response = rsvpService.rsvp(USER_ID, EVENT_ID, request);
 
@@ -178,7 +183,7 @@ class RsvpServiceTest {
                 return saved;
             });
             when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             RsvpResponse response = rsvpService.rsvp(USER_ID, EVENT_ID, request);
 
@@ -197,7 +202,7 @@ class RsvpServiceTest {
             when(rsvpRepository.findByEventIdAndUserId(EVENT_ID, USER_ID)).thenReturn(Optional.of(testRsvp));
             when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(testRsvp);
             when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             RsvpResponse response = rsvpService.rsvp(USER_ID, EVENT_ID, request);
 
@@ -217,7 +222,7 @@ class RsvpServiceTest {
             when(rsvpRepository.findByEventIdAndUserId(EVENT_ID, USER_ID)).thenReturn(Optional.of(testRsvp));
             when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(testRsvp);
             when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             rsvpService.rsvp(USER_ID, EVENT_ID, request);
 
@@ -338,7 +343,7 @@ class RsvpServiceTest {
                 return saved;
             });
             when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             RsvpResponse response = rsvpService.rsvp(USER_ID, EVENT_ID, request);
 
@@ -393,7 +398,7 @@ class RsvpServiceTest {
                 return saved;
             });
             when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             RsvpResponse response = rsvpService.rsvp(USER_ID, EVENT_ID, request);
 
@@ -416,7 +421,7 @@ class RsvpServiceTest {
                 return saved;
             });
             when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             rsvpService.rsvp(USER_ID, EVENT_ID, request);
         }
@@ -438,7 +443,7 @@ class RsvpServiceTest {
                 return saved;
             });
             when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             rsvpService.rsvp(USER_ID, EVENT_ID, request);
         }
@@ -583,7 +588,7 @@ class RsvpServiceTest {
             Page<EventRsvp> page = new PageImpl<>(List.of(testRsvp), PageRequest.of(0, 20), 1);
 
             when(rsvpRepository.findByEventIdPageable(eq(EVENT_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             PageResponse<RsvpResponse> response = rsvpService.getAttendees(EVENT_ID, null, 0, 20);
 
@@ -598,7 +603,7 @@ class RsvpServiceTest {
 
             when(rsvpRepository.findByEventIdAndStatus(eq(EVENT_ID), eq(RsvpStatus.GOING), any(Pageable.class)))
                     .thenReturn(page);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             PageResponse<RsvpResponse> response = rsvpService.getAttendees(EVENT_ID, RsvpStatus.GOING, 0, 20);
 
@@ -614,7 +619,7 @@ class RsvpServiceTest {
 
             when(rsvpRepository.findByEventIdAndStatus(eq(EVENT_ID), eq(RsvpStatus.MAYBE), any(Pageable.class)))
                     .thenReturn(page);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             PageResponse<RsvpResponse> response = rsvpService.getAttendees(EVENT_ID, RsvpStatus.MAYBE, 0, 20);
 
@@ -657,7 +662,7 @@ class RsvpServiceTest {
 
             when(rsvpRepository.findByEventIdAndStatus(eq(EVENT_ID), eq(RsvpStatus.GOING), any(Pageable.class)))
                     .thenReturn(page);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             PageResponse<RsvpResponse> response = rsvpService.getGoingAttendees(EVENT_ID, 0, 20);
 
@@ -688,7 +693,7 @@ class RsvpServiceTest {
 
             when(rsvpRepository.findByEventIdAndStatus(eq(EVENT_ID), eq(RsvpStatus.CHECKED_IN), any(Pageable.class)))
                     .thenReturn(page);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             PageResponse<RsvpResponse> response = rsvpService.getCheckedInAttendees(EVENT_ID, 0, 20);
 
@@ -757,7 +762,7 @@ class RsvpServiceTest {
             when(rsvpRepository.findByEventIdAndUserId(EVENT_ID, USER_ID)).thenReturn(Optional.of(testRsvp));
             when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(testRsvp);
             when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             RsvpResponse response = rsvpService.checkIn(HOST_ID, EVENT_ID, USER_ID);
 
@@ -776,7 +781,7 @@ class RsvpServiceTest {
             when(rsvpRepository.findByEventIdAndUserId(EVENT_ID, USER_ID)).thenReturn(Optional.of(testRsvp));
             when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(testRsvp);
             when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             RsvpResponse response = rsvpService.checkIn(OTHER_USER_ID, EVENT_ID, USER_ID);
 
@@ -889,7 +894,7 @@ class RsvpServiceTest {
             when(rsvpRepository.findByEventIdAndUserId(EVENT_ID, USER_ID)).thenReturn(Optional.of(testRsvp));
             when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(testRsvp);
             when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             RsvpResponse response = rsvpService.undoCheckIn(HOST_ID, EVENT_ID, USER_ID);
 
@@ -964,7 +969,7 @@ class RsvpServiceTest {
         @DisplayName("Success - returns RSVP status")
         void getMyRsvpStatus_Success() {
             when(rsvpRepository.findByEventIdAndUserId(EVENT_ID, USER_ID)).thenReturn(Optional.of(testRsvp));
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             RsvpResponse response = rsvpService.getMyRsvpStatus(USER_ID, EVENT_ID);
 
@@ -1011,7 +1016,8 @@ class RsvpServiceTest {
 
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));
             when(coHostRepository.existsByEventIdAndUserId(EVENT_ID, OTHER_USER_ID)).thenReturn(false);
-            when(userServiceClient.getUserSummary(OTHER_USER_ID)).thenReturn(coHostSummary);
+            when(userServiceClient.getUserSummary(OTHER_USER_ID)).thenReturn(apiResponse(coHostSummary));
+            when(userSummaryResolver.resolveForDisplay(OTHER_USER_ID)).thenReturn(coHostSummary);
             when(coHostRepository.save(any(EventCoHost.class))).thenAnswer(invocation -> {
                 EventCoHost saved = invocation.getArgument(0);
                 saved.setId(COHOST_ID);
@@ -1186,7 +1192,7 @@ class RsvpServiceTest {
 
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));
             when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(List.of(testCoHost));
-            when(userServiceClient.getUserSummary(OTHER_USER_ID)).thenReturn(coHostSummary);
+            when(userSummaryResolver.resolveForDisplay(OTHER_USER_ID)).thenReturn(coHostSummary);
 
             List<CoHostResponse> response = rsvpService.getCoHosts(EVENT_ID);
 
@@ -1231,17 +1237,18 @@ class RsvpServiceTest {
     class HelperMethodTests {
 
         @Test
-        @DisplayName("fetchUserSummary - returns fallback on exception")
+        @DisplayName("SSO failure - resolver returns id-only UserSummary (null username, null email)")
         void fetchUserSummary_Fallback() {
             when(rsvpRepository.findByEventIdAndUserId(EVENT_ID, USER_ID)).thenReturn(Optional.of(testRsvp));
-            when(userServiceClient.getUserSummary(USER_ID))
-                    .thenThrow(new RuntimeException("Service unavailable"));
+            when(userSummaryResolver.resolveForDisplay(USER_ID))
+                    .thenReturn(UserSummary.builder().id(USER_ID).build());
 
             RsvpResponse response = rsvpService.getMyRsvpStatus(USER_ID, EVENT_ID);
 
             assertThat(response.getUser()).isNotNull();
             assertThat(response.getUser().getId()).isEqualTo(USER_ID);
-            assertThat(response.getUser().getUsername()).isEqualTo("Unknown");
+            assertThat(response.getUser().getUsername()).isNull();
+            assertThat(response.getUser().getEmail()).isNull();
         }
 
         @Test
@@ -1253,7 +1260,7 @@ class RsvpServiceTest {
             testRsvp.setNotificationsEnabled(false);
 
             when(rsvpRepository.findByEventIdAndUserId(EVENT_ID, USER_ID)).thenReturn(Optional.of(testRsvp));
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             RsvpResponse response = rsvpService.getMyRsvpStatus(USER_ID, EVENT_ID);
 
@@ -1279,7 +1286,7 @@ class RsvpServiceTest {
 
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));
             when(coHostRepository.findByEventId(EVENT_ID)).thenReturn(List.of(testCoHost));
-            when(userServiceClient.getUserSummary(OTHER_USER_ID)).thenReturn(coHostSummary);
+            when(userSummaryResolver.resolveForDisplay(OTHER_USER_ID)).thenReturn(coHostSummary);
 
             List<CoHostResponse> response = rsvpService.getCoHosts(EVENT_ID);
 
@@ -1307,7 +1314,7 @@ class RsvpServiceTest {
                 return saved;
             });
             when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             rsvpService.rsvp(USER_ID, EVENT_ID, request);
 
@@ -1327,12 +1334,19 @@ class RsvpServiceTest {
             when(rsvpRepository.findByEventIdAndUserId(EVENT_ID, USER_ID)).thenReturn(Optional.of(testRsvp));
             when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(testRsvp);
             when(eventRepository.save(any(Event.class))).thenReturn(testEvent);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(USER_ID)).thenReturn(testUserSummary);
 
             rsvpService.rsvp(USER_ID, EVENT_ID, request);
 
             // GOING decrements, NOT_GOING doesn't increment
             verify(eventRepository).save(argThat(event -> event.getGoingCount() == 9));
         }
+    }
+
+    private static ApiResponse<UserSummary> apiResponse(UserSummary summary) {
+        ApiResponse<UserSummary> response = new ApiResponse<>();
+        response.setSuccess(summary != null);
+        response.setData(summary);
+        return response;
     }
 }

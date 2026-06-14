@@ -1,7 +1,6 @@
 package com.billboard.social.suggestion.service;
 
-import com.billboard.social.common.client.UserServiceClient;
-import com.billboard.social.common.dto.UserSummary;
+import com.billboard.social.common.client.UserSummaryResolver;
 import com.billboard.social.graph.repository.BlockRepository;
 import com.billboard.social.graph.repository.FollowRepository;
 import com.billboard.social.graph.repository.FriendshipRepository;
@@ -21,7 +20,7 @@ public class UserSuggestionService {
     private final FriendshipRepository friendshipRepository;
     private final FollowRepository followRepository;
     private final BlockRepository blockRepository;
-    private final UserServiceClient userServiceClient;
+    private final UserSummaryResolver userSummaryResolver;
 
     /** Max suggestions to return per request. */
     private static final int MAX_SUGGESTIONS = 20;
@@ -94,7 +93,7 @@ public class UserSuggestionService {
                             .mutualFriendCount(mutualCount)
                             .reason(reason)
                             .source("FRIEND_OF_FRIEND")
-                            .user(fetchUserSummary(entry.getKey()))
+                            .user(userSummaryResolver.resolveForDisplay(entry.getKey()))
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -132,7 +131,7 @@ public class UserSuggestionService {
                             .mutualFriendCount(0)
                             .reason(reason)
                             .source("POPULAR")
-                            .user(fetchUserSummary(candidateId))
+                            .user(userSummaryResolver.resolveForDisplay(candidateId))
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -154,17 +153,4 @@ public class UserSuggestionService {
         return excluded;
     }
 
-    /**
-     * Fetch user summary (username, avatar, email) from the SSO service via Feign.
-     * Returns null if the SSO service is unavailable — the suggestion still works,
-     * the frontend just won't have the username/avatar until next call.
-     */
-    private UserSummary fetchUserSummary(Long userId) {
-        try {
-            return userServiceClient.getUserSummary(userId).getData();
-        } catch (Exception e) {
-            log.warn("Could not fetch user summary for userId={}: {}", userId, e.getMessage());
-            return null;
-        }
-    }
 }

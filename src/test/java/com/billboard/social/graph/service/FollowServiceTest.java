@@ -1,8 +1,9 @@
 package com.billboard.social.graph.service;
 
-import com.billboard.social.common.client.UserServiceClient;
+import com.billboard.social.common.client.UserSummaryResolver;
 import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.dto.UserSummary;
+import com.billboard.social.common.dto.ApiResponse;
 import com.billboard.social.common.exception.ResourceNotFoundException;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.graph.dto.request.SocialRequests.FollowRequest;
@@ -38,7 +39,7 @@ class FollowServiceTest {
     private BlockRepository blockRepository;
 
     @Mock
-    private UserServiceClient userServiceClient;
+    private UserSummaryResolver userSummaryResolver;
 
     @Mock
     private SocialEventPublisher eventPublisher;
@@ -101,7 +102,7 @@ class FollowServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             FollowResponse response = followService.follow(USER_ID, request);
 
@@ -134,7 +135,7 @@ class FollowServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             FollowResponse response = followService.follow(USER_ID, request);
 
@@ -159,7 +160,7 @@ class FollowServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             followService.follow(USER_ID, request);
 
@@ -184,7 +185,7 @@ class FollowServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             followService.follow(USER_ID, request);
 
@@ -273,7 +274,7 @@ class FollowServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             FollowResponse response = followService.follow(USER_ID, request);
 
@@ -331,7 +332,7 @@ class FollowServiceTest {
             when(followRepository.findByFollowerIdAndFollowingId(USER_ID, TARGET_USER_ID))
                     .thenReturn(Optional.of(testFollow));
             when(followRepository.save(any(Follow.class))).thenReturn(testFollow);
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             FollowResponse response = followService.updateFollow(USER_ID, TARGET_USER_ID, request);
 
@@ -354,7 +355,7 @@ class FollowServiceTest {
             when(followRepository.findByFollowerIdAndFollowingId(USER_ID, TARGET_USER_ID))
                     .thenReturn(Optional.of(testFollow));
             when(followRepository.save(any(Follow.class))).thenReturn(testFollow);
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             followService.updateFollow(USER_ID, TARGET_USER_ID, request);
 
@@ -377,7 +378,7 @@ class FollowServiceTest {
             when(followRepository.findByFollowerIdAndFollowingId(USER_ID, TARGET_USER_ID))
                     .thenReturn(Optional.of(testFollow));
             when(followRepository.save(any(Follow.class))).thenReturn(testFollow);
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             followService.updateFollow(USER_ID, TARGET_USER_ID, request);
 
@@ -400,7 +401,7 @@ class FollowServiceTest {
             when(followRepository.findByFollowerIdAndFollowingId(USER_ID, TARGET_USER_ID))
                     .thenReturn(Optional.of(testFollow));
             when(followRepository.save(any(Follow.class))).thenReturn(testFollow);
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             followService.updateFollow(USER_ID, TARGET_USER_ID, request);
 
@@ -421,7 +422,7 @@ class FollowServiceTest {
             when(followRepository.findByFollowerIdAndFollowingId(USER_ID, TARGET_USER_ID))
                     .thenReturn(Optional.of(testFollow));
             when(followRepository.save(any(Follow.class))).thenReturn(testFollow);
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             followService.updateFollow(USER_ID, TARGET_USER_ID, request);
 
@@ -484,7 +485,7 @@ class FollowServiceTest {
                     .build();
 
             when(followRepository.findByFollowingId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(followerSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(followerSummary);
 
             PageResponse<FollowResponse> response = followService.getFollowers(USER_ID, 0, 20);
 
@@ -535,8 +536,8 @@ class FollowServiceTest {
             UserSummary summary2 = UserSummary.builder().id(follower2Id).username("follower2").build();
 
             when(followRepository.findByFollowingId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(summary1);
-            when(userServiceClient.getUserSummary(follower2Id)).thenReturn(summary2);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(summary1);
+            when(userSummaryResolver.resolveForDisplay(follower2Id)).thenReturn(summary2);
 
             PageResponse<FollowResponse> response = followService.getFollowers(USER_ID, 0, 20);
 
@@ -560,7 +561,7 @@ class FollowServiceTest {
             );
 
             when(followRepository.findByFollowerId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             PageResponse<FollowResponse> response = followService.getFollowing(USER_ID, 0, 20);
 
@@ -622,7 +623,7 @@ class FollowServiceTest {
 
             when(followRepository.findByFollowerIdAndIsCloseFriendTrue(eq(USER_ID), any(Pageable.class)))
                     .thenReturn(page);
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             PageResponse<FollowResponse> response = followService.getCloseFriends(USER_ID, 0, 20);
 
@@ -820,7 +821,7 @@ class FollowServiceTest {
             when(followRepository.findByFollowerIdAndFollowingId(USER_ID, TARGET_USER_ID))
                     .thenReturn(Optional.of(testFollow));
             when(followRepository.save(any(Follow.class))).thenReturn(testFollow);
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             FollowResponse response = followService.updateFollow(USER_ID, TARGET_USER_ID,
                     UpdateFollowRequest.builder().build());
@@ -830,20 +831,21 @@ class FollowServiceTest {
         }
 
         @Test
-        @DisplayName("Exception - returns fallback")
+        @DisplayName("SSO failure - resolver returns id-only UserSummary (null username, null email)")
         void fetchUserSummary_ExceptionFallback() {
             when(followRepository.findByFollowerIdAndFollowingId(USER_ID, TARGET_USER_ID))
                     .thenReturn(Optional.of(testFollow));
             when(followRepository.save(any(Follow.class))).thenReturn(testFollow);
-            when(userServiceClient.getUserSummary(TARGET_USER_ID))
-                    .thenThrow(new RuntimeException("Service unavailable"));
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID))
+                    .thenReturn(UserSummary.builder().id(TARGET_USER_ID).build());
 
             FollowResponse response = followService.updateFollow(USER_ID, TARGET_USER_ID,
                     UpdateFollowRequest.builder().build());
 
             assertThat(response.getUser()).isNotNull();
             assertThat(response.getUser().getId()).isEqualTo(TARGET_USER_ID);
-            assertThat(response.getUser().getUsername()).isEqualTo("Unknown");
+            assertThat(response.getUser().getUsername()).isNull();
+            assertThat(response.getUser().getEmail()).isNull();
         }
     }
 
@@ -862,7 +864,7 @@ class FollowServiceTest {
 
             Page<Follow> page = new PageImpl<>(List.of(testFollow), PageRequest.of(0, 20), 1);
             when(followRepository.findByFollowerId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             PageResponse<FollowResponse> response = followService.getFollowing(USER_ID, 0, 20);
 
@@ -902,14 +904,21 @@ class FollowServiceTest {
 
             // Should fetch the FOLLOWER's details (TARGET_USER_ID)
             when(followRepository.findByFollowingId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(TARGET_USER_ID)).thenReturn(testUserSummary);
+            when(userSummaryResolver.resolveForDisplay(TARGET_USER_ID)).thenReturn(testUserSummary);
 
             PageResponse<FollowResponse> response = followService.getFollowers(USER_ID, 0, 20);
 
             FollowResponse followResponse = response.getContent().get(0);
             // User should be the follower
             assertThat(followResponse.getUser().getId()).isEqualTo(TARGET_USER_ID);
-            verify(userServiceClient).getUserSummary(TARGET_USER_ID);
+            verify(userSummaryResolver).resolveForDisplay(TARGET_USER_ID);
         }
+    }
+
+    private static ApiResponse<UserSummary> apiResponse(UserSummary summary) {
+        ApiResponse<UserSummary> response = new ApiResponse<>();
+        response.setSuccess(summary != null);
+        response.setData(summary);
+        return response;
     }
 }

@@ -3,6 +3,7 @@ package com.billboard.social.graph.service;
 import com.billboard.social.common.client.UserServiceClient;
 import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.dto.UserSummary;
+import com.billboard.social.common.dto.ApiResponse;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.graph.dto.request.SocialRequests.ShareRequest;
 import com.billboard.social.graph.dto.response.SocialResponses.ShareResponse;
@@ -102,7 +103,7 @@ class ShareServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             ShareResponse response = shareService.share(USER_ID, request);
 
@@ -134,7 +135,7 @@ class ShareServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             ShareResponse response = shareService.share(USER_ID, request);
 
@@ -156,7 +157,7 @@ class ShareServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             ShareResponse response = shareService.share(USER_ID, request);
 
@@ -178,7 +179,7 @@ class ShareServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             ShareResponse response = shareService.share(USER_ID, request);
 
@@ -200,7 +201,7 @@ class ShareServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             ShareResponse response = shareService.share(USER_ID, request);
 
@@ -224,7 +225,7 @@ class ShareServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             ShareResponse response = shareService.share(USER_ID, request);
 
@@ -247,7 +248,7 @@ class ShareServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             ShareResponse response = shareService.share(USER_ID, request);
 
@@ -271,7 +272,7 @@ class ShareServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             ShareResponse response = shareService.share(USER_ID, request);
 
@@ -294,7 +295,7 @@ class ShareServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             ShareResponse response = shareService.share(USER_ID, request);
 
@@ -317,7 +318,7 @@ class ShareServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             ShareResponse response = shareService.share(USER_ID, request);
 
@@ -338,7 +339,7 @@ class ShareServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             ShareResponse response = shareService.share(USER_ID, request);
 
@@ -412,7 +413,7 @@ class ShareServiceTest {
 
             when(shareRepository.findByContentTypeAndContentId(eq(ContentType.POST), eq(CONTENT_ID), any(Pageable.class)))
                     .thenReturn(page);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<ShareResponse> response = shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20);
 
@@ -479,7 +480,7 @@ class ShareServiceTest {
 
             when(shareRepository.findByContentTypeAndContentId(eq(ContentType.POST), eq(CONTENT_ID), any(Pageable.class)))
                     .thenReturn(page);
-            when(userServiceClient.getUserSummary(any(Long.class))).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(any(Long.class))).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<ShareResponse> response = shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20);
 
@@ -494,7 +495,7 @@ class ShareServiceTest {
 
             when(shareRepository.findByContentTypeAndContentId(eq(ContentType.COMMENT), eq(CONTENT_ID), any(Pageable.class)))
                     .thenReturn(page);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<ShareResponse> response = shareService.getSharesByContent(ContentType.COMMENT, CONTENT_ID, 0, 20);
 
@@ -518,7 +519,7 @@ class ShareServiceTest {
             );
 
             when(shareRepository.findByUserId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<ShareResponse> response = shareService.getSharesByUser(USER_ID, 0, 20);
 
@@ -581,7 +582,7 @@ class ShareServiceTest {
             );
 
             when(shareRepository.findByUserId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<ShareResponse> response = shareService.getSharesByUser(USER_ID, 0, 20);
 
@@ -653,7 +654,7 @@ class ShareServiceTest {
         @DisplayName("Success - returns user summary")
         void fetchUserSummaryWithFallback_Success() {
             setupSharesPage();
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<ShareResponse> response = shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20);
 
@@ -662,20 +663,18 @@ class ShareServiceTest {
         }
 
         @Test
-        @DisplayName("Returns null - uses fallback")
+        @DisplayName("SSO returns null — user field is null, no fake email")
         void fetchUserSummaryWithFallback_ReturnsNull() {
             setupSharesPage();
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(null);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(null));
 
             PageResponse<ShareResponse> response = shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20);
 
-            assertThat(response.getContent().get(0).getUser()).isNotNull();
-            assertThat(response.getContent().get(0).getUser().getId()).isEqualTo(USER_ID);
-            assertThat(response.getContent().get(0).getUser().getUsername()).isEqualTo("Unknown");
+            assertThat(response.getContent().get(0).getUser()).isNull();
         }
 
         @Test
-        @DisplayName("FeignException.NotFound - uses fallback")
+        @DisplayName("FeignException.NotFound — throws, never returns unknown@gmail.com")
         void fetchUserSummaryWithFallback_FeignNotFound() {
             setupSharesPage();
             Request feignRequest = Request.create(Request.HttpMethod.GET, "/users",
@@ -683,13 +682,12 @@ class ShareServiceTest {
             when(userServiceClient.getUserSummary(USER_ID))
                     .thenThrow(new FeignException.NotFound("Not found", feignRequest, null, null));
 
-            PageResponse<ShareResponse> response = shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20);
-
-            assertThat(response.getContent().get(0).getUser().getUsername()).isEqualTo("Unknown");
+            assertThatThrownBy(() -> shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20))
+                    .isInstanceOf(FeignException.NotFound.class);
         }
 
         @Test
-        @DisplayName("FeignException (other) - uses fallback")
+        @DisplayName("FeignException (5xx) — throws, never returns unknown@gmail.com")
         void fetchUserSummaryWithFallback_FeignOther() {
             setupSharesPage();
             Request feignRequest = Request.create(Request.HttpMethod.GET, "/users",
@@ -697,21 +695,20 @@ class ShareServiceTest {
             when(userServiceClient.getUserSummary(USER_ID))
                     .thenThrow(new FeignException.ServiceUnavailable("Service unavailable", feignRequest, null, null));
 
-            PageResponse<ShareResponse> response = shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20);
-
-            assertThat(response.getContent().get(0).getUser().getUsername()).isEqualTo("Unknown");
+            assertThatThrownBy(() -> shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20))
+                    .isInstanceOf(FeignException.class);
         }
 
         @Test
-        @DisplayName("Generic Exception - uses fallback")
+        @DisplayName("Generic Exception — throws, never returns unknown@gmail.com")
         void fetchUserSummaryWithFallback_GenericException() {
             setupSharesPage();
             when(userServiceClient.getUserSummary(USER_ID))
                     .thenThrow(new RuntimeException("Connection failed"));
 
-            PageResponse<ShareResponse> response = shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20);
-
-            assertThat(response.getContent().get(0).getUser().getUsername()).isEqualTo("Unknown");
+            assertThatThrownBy(() -> shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("Connection failed");
         }
     }
 
@@ -733,7 +730,7 @@ class ShareServiceTest {
             Page<Share> page = new PageImpl<>(List.of(testShare), PageRequest.of(0, 20), 1);
             when(shareRepository.findByContentTypeAndContentId(eq(ContentType.POST), eq(CONTENT_ID), any(Pageable.class)))
                     .thenReturn(page);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<ShareResponse> response = shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20);
 
@@ -760,7 +757,7 @@ class ShareServiceTest {
             Page<Share> page = new PageImpl<>(List.of(testShare), PageRequest.of(0, 20), 1);
             when(shareRepository.findByContentTypeAndContentId(eq(ContentType.POST), eq(CONTENT_ID), any(Pageable.class)))
                     .thenReturn(page);
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<ShareResponse> response = shareService.getSharesByContent(ContentType.POST, CONTENT_ID, 0, 20);
 
@@ -768,5 +765,12 @@ class ShareServiceTest {
             assertThat(shareResponse.getTargetUserId()).isNull();
             assertThat(shareResponse.getMessage()).isNull();
         }
+    }
+
+    private static ApiResponse<UserSummary> apiResponse(UserSummary summary) {
+        ApiResponse<UserSummary> response = new ApiResponse<>();
+        response.setSuccess(summary != null);
+        response.setData(summary);
+        return response;
     }
 }
