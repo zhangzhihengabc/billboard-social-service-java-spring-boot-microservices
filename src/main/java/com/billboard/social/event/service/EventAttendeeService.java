@@ -281,7 +281,7 @@ public class EventAttendeeService {
     }
 
     private AttendeeResponse mapToAttendeeResponse(EventAttendee attendee) {
-        UserSummary userSummary = userServiceClient.getUserSummary(attendee.getUserId());
+        UserSummary userSummary = userServiceClient.getUserSummary(attendee.getUserId()).getData();
 
         return AttendeeResponse.builder()
                 .id(attendee.getId())

@@ -3,6 +3,7 @@ package com.billboard.social.graph.service;
 import com.billboard.social.common.client.UserServiceClient;
 import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.dto.UserSummary;
+import com.billboard.social.common.dto.ApiResponse;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.graph.dto.request.SocialRequests.FriendRequest;
 import com.billboard.social.graph.dto.response.SocialResponses.FriendResponse;
@@ -92,7 +93,7 @@ class FriendshipServiceTest {
                     .message("Let's be friends!")
                     .build();
 
-            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(testUserSummary));
             when(blockRepository.isBlockedEitherWay(USER_ID, FRIEND_ID)).thenReturn(false);
             when(friendshipRepository.findBetweenUsers(USER_ID, FRIEND_ID)).thenReturn(Optional.empty());
             when(friendshipRepository.countFriends(USER_ID)).thenReturn(100L);
@@ -129,7 +130,7 @@ class FriendshipServiceTest {
             when(pendingFriendship.isAccepted()).thenReturn(false);  // Skip first if
             when(pendingFriendship.isPending()).thenReturn(true);    // Enter second if
 
-            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(testUserSummary));
             when(blockRepository.isBlockedEitherWay(USER_ID, FRIEND_ID)).thenReturn(false);
             when(friendshipRepository.findBetweenUsers(USER_ID, FRIEND_ID)).thenReturn(Optional.of(pendingFriendship));
 
@@ -156,7 +157,7 @@ class FriendshipServiceTest {
             when(declinedFriendship.isAccepted()).thenReturn(false);  // Skip first if
             when(declinedFriendship.isPending()).thenReturn(false);   // Skip second if -> continue
 
-            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(testUserSummary));
             when(blockRepository.isBlockedEitherWay(USER_ID, FRIEND_ID)).thenReturn(false);
             when(friendshipRepository.findBetweenUsers(USER_ID, FRIEND_ID)).thenReturn(Optional.of(declinedFriendship));
             when(friendshipRepository.countFriends(USER_ID)).thenReturn(0L);
@@ -188,7 +189,7 @@ class FriendshipServiceTest {
                     .userId(FRIEND_ID)
                     .build();
 
-            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(testUserSummary));
             when(blockRepository.isBlockedEitherWay(USER_ID, FRIEND_ID)).thenReturn(false);
             when(friendshipRepository.findBetweenUsers(USER_ID, FRIEND_ID)).thenReturn(Optional.empty());
             when(friendshipRepository.countFriends(USER_ID)).thenReturn(0L);
@@ -240,7 +241,7 @@ class FriendshipServiceTest {
                     .userId(FRIEND_ID)
                     .build();
 
-            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(testUserSummary));
             when(blockRepository.isBlockedEitherWay(USER_ID, FRIEND_ID)).thenReturn(true);
 
             assertThatThrownBy(() -> friendshipService.sendFriendRequest(USER_ID, request))
@@ -264,7 +265,7 @@ class FriendshipServiceTest {
                     .status(FriendshipStatus.ACCEPTED)
                     .build();
 
-            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(testUserSummary));
             when(blockRepository.isBlockedEitherWay(USER_ID, FRIEND_ID)).thenReturn(false);
             when(friendshipRepository.findBetweenUsers(USER_ID, FRIEND_ID)).thenReturn(Optional.of(acceptedFriendship));
 
@@ -288,7 +289,7 @@ class FriendshipServiceTest {
                     .status(FriendshipStatus.PENDING)  // Explicitly PENDING
                     .build();
 
-            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(testUserSummary));
             when(blockRepository.isBlockedEitherWay(USER_ID, FRIEND_ID)).thenReturn(false);
             when(friendshipRepository.findBetweenUsers(USER_ID, FRIEND_ID)).thenReturn(Optional.of(pendingFriendship));
 
@@ -307,7 +308,7 @@ class FriendshipServiceTest {
                     .userId(FRIEND_ID)
                     .build();
 
-            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(testUserSummary));
             when(blockRepository.isBlockedEitherWay(USER_ID, FRIEND_ID)).thenReturn(false);
             when(friendshipRepository.findBetweenUsers(USER_ID, FRIEND_ID)).thenReturn(Optional.empty());
             when(friendshipRepository.countFriends(USER_ID)).thenReturn(5000L);
@@ -324,7 +325,7 @@ class FriendshipServiceTest {
                     .userId(FRIEND_ID)
                     .build();
 
-            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(testUserSummary));
             when(blockRepository.isBlockedEitherWay(USER_ID, FRIEND_ID)).thenReturn(false);
             when(friendshipRepository.findBetweenUsers(USER_ID, FRIEND_ID)).thenReturn(Optional.empty());
             when(friendshipRepository.countFriends(USER_ID)).thenReturn(4999L);
@@ -348,7 +349,7 @@ class FriendshipServiceTest {
                     .userId(FRIEND_ID)
                     .build();
 
-            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(testUserSummary));
             when(blockRepository.isBlockedEitherWay(USER_ID, FRIEND_ID)).thenReturn(false);
             when(friendshipRepository.findBetweenUsers(USER_ID, FRIEND_ID)).thenReturn(Optional.empty());
             when(friendshipRepository.countFriends(USER_ID)).thenReturn(0L);
@@ -377,7 +378,7 @@ class FriendshipServiceTest {
                     .userId(FRIEND_ID)
                     .build();
 
-            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(testUserSummary));
             when(blockRepository.isBlockedEitherWay(USER_ID, FRIEND_ID)).thenReturn(false);
             when(friendshipRepository.findBetweenUsers(USER_ID, FRIEND_ID)).thenReturn(Optional.empty());
             when(friendshipRepository.countFriends(USER_ID)).thenReturn(0L);
@@ -401,7 +402,7 @@ class FriendshipServiceTest {
                     .userId(FRIEND_ID)
                     .build();
 
-            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(null);
+            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(null));
 
             assertThatThrownBy(() -> friendshipService.sendFriendRequest(USER_ID, request))
                     .isInstanceOf(ValidationException.class)
@@ -725,7 +726,7 @@ class FriendshipServiceTest {
             );
 
             when(friendshipRepository.findAcceptedFriendships(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<FriendResponse> response = friendshipService.getFriends(USER_ID, 0, 20);
 
@@ -753,7 +754,7 @@ class FriendshipServiceTest {
             );
 
             when(friendshipRepository.findAcceptedFriendships(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<FriendResponse> response = friendshipService.getFriends(USER_ID, 0, 20);
 
@@ -1015,7 +1016,7 @@ class FriendshipServiceTest {
         @DisplayName("Success - returns user summary")
         void fetchUserSummaryWithFallback_Success() {
             setupFriendsPage();
-            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<FriendResponse> response = friendshipService.getFriends(USER_ID, 0, 20);
 
@@ -1026,7 +1027,7 @@ class FriendshipServiceTest {
         @DisplayName("SSO returns null — username is null, no fake email")
         void fetchUserSummaryWithFallback_ReturnsNull() {
             setupFriendsPage();
-            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(null);
+            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(null));
 
             PageResponse<FriendResponse> response = friendshipService.getFriends(USER_ID, 0, 20);
 
@@ -1136,7 +1137,7 @@ class FriendshipServiceTest {
 
             Page<Friendship> page = new PageImpl<>(List.of(friendship), PageRequest.of(0, 20), 1);
             when(friendshipRepository.findAcceptedFriendships(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<FriendResponse> response = friendshipService.getFriends(USER_ID, 0, 20);
 
@@ -1146,5 +1147,12 @@ class FriendshipServiceTest {
             assertThat(friendResponse.getMutualFriendsCount()).isEqualTo(10);
             assertThat(friendResponse.getFriendsSince()).isNotNull();
         }
+    }
+
+    private static ApiResponse<UserSummary> apiResponse(UserSummary summary) {
+        ApiResponse<UserSummary> response = new ApiResponse<>();
+        response.setSuccess(summary != null);
+        response.setData(summary);
+        return response;
     }
 }

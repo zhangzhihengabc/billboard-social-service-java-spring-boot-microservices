@@ -2,6 +2,7 @@ package com.billboard.social.event.service;
 
 import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.dto.UserSummary;
+import com.billboard.social.common.dto.ApiResponse;
 import com.billboard.social.common.exception.ForbiddenException;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.common.client.UserSummaryResolver;
@@ -1613,5 +1614,12 @@ class EventServiceTest {
                 eventService.createEvent(USER_ID, request);
             }
         }
+    }
+
+    private static ApiResponse<UserSummary> apiResponse(UserSummary summary) {
+        ApiResponse<UserSummary> response = new ApiResponse<>();
+        response.setSuccess(summary != null);
+        response.setData(summary);
+        return response;
     }
 }

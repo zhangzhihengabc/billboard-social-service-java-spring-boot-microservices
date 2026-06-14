@@ -77,7 +77,7 @@ public class PresenceService {
         List<FriendPresenceResponse> onlineFriends = friendIds.stream()
                 .filter(this::isOnline)
                 .map(friendId -> {
-                    UserSummary summary = userServiceClient.getUserSummary(friendId);
+                    UserSummary summary = userServiceClient.getUserSummary(friendId).getData();
                     return FriendPresenceResponse.builder()
                             .userId(friendId)
                             .username(summary != null ? summary.getUsername() : null)

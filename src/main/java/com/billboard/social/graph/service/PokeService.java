@@ -155,7 +155,7 @@ public class PokeService {
     }
 
     private PokeResponse mapToPokeResponse(Poke poke) {
-        UserSummary userSummary = userServiceClient.getUserSummary(poke.getPokerId());
+        UserSummary userSummary = userServiceClient.getUserSummary(poke.getPokerId()).getData();
 
         return PokeResponse.builder()
                 .id(poke.getId())

@@ -3,6 +3,7 @@ package com.billboard.social.group.service;
 import com.billboard.social.common.client.UserSummaryResolver;
 import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.dto.UserSummary;
+import com.billboard.social.common.dto.ApiResponse;
 import com.billboard.social.common.exception.ForbiddenException;
 import com.billboard.social.common.exception.ResourceNotFoundException;
 import com.billboard.social.common.exception.ValidationException;
@@ -1653,5 +1654,12 @@ class GroupMemberServiceTest {
             assertThat(response.getUser().getUsername()).isNull();
             assertThat(response.getUser().getEmail()).isNull();
         }
+    }
+
+    private static ApiResponse<UserSummary> apiResponse(UserSummary summary) {
+        ApiResponse<UserSummary> response = new ApiResponse<>();
+        response.setSuccess(summary != null);
+        response.setData(summary);
+        return response;
     }
 }

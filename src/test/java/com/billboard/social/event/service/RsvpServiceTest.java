@@ -2,6 +2,7 @@ package com.billboard.social.event.service;
 
 import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.dto.UserSummary;
+import com.billboard.social.common.dto.ApiResponse;
 import com.billboard.social.common.exception.ForbiddenException;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.common.client.UserServiceClient;
@@ -1015,7 +1016,7 @@ class RsvpServiceTest {
 
             when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(testEvent));
             when(coHostRepository.existsByEventIdAndUserId(EVENT_ID, OTHER_USER_ID)).thenReturn(false);
-            when(userServiceClient.getUserSummary(OTHER_USER_ID)).thenReturn(coHostSummary);
+            when(userServiceClient.getUserSummary(OTHER_USER_ID)).thenReturn(apiResponse(coHostSummary));
             when(userSummaryResolver.resolveForDisplay(OTHER_USER_ID)).thenReturn(coHostSummary);
             when(coHostRepository.save(any(EventCoHost.class))).thenAnswer(invocation -> {
                 EventCoHost saved = invocation.getArgument(0);
@@ -1340,5 +1341,12 @@ class RsvpServiceTest {
             // GOING decrements, NOT_GOING doesn't increment
             verify(eventRepository).save(argThat(event -> event.getGoingCount() == 9));
         }
+    }
+
+    private static ApiResponse<UserSummary> apiResponse(UserSummary summary) {
+        ApiResponse<UserSummary> response = new ApiResponse<>();
+        response.setSuccess(summary != null);
+        response.setData(summary);
+        return response;
     }
 }

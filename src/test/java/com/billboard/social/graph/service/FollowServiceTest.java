@@ -3,6 +3,7 @@ package com.billboard.social.graph.service;
 import com.billboard.social.common.client.UserSummaryResolver;
 import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.dto.UserSummary;
+import com.billboard.social.common.dto.ApiResponse;
 import com.billboard.social.common.exception.ResourceNotFoundException;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.graph.dto.request.SocialRequests.FollowRequest;
@@ -912,5 +913,12 @@ class FollowServiceTest {
             assertThat(followResponse.getUser().getId()).isEqualTo(TARGET_USER_ID);
             verify(userSummaryResolver).resolveForDisplay(TARGET_USER_ID);
         }
+    }
+
+    private static ApiResponse<UserSummary> apiResponse(UserSummary summary) {
+        ApiResponse<UserSummary> response = new ApiResponse<>();
+        response.setSuccess(summary != null);
+        response.setData(summary);
+        return response;
     }
 }

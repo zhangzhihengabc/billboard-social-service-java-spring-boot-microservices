@@ -86,7 +86,7 @@ public class GroupInvitationService {
 
         // Case 1: Invite by User ID - fetch user's email (validation: propagate on SSO failure)
         if (inviteeId != null) {
-            invitee = userServiceClient.getUserSummary(inviteeId);
+            invitee = userServiceClient.getUserSummary(inviteeId).getData();
             inviteeEmail = invitee.getEmail();  // Get email from user service
 
             if (inviteeEmail == null || inviteeEmail.isBlank()) {

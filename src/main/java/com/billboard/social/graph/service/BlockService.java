@@ -129,7 +129,7 @@ public class BlockService {
     }
 
     private BlockResponse mapToBlockResponse(Block block) {
-        UserSummary userSummary = userServiceClient.getUserSummary(block.getBlockedId());
+        UserSummary userSummary = userServiceClient.getUserSummary(block.getBlockedId()).getData();
 
         return BlockResponse.builder()
                 .id(block.getId())

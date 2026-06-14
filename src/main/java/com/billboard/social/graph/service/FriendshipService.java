@@ -221,7 +221,7 @@ public class FriendshipService {
 
     private void validateUserExists(Long userId) {
         try {
-            UserSummary user = userServiceClient.getUserSummary(userId);
+            UserSummary user = userServiceClient.getUserSummary(userId).getData();
             if (user == null) {
                 throw new ValidationException("User not found with id: " + userId);
             }
@@ -258,7 +258,7 @@ public class FriendshipService {
                 ? friendship.getAddresseeId()
                 : friendship.getRequesterId();
 
-        UserSummary userSummary = userServiceClient.getUserSummary(friendId);
+        UserSummary userSummary = userServiceClient.getUserSummary(friendId).getData();
 
         return FriendResponse.builder()
                 .friendId(friendId)

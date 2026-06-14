@@ -2,6 +2,7 @@ package com.billboard.social.graph.service;
 
 import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.dto.UserSummary;
+import com.billboard.social.common.dto.ApiResponse;
 import com.billboard.social.common.client.UserServiceClient;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.graph.dto.request.SocialRequests.BlockRequest;
@@ -111,7 +112,7 @@ class BlockServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             BlockResponse response = blockService.blockUser(USER_ID, request);
 
@@ -144,7 +145,7 @@ class BlockServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             BlockResponse response = blockService.blockUser(USER_ID, request);
 
@@ -175,7 +176,7 @@ class BlockServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             blockService.blockUser(USER_ID, request);
 
@@ -207,7 +208,7 @@ class BlockServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             blockService.blockUser(USER_ID, request);
 
@@ -246,7 +247,7 @@ class BlockServiceTest {
                 saved.setCreatedAt(LocalDateTime.now());
                 return saved;
             });
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             blockService.blockUser(USER_ID, request);
 
@@ -386,7 +387,7 @@ class BlockServiceTest {
             );
 
             when(blockRepository.findByBlockerId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<BlockResponse> response = blockService.getBlockedUsers(USER_ID, 0, 20);
 
@@ -435,8 +436,8 @@ class BlockServiceTest {
                     .build();
 
             when(blockRepository.findByBlockerId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(testUserSummary);
-            when(userServiceClient.getUserSummary(blockedUser2)).thenReturn(userSummary2);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(testUserSummary));
+            when(userServiceClient.getUserSummary(blockedUser2)).thenReturn(apiResponse(userSummary2));
 
             PageResponse<BlockResponse> response = blockService.getBlockedUsers(USER_ID, 0, 20);
 
@@ -557,7 +558,7 @@ class BlockServiceTest {
         void fetchUserSummary_Success() {
             Page<Block> page = new PageImpl<>(List.of(testBlock), PageRequest.of(0, 20), 1);
             when(blockRepository.findByBlockerId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<BlockResponse> response = blockService.getBlockedUsers(USER_ID, 0, 20);
 
@@ -570,7 +571,7 @@ class BlockServiceTest {
         void fetchUserSummary_ReturnsNull() {
             Page<Block> page = new PageImpl<>(List.of(testBlock), PageRequest.of(0, 20), 1);
             when(blockRepository.findByBlockerId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(null);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(null));
 
             PageResponse<BlockResponse> response = blockService.getBlockedUsers(USER_ID, 0, 20);
 
@@ -632,7 +633,7 @@ class BlockServiceTest {
 
             Page<Block> page = new PageImpl<>(List.of(testBlock), PageRequest.of(0, 20), 1);
             when(blockRepository.findByBlockerId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<BlockResponse> response = blockService.getBlockedUsers(USER_ID, 0, 20);
 
@@ -652,11 +653,18 @@ class BlockServiceTest {
 
             Page<Block> page = new PageImpl<>(List.of(testBlock), PageRequest.of(0, 20), 1);
             when(blockRepository.findByBlockerId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
-            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(testUserSummary);
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(testUserSummary));
 
             PageResponse<BlockResponse> response = blockService.getBlockedUsers(USER_ID, 0, 20);
 
             assertThat(response.getContent().get(0).getReason()).isNull();
         }
+    }
+
+    private static ApiResponse<UserSummary> apiResponse(UserSummary summary) {
+        ApiResponse<UserSummary> response = new ApiResponse<>();
+        response.setSuccess(summary != null);
+        response.setData(summary);
+        return response;
     }
 }

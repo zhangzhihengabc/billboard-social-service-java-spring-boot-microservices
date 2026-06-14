@@ -2,6 +2,7 @@ package com.billboard.social.graph.service;
 
 import com.billboard.social.common.client.UserServiceClient;
 import com.billboard.social.common.dto.UserSummary;
+import com.billboard.social.common.dto.ApiResponse;
 import com.billboard.social.graph.dto.response.SocialResponses.FriendPresenceResponse;
 import com.billboard.social.graph.repository.FriendshipRepository;
 import feign.FeignException;
@@ -138,7 +139,7 @@ class PresenceServiceTest {
             when(redisTemplate.hasKey("presence:" + FRIEND_ID_1)).thenReturn(Boolean.TRUE);
             when(redisTemplate.hasKey("presence:" + FRIEND_ID_2)).thenReturn(Boolean.FALSE);
             when(userServiceClient.getUserSummary(FRIEND_ID_1)).thenReturn(
-                    UserSummary.builder().id(FRIEND_ID_1).username("alice").email("alice@test.com").build());
+                    apiResponse(UserSummary.builder().id(FRIEND_ID_1).username("alice").email("alice@test.com").build()));
 
             List<FriendPresenceResponse> result = presenceService.getOnlineFriends(USER_ID);
 
@@ -156,9 +157,9 @@ class PresenceServiceTest {
             when(redisTemplate.hasKey("presence:" + FRIEND_ID_1)).thenReturn(Boolean.TRUE);
             when(redisTemplate.hasKey("presence:" + FRIEND_ID_2)).thenReturn(Boolean.TRUE);
             when(userServiceClient.getUserSummary(FRIEND_ID_1)).thenReturn(
-                    UserSummary.builder().id(FRIEND_ID_1).username("alice").email("alice@test.com").build());
+                    apiResponse(UserSummary.builder().id(FRIEND_ID_1).username("alice").email("alice@test.com").build()));
             when(userServiceClient.getUserSummary(FRIEND_ID_2)).thenReturn(
-                    UserSummary.builder().id(FRIEND_ID_2).username("bob").email("bob@test.com").build());
+                    apiResponse(UserSummary.builder().id(FRIEND_ID_2).username("bob").email("bob@test.com").build()));
 
             List<FriendPresenceResponse> result = presenceService.getOnlineFriends(USER_ID);
 
@@ -217,7 +218,7 @@ class PresenceServiceTest {
         void getOnlineFriends_NullUserSummary_UsernameNull() {
             when(friendshipRepository.findFriendIds(USER_ID)).thenReturn(List.of(FRIEND_ID_1));
             when(redisTemplate.hasKey("presence:" + FRIEND_ID_1)).thenReturn(Boolean.TRUE);
-            when(userServiceClient.getUserSummary(FRIEND_ID_1)).thenReturn(null);
+            when(userServiceClient.getUserSummary(FRIEND_ID_1)).thenReturn(apiResponse(null));
 
             List<FriendPresenceResponse> result = presenceService.getOnlineFriends(USER_ID);
 
@@ -240,5 +241,12 @@ class PresenceServiceTest {
             assertThatThrownBy(() -> presenceService.getOnlineFriends(USER_ID))
                     .isInstanceOf(FeignException.NotFound.class);
         }
+    }
+
+    private static ApiResponse<UserSummary> apiResponse(UserSummary summary) {
+        ApiResponse<UserSummary> response = new ApiResponse<>();
+        response.setSuccess(summary != null);
+        response.setData(summary);
+        return response;
     }
 }

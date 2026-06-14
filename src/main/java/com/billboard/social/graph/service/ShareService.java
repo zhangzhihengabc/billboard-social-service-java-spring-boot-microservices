@@ -85,7 +85,7 @@ public class ShareService {
     }
 
     private ShareResponse mapToShareResponse(Share share) {
-        UserSummary userSummary = userServiceClient.getUserSummary(share.getUserId());
+        UserSummary userSummary = userServiceClient.getUserSummary(share.getUserId()).getData();
 
         return ShareResponse.builder()
                 .id(share.getId())

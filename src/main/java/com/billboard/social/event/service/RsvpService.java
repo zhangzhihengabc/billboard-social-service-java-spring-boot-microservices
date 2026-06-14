@@ -323,7 +323,7 @@ public class RsvpService {
 
         // Verify user exists
         try {
-            userServiceClient.getUserSummary(request.getUserId());
+            userServiceClient.getUserSummary(request.getUserId()).getData();
         } catch (Exception e) {
             throw new ValidationException("User not found with id: " + request.getUserId());
         }

@@ -4,6 +4,7 @@ import com.billboard.social.common.client.UserServiceClient;
 import com.billboard.social.common.client.UserSummaryResolver;
 import com.billboard.social.common.dto.PageResponse;
 import com.billboard.social.common.dto.UserSummary;
+import com.billboard.social.common.dto.ApiResponse;
 import com.billboard.social.common.exception.ForbiddenException;
 import com.billboard.social.common.exception.ResourceNotFoundException;
 import com.billboard.social.common.exception.ValidationException;
@@ -154,7 +155,7 @@ class GroupInvitationServiceTest {
 
             when(groupRepository.findById(GROUP_ID)).thenReturn(Optional.of(testGroup));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITER_ID)).thenReturn(Optional.of(inviterMember));
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(apiResponse(inviteeSummary));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
             when(invitationRepository.findByGroupIdAndInviteeId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
             when(invitationRepository.save(any(GroupInvitation.class))).thenAnswer(invocation -> {
@@ -186,7 +187,7 @@ class GroupInvitationServiceTest {
 
             when(groupRepository.findById(GROUP_ID)).thenReturn(Optional.of(testGroup));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITER_ID)).thenReturn(Optional.of(inviterMember));
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(apiResponse(inviteeSummary));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.of(leftMember));
             when(invitationRepository.findByGroupIdAndInviteeId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
             when(invitationRepository.save(any(GroupInvitation.class))).thenAnswer(invocation -> {
@@ -237,7 +238,7 @@ class GroupInvitationServiceTest {
 
             when(groupRepository.findById(GROUP_ID)).thenReturn(Optional.of(testGroup));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITER_ID)).thenReturn(Optional.of(inviterMember));
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(apiResponse(inviteeSummary));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
             when(invitationRepository.findByGroupIdAndInviteeId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
             when(invitationRepository.save(any(GroupInvitation.class))).thenAnswer(invocation -> {
@@ -263,7 +264,7 @@ class GroupInvitationServiceTest {
 
             when(groupRepository.findById(GROUP_ID)).thenReturn(Optional.of(testGroup));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITER_ID)).thenReturn(Optional.of(inviterMember));
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(apiResponse(inviteeSummary));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
             when(invitationRepository.findByGroupIdAndInviteeId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
             when(invitationRepository.save(any(GroupInvitation.class))).thenAnswer(invocation -> {
@@ -289,7 +290,7 @@ class GroupInvitationServiceTest {
 
             when(groupRepository.findById(GROUP_ID)).thenReturn(Optional.of(testGroup));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITER_ID)).thenReturn(Optional.of(regularMember));
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(apiResponse(inviteeSummary));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
             when(invitationRepository.findByGroupIdAndInviteeId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
             when(invitationRepository.save(any(GroupInvitation.class))).thenAnswer(invocation -> {
@@ -315,7 +316,7 @@ class GroupInvitationServiceTest {
 
             when(groupRepository.findById(GROUP_ID)).thenReturn(Optional.of(testGroup));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITER_ID)).thenReturn(Optional.of(moderatorMember));
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(apiResponse(inviteeSummary));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
             when(invitationRepository.findByGroupIdAndInviteeId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
             when(invitationRepository.save(any(GroupInvitation.class))).thenAnswer(invocation -> {
@@ -348,7 +349,7 @@ class GroupInvitationServiceTest {
 
             when(groupRepository.findById(GROUP_ID)).thenReturn(Optional.of(testGroup));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITER_ID)).thenReturn(Optional.of(inviterMember));
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(apiResponse(inviteeSummary));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
             when(invitationRepository.findByGroupIdAndInviteeId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.of(oldInvitation));
             when(invitationRepository.save(any(GroupInvitation.class))).thenAnswer(invocation -> {
@@ -375,7 +376,7 @@ class GroupInvitationServiceTest {
 
             when(groupRepository.findById(GROUP_ID)).thenReturn(Optional.of(testGroup));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITER_ID)).thenReturn(Optional.of(inviterMember));
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(apiResponse(inviteeSummary));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
             when(invitationRepository.findByGroupIdAndInviteeId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
             when(invitationRepository.save(any(GroupInvitation.class))).thenAnswer(invocation -> {
@@ -401,7 +402,7 @@ class GroupInvitationServiceTest {
 
             when(groupRepository.findById(GROUP_ID)).thenReturn(Optional.of(testGroup));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITER_ID)).thenReturn(Optional.of(inviterMember));
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(apiResponse(inviteeSummary));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
             when(invitationRepository.findByGroupIdAndInviteeId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
             when(invitationRepository.save(any(GroupInvitation.class))).thenAnswer(invocation -> {
@@ -494,7 +495,7 @@ class GroupInvitationServiceTest {
 
             when(groupRepository.findById(GROUP_ID)).thenReturn(Optional.of(testGroup));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITER_ID)).thenReturn(Optional.of(inviterMember));
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(apiResponse(inviteeSummary));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.of(bannedMember));
 
             assertThatThrownBy(() -> invitationService.inviteMember(INVITER_ID, GROUP_ID, request))
@@ -516,7 +517,7 @@ class GroupInvitationServiceTest {
 
             when(groupRepository.findById(GROUP_ID)).thenReturn(Optional.of(testGroup));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITER_ID)).thenReturn(Optional.of(inviterMember));
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(apiResponse(inviteeSummary));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.of(existingMember));
 
             assertThatThrownBy(() -> invitationService.inviteMember(INVITER_ID, GROUP_ID, request))
@@ -538,7 +539,7 @@ class GroupInvitationServiceTest {
 
             when(groupRepository.findById(GROUP_ID)).thenReturn(Optional.of(testGroup));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITER_ID)).thenReturn(Optional.of(inviterMember));
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(apiResponse(inviteeSummary));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.of(pendingMember));
 
             assertThatThrownBy(() -> invitationService.inviteMember(INVITER_ID, GROUP_ID, request))
@@ -555,7 +556,7 @@ class GroupInvitationServiceTest {
 
             when(groupRepository.findById(GROUP_ID)).thenReturn(Optional.of(testGroup));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITER_ID)).thenReturn(Optional.of(inviterMember));
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(apiResponse(inviteeSummary));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
             when(invitationRepository.findByGroupIdAndInviteeId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.of(testInvitation));
 
@@ -574,7 +575,7 @@ class GroupInvitationServiceTest {
 
             when(groupRepository.findById(GROUP_ID)).thenReturn(Optional.of(testGroup));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITER_ID)).thenReturn(Optional.of(inviterMember));
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(apiResponse(inviteeSummary));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
             when(invitationRepository.findByGroupIdAndInviteeId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
 
@@ -593,7 +594,7 @@ class GroupInvitationServiceTest {
 
             when(groupRepository.findById(GROUP_ID)).thenReturn(Optional.of(testGroup));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITER_ID)).thenReturn(Optional.of(inviterMember));
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(apiResponse(inviteeSummary));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
             when(invitationRepository.findByGroupIdAndInviteeId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.empty());
 
@@ -829,7 +830,7 @@ class GroupInvitationServiceTest {
 
             when(groupRepository.findById(GROUP_ID)).thenReturn(Optional.of(testGroup));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITER_ID)).thenReturn(Optional.of(inviterMember));
-            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(inviteeSummary);
+            when(userServiceClient.getUserSummary(INVITEE_ID)).thenReturn(apiResponse(inviteeSummary));
             when(memberRepository.findByGroupIdAndUserId(GROUP_ID, INVITEE_ID)).thenReturn(Optional.of(pendingMember));
 
             assertThatThrownBy(() -> invitationService.inviteMember(INVITER_ID, GROUP_ID, request))
@@ -1511,5 +1512,12 @@ class GroupInvitationServiceTest {
             assertThat(response.getInviter().getUsername()).isNull();
             assertThat(response.getInviter().getEmail()).isNull();
         }
+    }
+
+    private static ApiResponse<UserSummary> apiResponse(UserSummary summary) {
+        ApiResponse<UserSummary> response = new ApiResponse<>();
+        response.setSuccess(summary != null);
+        response.setData(summary);
+        return response;
     }
 }

@@ -22,7 +22,7 @@ public class UserSummaryResolver {
 
     public UserSummary resolveForDisplay(Long userId) {
         try {
-            return userServiceClient.getUserSummary(userId);
+            return userServiceClient.getUserSummary(userId).getData();
         } catch (Exception e) {
             String correlationId = resolveCorrelationId();
             if (e instanceof FeignException.NotFound) {

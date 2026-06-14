@@ -147,7 +147,7 @@ public class ReactionService {
     }
 
     private ReactionResponse mapToReactionResponse(Reaction reaction) {
-        UserSummary userSummary = userServiceClient.getUserSummary(reaction.getUserId());
+        UserSummary userSummary = userServiceClient.getUserSummary(reaction.getUserId()).getData();
 
         return ReactionResponse.builder()
                 .id(reaction.getId())

@@ -1,6 +1,7 @@
 package com.billboard.social.common.client;
 
 import com.billboard.social.common.dto.UserSummary;
+import com.billboard.social.common.dto.ApiResponse;
 import feign.FeignException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -34,7 +35,7 @@ class UserSummaryResolverTest {
         void resolveForDisplay_success_returnsSummary() {
             UserSummary expected = UserSummary.builder()
                     .id(USER_ID).username("alice").email("alice@example.com").build();
-            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(expected);
+            when(userServiceClient.getUserSummary(USER_ID)).thenReturn(apiResponse(expected));
 
             UserSummary result = resolver.resolveForDisplay(USER_ID);
 
@@ -94,5 +95,12 @@ class UserSummaryResolverTest {
             assertThat(result.getUsername()).isNull();
             assertThat(result.getEmail()).isNull();
         }
+    }
+
+    private static ApiResponse<UserSummary> apiResponse(UserSummary summary) {
+        ApiResponse<UserSummary> response = new ApiResponse<>();
+        response.setSuccess(summary != null);
+        response.setData(summary);
+        return response;
     }
 }
