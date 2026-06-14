@@ -321,7 +321,7 @@ public class RsvpService {
 
         // Verify user exists
         try {
-            userServiceClient.getUserSummary(request.getUserId());
+            userServiceClient.getUserSummary(request.getUserId()).getData();
         } catch (Exception e) {
             throw new ValidationException("User not found with id: " + request.getUserId());
         }
@@ -438,7 +438,7 @@ public class RsvpService {
 
     private UserSummary fetchUserSummary(Long userId) {
         try {
-            return userServiceClient.getUserSummary(userId);
+            return userServiceClient.getUserSummary(userId).getData();
         } catch (Exception e) {
             log.warn("Failed to fetch user summary for {}: {}", userId, e.getMessage());
             return UserSummary.builder()

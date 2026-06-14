@@ -291,7 +291,7 @@ public class InternalEventService {
 
     private UserSummary fetchUserSummary(Long userId) {
         try {
-            return userServiceClient.getUserSummary(userId);
+            return userServiceClient.getUserSummary(userId).getData();
         } catch (Exception e) {
             log.warn("Failed to fetch user summary for userId={}: {}", userId, e.getMessage());
             return UserSummary.builder().id(userId).username("Unknown").build();

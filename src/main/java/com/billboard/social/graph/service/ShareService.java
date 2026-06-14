@@ -105,7 +105,7 @@ public class ShareService {
 
     private UserSummary fetchUserSummaryWithFallback(Long userId) {
         try {
-            UserSummary summary = userServiceClient.getUserSummary(userId);
+            UserSummary summary = userServiceClient.getUserSummary(userId).getData();
             if (summary != null) {
                 return summary;
             }

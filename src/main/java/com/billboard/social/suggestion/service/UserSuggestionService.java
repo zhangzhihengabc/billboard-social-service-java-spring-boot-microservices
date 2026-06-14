@@ -161,7 +161,7 @@ public class UserSuggestionService {
      */
     private UserSummary fetchUserSummary(Long userId) {
         try {
-            return userServiceClient.getUserSummary(userId);
+            return userServiceClient.getUserSummary(userId).getData();
         } catch (Exception e) {
             log.warn("Could not fetch user summary for userId={}: {}", userId, e.getMessage());
             return null;

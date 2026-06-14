@@ -227,7 +227,7 @@ public class FollowService {
      */
     private UserSummary fetchUserSummary(Long userId) {
         try {
-            return userServiceClient.getUserSummary(userId);
+            return userServiceClient.getUserSummary(userId).getData();
         } catch (Exception e) {
             log.warn("Failed to fetch user summary for {}: {}", userId, e.getMessage());
             return UserSummary.builder()

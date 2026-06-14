@@ -221,7 +221,7 @@ public class FriendshipService {
 
     private void validateUserExists(Long userId) {
         try {
-            UserSummary user = userServiceClient.getUserSummary(userId);
+            UserSummary user = userServiceClient.getUserSummary(userId).getData();
             if (user == null) {
                 throw new ValidationException("User not found with id: " + userId);
             }
@@ -270,7 +270,7 @@ public class FriendshipService {
 
     private UserSummary fetchUserSummaryWithFallback(Long userId) {
         try {
-            UserSummary summary = userServiceClient.getUserSummary(userId);
+            UserSummary summary = userServiceClient.getUserSummary(userId).getData();
             if (summary != null) {
                 return summary;
             }
