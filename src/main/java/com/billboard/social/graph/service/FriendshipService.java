@@ -48,13 +48,13 @@ public class FriendshipService {
         Long addresseeId = request.getUserId();
 
         if (requesterId.equals(addresseeId)) {
-            throw new ValidationException("Cannot send friend request to yourself");
+            throw new ValidationException("Can not send friend request to yourself");
         }
 
         validateUserExists(addresseeId);
 
         if (blockRepository.isBlockedEitherWay(requesterId, addresseeId)) {
-            throw new ValidationException("Cannot send friend request to this user");
+            throw new ValidationException("Can not send friend request to this user");
         }
 
         friendshipRepository.findBetweenUsers(requesterId, addresseeId)
