@@ -1,0 +1,6461 @@
+{
+  "info": {
+    "_postman_id": "09f19b75-98d1-4702-9ce9-8a1dec7e9021",
+    "name": "Billboard Social Service",
+    "description": "Full API collection (~189 endpoints). Set `baseUrl`, `token`, and `internalApiKey` in the collection variables.\n\nBase URLs:\n- Local: http://localhost:8082\n- Prod: https://apigateway.pineapps.online/social\n\nAuth: Authorization: Bearer {{token}} for user endpoints; X-Internal-Api-Key for /internal/**.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Graph (Social)",
+      "item": [
+        {
+          "name": "Friendships",
+          "item": [
+            {
+              "name": "Send friend request",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/friendships/request",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "friendships",
+                    "request"
+                  ]
+                },
+                "description": "201 Created. 400 if self/already friends/pending/blocked/limit/not found.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": 2,\n  \"message\": \"Hi, let's connect!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Accept friend request",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/friendships/:friendshipId/accept",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "friendships",
+                    ":friendshipId",
+                    "accept"
+                  ],
+                  "variable": [
+                    {
+                      "key": "friendshipId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "200 OK"
+              },
+              "response": []
+            },
+            {
+              "name": "Decline friend request",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/friendships/:friendshipId/decline",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "friendships",
+                    ":friendshipId",
+                    "decline"
+                  ],
+                  "variable": [
+                    {
+                      "key": "friendshipId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "204"
+              },
+              "response": []
+            },
+            {
+              "name": "Cancel sent request",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/friendships/:friendshipId/cancel",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "friendships",
+                    ":friendshipId",
+                    "cancel"
+                  ],
+                  "variable": [
+                    {
+                      "key": "friendshipId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "204"
+              },
+              "response": []
+            },
+            {
+              "name": "Unfriend",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/friendships/:friendId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "friendships",
+                    ":friendId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "friendId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "204. friendId is a Long."
+              },
+              "response": []
+            },
+            {
+              "name": "List friends",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/friendships?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "friendships"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Pending requests (received)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/friendships/requests/pending?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "friendships",
+                    "requests",
+                    "pending"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Sent requests",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/friendships/requests/sent?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "friendships",
+                    "requests",
+                    "sent"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Friend IDs",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/friendships/ids",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "friendships",
+                    "ids"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Mutual friends",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/friendships/mutual/:userId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "friendships",
+                    "mutual",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Check friendship",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/friendships/check/:userId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "friendships",
+                    "check",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Friends count",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/friendships/count",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "friendships",
+                    "count"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Follows",
+          "item": [
+            {
+              "name": "Follow a user",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/follows",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "follows"
+                  ]
+                },
+                "description": "201",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": 2,\n  \"notificationsEnabled\": true,\n  \"isCloseFriend\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Unfollow",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/follows/:userId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "follows",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "204"
+              },
+              "response": []
+            },
+            {
+              "name": "Update follow settings",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/follows/:userId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "follows",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"notificationsEnabled\": true,\n  \"isCloseFriend\": true,\n  \"isMuted\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Followers",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/follows/followers?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "follows",
+                    "followers"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Following",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/follows/following?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "follows",
+                    "following"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Close friends",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/follows/close-friends?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "follows",
+                    "close-friends"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Follow stats",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/follows/stats/:userId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "follows",
+                    "stats",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Following IDs",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/follows/following/ids",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "follows",
+                    "following",
+                    "ids"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Check following",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/follows/check/:userId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "follows",
+                    "check",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Blocks",
+          "item": [
+            {
+              "name": "Block a user",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/blocks",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "blocks"
+                  ]
+                },
+                "description": "201",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": 2,\n  \"reason\": \"spam\",\n  \"blockMessages\": true,\n  \"blockPosts\": true,\n  \"blockComments\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Unblock",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/blocks/:userId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "blocks",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "204"
+              },
+              "response": []
+            },
+            {
+              "name": "List blocked",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/blocks?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "blocks"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Blocked IDs",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/blocks/ids",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "blocks",
+                    "ids"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Check blocked",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/blocks/check/:userId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "blocks",
+                    "check",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Pokes",
+          "item": [
+            {
+              "name": "Poke a user",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/pokes",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "pokes"
+                  ]
+                },
+                "description": "201",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": 2\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Poke back",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/pokes/:pokeId/poke-back",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "pokes",
+                    ":pokeId",
+                    "poke-back"
+                  ],
+                  "variable": [
+                    {
+                      "key": "pokeId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Received pokes",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/pokes/received?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "pokes",
+                    "received"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Sent pokes",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/pokes/sent?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "pokes",
+                    "sent"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Active pokes count",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/pokes/count",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "pokes",
+                    "count"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Dismiss poke",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/pokes/:pokeId/dismiss",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "pokes",
+                    ":pokeId",
+                    "dismiss"
+                  ],
+                  "variable": [
+                    {
+                      "key": "pokeId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "204"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Reactions",
+          "item": [
+            {
+              "name": "Add/update reaction",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/reactions",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "reactions"
+                  ]
+                },
+                "description": "201. contentType: POST/COMMENT/PHOTO/VIDEO/ALBUM/EVENT/GROUP/STORY/ASSIGNMENT/COURSE_MATERIAL/NOTICE/CIRCULAR. reactionType: LIKE/LOVE/HAHA/WOW/SAD/ANGRY",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"contentType\": \"POST\",\n  \"contentId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"reactionType\": \"LIKE\",\n  \"contentOwnerId\": 2\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Remove reaction",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/reactions/:contentType/:contentId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "reactions",
+                    ":contentType",
+                    ":contentId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "contentType",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "contentId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "204"
+              },
+              "response": []
+            },
+            {
+              "name": "Reactions for content",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/reactions/:contentType/:contentId?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "reactions",
+                    ":contentType",
+                    ":contentId"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "contentType",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "contentId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Reactions by type",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/reactions/:contentType/:contentId/type/:reactionType?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "reactions",
+                    ":contentType",
+                    ":contentId",
+                    "type",
+                    ":reactionType"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "contentType",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "contentId",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "reactionType",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Reaction stats",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/reactions/:contentType/:contentId/stats",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "reactions",
+                    ":contentType",
+                    ":contentId",
+                    "stats"
+                  ],
+                  "variable": [
+                    {
+                      "key": "contentType",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "contentId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Check reacted",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/reactions/:contentType/:contentId/check",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "reactions",
+                    ":contentType",
+                    ":contentId",
+                    "check"
+                  ],
+                  "variable": [
+                    {
+                      "key": "contentType",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "contentId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Shares",
+          "item": [
+            {
+              "name": "Share content",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/shares",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "shares"
+                  ]
+                },
+                "description": "201",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"contentType\": \"POST\",\n  \"contentId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"contentOwnerId\": 2,\n  \"targetUserId\": 3,\n  \"message\": \"check this out\",\n  \"shareToFeed\": true,\n  \"shareToStory\": false,\n  \"isPrivateShare\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Shares for content",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/shares/content/:contentType/:contentId?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "shares",
+                    "content",
+                    ":contentType",
+                    ":contentId"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "contentType",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "contentId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "My shares",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/shares/user?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "shares",
+                    "user"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Share count",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/shares/count/:contentType/:contentId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "shares",
+                    "count",
+                    ":contentType",
+                    ":contentId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "contentType",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "contentId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Presence",
+          "item": [
+            {
+              "name": "Heartbeat (mark online)",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/presence/heartbeat",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "presence",
+                    "heartbeat"
+                  ]
+                },
+                "description": "200. Call at least once per minute; presence expires ~60s after last heartbeat."
+              },
+              "response": []
+            },
+            {
+              "name": "Online friends",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/presence/friends",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "presence",
+                    "friends"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Groups",
+      "item": [
+        {
+          "name": "Groups",
+          "item": [
+            {
+              "name": "Create group",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups"
+                  ]
+                },
+                "description": "201. groupType: PUBLIC/CLOSED/PRIVATE/SECRET. name 3-100 chars.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"My Group\",\n  \"description\": \"A great group\",\n  \"groupType\": \"PUBLIC\",\n  \"categoryId\": null,\n  \"location\": \"NYC\",\n  \"website\": \"https://example.com\",\n  \"rules\": \"Be nice\",\n  \"allowMemberPosts\": true,\n  \"requirePostApproval\": false,\n  \"requireJoinApproval\": false,\n  \"allowMemberInvites\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get group by ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "Auth optional for public groups."
+              },
+              "response": []
+            },
+            {
+              "name": "Get group by slug",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/slug/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    "slug",
+                    ":slug"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "Auth optional."
+              },
+              "response": []
+            },
+            {
+              "name": "Update group",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "Admin only. All fields optional.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Updated Name\",\n  \"description\": \"new desc\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete group",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "204. Owner only."
+              },
+              "response": []
+            },
+            {
+              "name": "Search groups",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/search?query=gaming&page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    "search"
+                  ],
+                  "query": [
+                    {
+                      "key": "query",
+                      "value": "gaming",
+                      "disabled": false
+                    },
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Popular groups",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/popular?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    "popular"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Featured groups",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/featured?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    "featured"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Groups by category",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/category/:categoryId?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    "category",
+                    ":categoryId"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "categoryId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "My groups",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/my?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    "my"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Group Members",
+          "item": [
+            {
+              "name": "Join group",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/join",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    "join"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "201",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"Please let me in\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Leave group",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/leave",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    "leave"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "204. Owner cannot leave."
+              },
+              "response": []
+            },
+            {
+              "name": "List members",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "My membership",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    "me"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get member",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/:userId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Pending requests",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/pending?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    "pending"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "Moderator"
+              },
+              "response": []
+            },
+            {
+              "name": "Banned members",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/banned?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    "banned"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "Moderator"
+              },
+              "response": []
+            },
+            {
+              "name": "Admins & moderators",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/admins",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    "admins"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Member IDs",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/ids",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    "ids"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Membership stats",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/stats",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    "stats"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Approve join request",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/:memberId/approve",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    ":memberId",
+                    "approve"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "memberId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "Moderator. memberId is UUID."
+              },
+              "response": []
+            },
+            {
+              "name": "Reject join request",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/:memberId/reject",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    ":memberId",
+                    "reject"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "memberId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "204. Moderator."
+              },
+              "response": []
+            },
+            {
+              "name": "Remove member",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/:userId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "204"
+              },
+              "response": []
+            },
+            {
+              "name": "Update member role",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/:userId/role",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    ":userId",
+                    "role"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "Admin. role: OWNER/ADMIN/MODERATOR/MEMBER",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"role\": \"MODERATOR\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Promote to admin",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/:userId/promote-to-admin",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    ":userId",
+                    "promote-to-admin"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "Owner"
+              },
+              "response": []
+            },
+            {
+              "name": "Promote to moderator",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/:userId/promote-to-moderator",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    ":userId",
+                    "promote-to-moderator"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "Admin+"
+              },
+              "response": []
+            },
+            {
+              "name": "Demote admin",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/:userId/demote-admin",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    ":userId",
+                    "demote-admin"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "Owner"
+              },
+              "response": []
+            },
+            {
+              "name": "Demote moderator",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/:userId/demote-moderator",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    ":userId",
+                    "demote-moderator"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "Admin+"
+              },
+              "response": []
+            },
+            {
+              "name": "Mute member",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/:userId/mute",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    ":userId",
+                    "mute"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "durationHours null = indefinite",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"durationHours\": 24,\n  \"reason\": \"spamming\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Unmute member",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/:userId/unmute",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    ":userId",
+                    "unmute"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "Moderator"
+              },
+              "response": []
+            },
+            {
+              "name": "Ban member",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/:userId/ban",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    ":userId",
+                    "ban"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "204",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"abuse\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Unban member",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/:userId/unban",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    ":userId",
+                    "unban"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "204. Moderator."
+              },
+              "response": []
+            },
+            {
+              "name": "Update my settings",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/me/settings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    "me",
+                    "settings"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"notificationsEnabled\": true,\n  \"showInProfile\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Transfer ownership",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/members/transfer-ownership/:newOwnerId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "members",
+                    "transfer-ownership",
+                    ":newOwnerId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "newOwnerId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "Owner"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Group Categories",
+          "item": [
+            {
+              "name": "Create category",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/categories",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    "categories"
+                  ]
+                },
+                "description": "201",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Gaming\",\n  \"description\": \"Games\",\n  \"icon\": \"game\",\n  \"parentId\": null,\n  \"displayOrder\": 1,\n  \"isActive\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get category",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/categories/:categoryId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    "categories",
+                    ":categoryId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "categoryId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get category by slug",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/categories/slug/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    "categories",
+                    "slug",
+                    ":slug"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update category",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/categories/:categoryId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    "categories",
+                    ":categoryId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "categoryId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Updated\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete category",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/categories/:categoryId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    "categories",
+                    ":categoryId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "categoryId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "204"
+              },
+              "response": []
+            },
+            {
+              "name": "List categories (paged)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/categories?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    "categories"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "List categories (all)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/categories/list",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    "categories",
+                    "list"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Root categories",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/categories/root?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    "categories",
+                    "root"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Subcategories",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/categories/:parentId/subcategories?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    "categories",
+                    ":parentId",
+                    "subcategories"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "parentId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Search categories",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/categories/search?query=game&page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    "categories",
+                    "search"
+                  ],
+                  "query": [
+                    {
+                      "key": "query",
+                      "value": "game",
+                      "disabled": false
+                    },
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Group Invitations",
+          "item": [
+            {
+              "name": "Invite member",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/invitations",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "invitations"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "201",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": 2,\n  \"email\": null,\n  \"message\": \"Join us\",\n  \"expirationDays\": 7\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create invite link",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/invitations/link",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "invitations",
+                    "link"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "201",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"Join via link\",\n  \"expirationDays\": 7,\n  \"maxUses\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Group invitations",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/invitations?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "invitations"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "Moderator"
+              },
+              "response": []
+            },
+            {
+              "name": "Get invitation",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/invitations/:invitationId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "invitations",
+                    ":invitationId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "invitationId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Cancel invitation",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/groups/:groupId/invitations/:invitationId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "groups",
+                    ":groupId",
+                    "invitations",
+                    ":invitationId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "groupId",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "invitationId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "204. Moderator."
+              },
+              "response": []
+            },
+            {
+              "name": "My invitations",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/invitations?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "invitations"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "My invitations count",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/invitations/count",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "invitations",
+                    "count"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Accept invitation",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/invitations/:invitationId/accept",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "invitations",
+                    ":invitationId",
+                    "accept"
+                  ],
+                  "variable": [
+                    {
+                      "key": "invitationId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Decline invitation",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/invitations/:invitationId/decline",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "invitations",
+                    ":invitationId",
+                    "decline"
+                  ],
+                  "variable": [
+                    {
+                      "key": "invitationId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "204"
+              },
+              "response": []
+            },
+            {
+              "name": "Join by code",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/invitations/join?code=ABC123",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "invitations",
+                    "join"
+                  ],
+                  "query": [
+                    {
+                      "key": "code",
+                      "value": "ABC123",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Preview by code",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/invitations/preview?code=ABC123",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "invitations",
+                    "preview"
+                  ],
+                  "query": [
+                    {
+                      "key": "code",
+                      "value": "ABC123",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Events",
+      "item": [
+        {
+          "name": "Events",
+          "item": [
+            {
+              "name": "Create event",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events"
+                  ]
+                },
+                "description": "201. title 3-200. startTime must be future. eventType: IN_PERSON/ONLINE/HYBRID. visibility: PUBLIC/FRIENDS/PRIVATE/GROUP.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"My Event\",\n  \"description\": \"desc\",\n  \"groupId\": null,\n  \"categoryId\": null,\n  \"eventType\": \"IN_PERSON\",\n  \"visibility\": \"PUBLIC\",\n  \"coverImageUrl\": null,\n  \"startTime\": \"2026-12-01T18:00:00Z\",\n  \"endTime\": \"2026-12-01T21:00:00Z\",\n  \"timezone\": \"UTC\",\n  \"isAllDay\": false,\n  \"venueName\": \"Hall A\",\n  \"address\": \"123 St\",\n  \"city\": \"NYC\",\n  \"country\": \"US\",\n  \"latitude\": 40.7,\n  \"longitude\": -74.0,\n  \"onlineUrl\": null,\n  \"onlinePlatform\": null,\n  \"maxAttendees\": 100,\n  \"isTicketed\": false,\n  \"ticketPrice\": null,\n  \"ticketCurrency\": null,\n  \"recurrenceType\": \"NONE\",\n  \"recurrenceEndDate\": null,\n  \"allowGuests\": true,\n  \"guestsPerRsvp\": 2,\n  \"showGuestList\": true,\n  \"allowComments\": true,\n  \"requireApproval\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update event",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/:eventId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    ":eventId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "eventId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "Edit permission. All optional. status: DRAFT/PUBLISHED/CANCELLED/COMPLETED.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Updated\",\n  \"status\": \"PUBLISHED\",\n  \"acceptingRsvps\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete event",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/:eventId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    ":eventId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "eventId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "204. Host only."
+              },
+              "response": []
+            },
+            {
+              "name": "Get event by ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/:eventId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    ":eventId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "eventId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "Auth optional."
+              },
+              "response": []
+            },
+            {
+              "name": "Get event by slug",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/slug/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    "slug",
+                    ":slug"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "Auth optional."
+              },
+              "response": []
+            },
+            {
+              "name": "Publish event",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/:eventId/publish",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    ":eventId",
+                    "publish"
+                  ],
+                  "variable": [
+                    {
+                      "key": "eventId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "Only DRAFT can be published."
+              },
+              "response": []
+            },
+            {
+              "name": "Cancel event",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/:eventId/cancel?reason=cancelled",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    ":eventId",
+                    "cancel"
+                  ],
+                  "query": [
+                    {
+                      "key": "reason",
+                      "value": "cancelled",
+                      "disabled": true
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "eventId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "Host only."
+              },
+              "response": []
+            },
+            {
+              "name": "Upcoming events",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/upcoming?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    "upcoming"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Search events",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/search?query=concert&page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    "search"
+                  ],
+                  "query": [
+                    {
+                      "key": "query",
+                      "value": "concert",
+                      "disabled": false
+                    },
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Popular events",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/popular?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    "popular"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "My upcoming events",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/my/upcoming?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    "my",
+                    "upcoming"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "My hosted events",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/my/hosted?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    "my",
+                    "hosted"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "RSVPs",
+          "item": [
+            {
+              "name": "RSVP to event",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/:eventId/rsvp",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    ":eventId",
+                    "rsvp"
+                  ],
+                  "variable": [
+                    {
+                      "key": "eventId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "201. status: GOING/MAYBE/NOT_GOING/INVITED/WAITLIST/CHECKED_IN. guestCount 0-10.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"GOING\",\n  \"guestCount\": 1,\n  \"note\": \"Looking forward!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Cancel RSVP",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/:eventId/rsvp",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    ":eventId",
+                    "rsvp"
+                  ],
+                  "variable": [
+                    {
+                      "key": "eventId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "204"
+              },
+              "response": []
+            },
+            {
+              "name": "Attendees",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/:eventId/rsvp/attendees?status=GOING&page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    ":eventId",
+                    "rsvp",
+                    "attendees"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "GOING",
+                      "disabled": true
+                    },
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "eventId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Going attendees",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/:eventId/rsvp/going?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    ":eventId",
+                    "rsvp",
+                    "going"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "eventId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Checked-in attendees",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/:eventId/rsvp/checked-in?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    ":eventId",
+                    "rsvp",
+                    "checked-in"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0",
+                      "disabled": false
+                    },
+                    {
+                      "key": "size",
+                      "value": "20",
+                      "disabled": false
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "eventId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Going user IDs",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/:eventId/rsvp/going/ids",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    ":eventId",
+                    "rsvp",
+                    "going",
+                    "ids"
+                  ],
+                  "variable": [
+                    {
+                      "key": "eventId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Check in attendee",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/:eventId/rsvp/:userId/check-in",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    ":eventId",
+                    "rsvp",
+                    ":userId",
+                    "check-in"
+                  ],
+                  "variable": [
+                    {
+                      "key": "eventId",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "Host/co-host. userId is Long."
+              },
+              "response": []
+            },
+            {
+              "name": "Undo check-in",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/:eventId/rsvp/:userId/check-in",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    ":eventId",
+                    "rsvp",
+                    ":userId",
+                    "check-in"
+                  ],
+                  "variable": [
+                    {
+                      "key": "eventId",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "Host/co-host."
+              },
+              "response": []
+            },
+            {
+              "name": "My RSVP status",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/:eventId/rsvp/my-status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    ":eventId",
+                    "rsvp",
+                    "my-status"
+                  ],
+                  "variable": [
+                    {
+                      "key": "eventId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add co-host",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/:eventId/rsvp/co-hosts",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    ":eventId",
+                    "rsvp",
+                    "co-hosts"
+                  ],
+                  "variable": [
+                    {
+                      "key": "eventId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "201. Host only.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": 2\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Remove co-host",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/:eventId/rsvp/co-hosts/:userId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    ":eventId",
+                    "rsvp",
+                    "co-hosts",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "eventId",
+                      "value": "",
+                      "description": "required"
+                    },
+                    {
+                      "key": "userId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "204. Host only."
+              },
+              "response": []
+            },
+            {
+              "name": "List co-hosts",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/:eventId/rsvp/co-hosts",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "events",
+                    ":eventId",
+                    "rsvp",
+                    "co-hosts"
+                  ],
+                  "variable": [
+                    {
+                      "key": "eventId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Event Categories",
+          "item": [
+            {
+              "name": "List active categories",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/event-categories",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "event-categories"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "List all (Admin)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/event-categories/all",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "event-categories",
+                    "all"
+                  ]
+                },
+                "description": "ROLE_ADMIN"
+              },
+              "response": []
+            },
+            {
+              "name": "Get category",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/event-categories/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "event-categories",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get by slug",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/event-categories/slug/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "event-categories",
+                    "slug",
+                    ":slug"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create category (Admin)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/event-categories",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "event-categories"
+                  ]
+                },
+                "description": "201. ROLE_ADMIN. name 2-100.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Music\",\n  \"slug\": \"music\",\n  \"description\": \"Concerts\",\n  \"icon\": \"note\",\n  \"color\": \"#FF5733\",\n  \"displayOrder\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update category (Admin)",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/event-categories/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "event-categories",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "ROLE_ADMIN",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Updated\",\n  \"isActive\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete category (Admin)",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/event-categories/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "event-categories",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "204. ROLE_ADMIN. Fails if has events."
+              },
+              "response": []
+            },
+            {
+              "name": "Toggle active (Admin)",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/event-categories/:id/toggle-active",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "event-categories",
+                    ":id",
+                    "toggle-active"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "ROLE_ADMIN"
+              },
+              "response": []
+            },
+            {
+              "name": "Reorder (Admin)",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/event-categories/:id/reorder?displayOrder=5",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "event-categories",
+                    ":id",
+                    "reorder"
+                  ],
+                  "query": [
+                    {
+                      "key": "displayOrder",
+                      "value": "5",
+                      "disabled": false
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "ROLE_ADMIN"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Internal Events (S2S)",
+          "item": [
+            {
+              "name": "Create event (S2S)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Internal-Api-Key",
+                    "value": "{{internalApiKey}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/internal/events",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "internal",
+                    "events"
+                  ]
+                },
+                "description": "201. Requires X-Internal-Api-Key. organisationId & hostId required positive.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Org Event\",\n  \"description\": \"desc\",\n  \"organisationId\": 1,\n  \"hostId\": 10,\n  \"groupId\": null,\n  \"categoryId\": null,\n  \"eventType\": \"IN_PERSON\",\n  \"visibility\": \"PUBLIC\",\n  \"coverImageUrl\": null,\n  \"startTime\": \"2026-12-01T18:00:00Z\",\n  \"endTime\": null,\n  \"timezone\": \"UTC\",\n  \"isAllDay\": false,\n  \"venueName\": null,\n  \"address\": null,\n  \"city\": null,\n  \"country\": null,\n  \"latitude\": null,\n  \"longitude\": null,\n  \"onlineUrl\": null,\n  \"onlinePlatform\": null,\n  \"maxAttendees\": null,\n  \"isTicketed\": false,\n  \"ticketPrice\": null,\n  \"ticketCurrency\": null,\n  \"allowGuests\": false,\n  \"guestsPerRsvp\": 0,\n  \"showGuestList\": true,\n  \"allowComments\": true,\n  \"requireApproval\": false,\n  \"status\": \"PUBLISHED\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Bulk RSVP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Internal-Api-Key",
+                    "value": "{{internalApiKey}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/internal/events/:eventId/rsvp/bulk",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "internal",
+                    "events",
+                    ":eventId",
+                    "rsvp",
+                    "bulk"
+                  ],
+                  "variable": [
+                    {
+                      "key": "eventId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                },
+                "description": "userIds max 1000.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userIds\": [\n    1,\n    2,\n    3\n  ],\n  \"status\": \"INVITED\",\n  \"organisationId\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Non-responded users",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Internal-Api-Key",
+                    "value": "{{internalApiKey}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/internal/events/:eventId/rsvp/non-responded?organisationId=1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "internal",
+                    "events",
+                    ":eventId",
+                    "rsvp",
+                    "non-responded"
+                  ],
+                  "query": [
+                    {
+                      "key": "organisationId",
+                      "value": "1",
+                      "disabled": false
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "eventId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Org events by date range",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "X-Internal-Api-Key",
+                    "value": "{{internalApiKey}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/internal/events/by-org?organisationId=1&start=2026-01-01T00:00:00&end=2026-12-31T23:59:59&status=PUBLISHED&eventType=IN_PERSON",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "internal",
+                    "events",
+                    "by-org"
+                  ],
+                  "query": [
+                    {
+                      "key": "organisationId",
+                      "value": "1",
+                      "disabled": false
+                    },
+                    {
+                      "key": "start",
+                      "value": "2026-01-01T00:00:00",
+                      "disabled": false
+                    },
+                    {
+                      "key": "end",
+                      "value": "2026-12-31T23:59:59",
+                      "disabled": false
+                    },
+                    {
+                      "key": "status",
+                      "value": "PUBLISHED",
+                      "disabled": true
+                    },
+                    {
+                      "key": "eventType",
+                      "value": "IN_PERSON",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Cancel event (S2S)",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "X-Internal-Api-Key",
+                    "value": "{{internalApiKey}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/internal/events/:eventId?organisationId=1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "internal",
+                    "events",
+                    ":eventId"
+                  ],
+                  "query": [
+                    {
+                      "key": "organisationId",
+                      "value": "1",
+                      "disabled": false
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "eventId",
+                      "value": "",
+                      "description": "required"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Game Groups",
+      "item": [
+        {
+          "name": "Create game group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups"
+              ]
+            },
+            "description": "201. name 3-100, gameTag required.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pro Squad\",\n  \"description\": \"Competitive\",\n  \"groupType\": \"PUBLIC\",\n  \"gameTag\": \"VALORANT\",\n  \"gameId\": null,\n  \"region\": \"NA\",\n  \"platform\": \"PC\",\n  \"minRank\": \"Gold\",\n  \"maxRank\": \"Immortal\",\n  \"requireGameAccount\": true,\n  \"discordServerId\": null,\n  \"discordChannelId\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get game group",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups/:groupId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups",
+                ":groupId"
+              ],
+              "variable": [
+                {
+                  "key": "groupId",
+                  "value": "",
+                  "description": "required"
+                }
+              ]
+            },
+            "description": "Auth optional."
+          },
+          "response": []
+        },
+        {
+          "name": "Update profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups/:groupId/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups",
+                ":groupId",
+                "profile"
+              ],
+              "variable": [
+                {
+                  "key": "groupId",
+                  "value": "",
+                  "description": "required"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"region\": \"EU\",\n  \"platform\": \"PC\",\n  \"minRank\": \"Plat\",\n  \"maxRank\": \"Radiant\",\n  \"requireGameAccount\": true,\n  \"discordServerId\": null,\n  \"discordChannelId\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search game groups",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups/search?gameTag=VALORANT&region=NA&page=0&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "gameTag",
+                  "value": "VALORANT",
+                  "disabled": false
+                },
+                {
+                  "key": "region",
+                  "value": "NA",
+                  "disabled": false
+                },
+                {
+                  "key": "page",
+                  "value": "0",
+                  "disabled": false
+                },
+                {
+                  "key": "size",
+                  "value": "20",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Embed data (PUBLIC)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups/:groupId/embed",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups",
+                ":groupId",
+                "embed"
+              ],
+              "variable": [
+                {
+                  "key": "groupId",
+                  "value": "",
+                  "description": "required"
+                }
+              ]
+            },
+            "description": "Public - no auth."
+          },
+          "response": []
+        },
+        {
+          "name": "Save scrim filter",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups/:groupId/scrim-filter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups",
+                ":groupId",
+                "scrim-filter"
+              ],
+              "variable": [
+                {
+                  "key": "groupId",
+                  "value": "",
+                  "description": "required"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gameTag\": \"VALORANT\",\n  \"region\": \"NA\",\n  \"format\": \"BO3\",\n  \"mapPool\": \"Ascent,Bind\",\n  \"minTeamSize\": 5,\n  \"maxTeamSize\": 5,\n  \"minElo\": 1000,\n  \"maxElo\": 2000,\n  \"availabilitySlots\": \"evenings\",\n  \"isActive\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get scrim filter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups/:groupId/scrim-filter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups",
+                ":groupId",
+                "scrim-filter"
+              ],
+              "variable": [
+                {
+                  "key": "groupId",
+                  "value": "",
+                  "description": "required"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Broadcast LFS",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups/:groupId/lfs/broadcast",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups",
+                ":groupId",
+                "lfs",
+                "broadcast"
+              ],
+              "variable": [
+                {
+                  "key": "groupId",
+                  "value": "",
+                  "description": "required"
+                }
+              ]
+            },
+            "description": "groupId required in body AND path.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"groupId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"message\": \"LF scrim tonight\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel LFS",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups/:groupId/lfs/broadcast",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups",
+                ":groupId",
+                "lfs",
+                "broadcast"
+              ],
+              "variable": [
+                {
+                  "key": "groupId",
+                  "value": "",
+                  "description": "required"
+                }
+              ]
+            },
+            "description": "204"
+          },
+          "response": []
+        },
+        {
+          "name": "LFS match found",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups/:groupId/lfs/match-found",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups",
+                ":groupId",
+                "lfs",
+                "match-found"
+              ],
+              "variable": [
+                {
+                  "key": "groupId",
+                  "value": "",
+                  "description": "required"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"groupId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"matchedGroupId\": \"660e8400-e29b-41d4-a716-446655440001\",\n  \"gameTag\": \"VALORANT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Link team",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups/:groupId/teams",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups",
+                ":groupId",
+                "teams"
+              ],
+              "variable": [
+                {
+                  "key": "groupId",
+                  "value": "",
+                  "description": "required"
+                }
+              ]
+            },
+            "description": "201",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"teamId\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get linked teams",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups/:groupId/teams",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups",
+                ":groupId",
+                "teams"
+              ],
+              "variable": [
+                {
+                  "key": "groupId",
+                  "value": "",
+                  "description": "required"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Unlink team",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups/:groupId/teams/:teamId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups",
+                ":groupId",
+                "teams",
+                ":teamId"
+              ],
+              "variable": [
+                {
+                  "key": "groupId",
+                  "value": "",
+                  "description": "required"
+                },
+                {
+                  "key": "teamId",
+                  "value": "",
+                  "description": "required"
+                }
+              ]
+            },
+            "description": "204"
+          },
+          "response": []
+        },
+        {
+          "name": "Transfer ownership",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups/:groupId/transfer-ownership",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups",
+                ":groupId",
+                "transfer-ownership"
+              ],
+              "variable": [
+                {
+                  "key": "groupId",
+                  "value": "",
+                  "description": "required"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newOwnerId\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Link game account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups/accounts/link",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups",
+                "accounts",
+                "link"
+              ]
+            },
+            "description": "201",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gameTag\": \"VALORANT\",\n  \"gameAccountId\": \"riot#1234\",\n  \"gameAccountName\": \"PlayerOne\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "My game accounts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups/accounts/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups",
+                "accounts",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Audit log",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups/:groupId/audit-log?page=0&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups",
+                ":groupId",
+                "audit-log"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0",
+                  "disabled": false
+                },
+                {
+                  "key": "size",
+                  "value": "20",
+                  "disabled": false
+                }
+              ],
+              "variable": [
+                {
+                  "key": "groupId",
+                  "value": "",
+                  "description": "required"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Member IDs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups/:groupId/member-ids",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups",
+                ":groupId",
+                "member-ids"
+              ],
+              "variable": [
+                {
+                  "key": "groupId",
+                  "value": "",
+                  "description": "required"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Join game group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups/:groupId/join",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups",
+                ":groupId",
+                "join"
+              ],
+              "variable": [
+                {
+                  "key": "groupId",
+                  "value": "",
+                  "description": "required"
+                }
+              ]
+            },
+            "description": "Rank/account gated. 400 if requirement not met.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Let me join\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search LFS groups (PUBLIC)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups/lfs/search?gameTag=VALORANT&region=NA&format=BO3&minElo=1000&maxElo=2000&page=0&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups",
+                "lfs",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "gameTag",
+                  "value": "VALORANT",
+                  "disabled": false
+                },
+                {
+                  "key": "region",
+                  "value": "NA",
+                  "disabled": false
+                },
+                {
+                  "key": "format",
+                  "value": "BO3",
+                  "disabled": true
+                },
+                {
+                  "key": "minElo",
+                  "value": "1000",
+                  "disabled": true
+                },
+                {
+                  "key": "maxElo",
+                  "value": "2000",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "0",
+                  "disabled": false
+                },
+                {
+                  "key": "size",
+                  "value": "20",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Leaderboard (PUBLIC)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups/leaderboard?gameTag=VALORANT&sortBy=WIN_RATE&page=0&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups",
+                "leaderboard"
+              ],
+              "query": [
+                {
+                  "key": "gameTag",
+                  "value": "VALORANT",
+                  "disabled": false
+                },
+                {
+                  "key": "sortBy",
+                  "value": "WIN_RATE",
+                  "disabled": false
+                },
+                {
+                  "key": "page",
+                  "value": "0",
+                  "disabled": false
+                },
+                {
+                  "key": "size",
+                  "value": "20",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "sortBy: WIN_RATE/SCRIM_COUNT/AVERAGE_ELO"
+          },
+          "response": []
+        },
+        {
+          "name": "Get chat channel",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/game-groups/:groupId/chat-channel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game-groups",
+                ":groupId",
+                "chat-channel"
+              ],
+              "variable": [
+                {
+                  "key": "groupId",
+                  "value": "",
+                  "description": "required"
+                }
+              ]
+            },
+            "description": "404 if not yet provisioned."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. User Suggestions",
+      "item": [
+        {
+          "name": "Get suggested users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/suggestions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "suggestions"
+              ]
+            },
+            "description": "Mutual-friend based; falls back to popular users for new accounts."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "6. Friends Finder",
+      "item": [
+        {
+          "name": "Search players",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/friends-finder/search?region=SEA&minSkillLevel=1&maxSkillLevel=10&page=0&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "friends-finder",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "region",
+                  "value": "SEA",
+                  "disabled": true
+                },
+                {
+                  "key": "minSkillLevel",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "maxSkillLevel",
+                  "value": "10",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "0",
+                  "disabled": false
+                },
+                {
+                  "key": "size",
+                  "value": "20",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Friend suggestions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/friends-finder/suggestions?page=0&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "friends-finder",
+                "suggestions"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0",
+                  "disabled": false
+                },
+                {
+                  "key": "size",
+                  "value": "20",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Dismiss suggestion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/friends-finder/suggestions/:suggestionId/dismiss",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "friends-finder",
+                "suggestions",
+                ":suggestionId",
+                "dismiss"
+              ],
+              "variable": [
+                {
+                  "key": "suggestionId",
+                  "value": "",
+                  "description": "required"
+                }
+              ]
+            },
+            "description": "204"
+          },
+          "response": []
+        },
+        {
+          "name": "Scrim history",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/friends-finder/scrim-history?page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "friends-finder",
+                "scrim-history"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0",
+                  "disabled": false
+                },
+                {
+                  "key": "size",
+                  "value": "10",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "Note: default size = 10."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8082",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "internalApiKey",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
