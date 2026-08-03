@@ -223,11 +223,12 @@ public class FriendshipService {
         try {
             UserSummary user = userServiceClient.getUserSummary(userId).getData();
             if (user == null) {
-                throw new ValidationException("User not found with id: " + userId);
+                log.debug("User not found in identity-service (null response): userId={}", userId);
+                throw new ValidationException("Unable to send friend request");
             }
         } catch (FeignException.NotFound e) {
             log.warn("User not found in identity-service: {}", userId);
-            throw new ValidationException("User not found with id: " + userId);
+            throw new ValidationException("Unable to send friend request");
         } catch (FeignException e) {
             log.error("Identity service error for userId {}: {} - Status: {}",
                     userId, e.getMessage(), e.status());

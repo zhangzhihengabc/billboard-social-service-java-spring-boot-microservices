@@ -20,7 +20,7 @@ public class UserServiceClientFallbackFactory implements FallbackFactory<UserSer
                     correlationId, userId, cause.getClass().getSimpleName(), cause.getMessage(), cause);
 
             if (cause instanceof FeignException.NotFound) {
-                throw new ResourceNotFoundException("User not found: " + userId);
+                throw new ResourceNotFoundException("Unable to send friend request");
             }
             if (cause instanceof RuntimeException re) {
                 throw re;

@@ -396,7 +396,7 @@ class FriendshipServiceTest {
         }
 
         @Test
-        @DisplayName("User summary returns null - throws ValidationException")
+        @DisplayName("User summary returns null - throws ValidationException (NDC-23: non-disclosive message)")
         void validateUserExists_ReturnsNull() {
             FriendRequest request = FriendRequest.builder()
                     .userId(FRIEND_ID)
@@ -406,11 +406,11 @@ class FriendshipServiceTest {
 
             assertThatThrownBy(() -> friendshipService.sendFriendRequest(USER_ID, request))
                     .isInstanceOf(ValidationException.class)
-                    .hasMessage("User not found with id: " + FRIEND_ID);
+                    .hasMessage("Unable to send friend request");
         }
 
         @Test
-        @DisplayName("FeignException.NotFound - throws ValidationException")
+        @DisplayName("FeignException.NotFound - throws ValidationException (NDC-23: non-disclosive message)")
         void validateUserExists_FeignNotFound() {
             FriendRequest request = FriendRequest.builder()
                     .userId(FRIEND_ID)
@@ -423,7 +423,40 @@ class FriendshipServiceTest {
 
             assertThatThrownBy(() -> friendshipService.sendFriendRequest(USER_ID, request))
                     .isInstanceOf(ValidationException.class)
-                    .hasMessage("User not found with id: " + FRIEND_ID);
+                    .hasMessage("Unable to send friend request");
+        }
+
+        @Test
+        @DisplayName("NDC-23: non-existent user and null SSO response produce identical message (non-disclosure)")
+        void sendFriendRequest_NonDisclosure_BothNotFoundPathsProduceSameMessage() {
+            FriendRequest request = FriendRequest.builder()
+                    .userId(FRIEND_ID)
+                    .build();
+
+            // Path 1: SSO returns 404 (FeignException.NotFound — user does not exist)
+            Request feignRequest = Request.create(Request.HttpMethod.GET, "/users",
+                    Collections.emptyMap(), null, new RequestTemplate());
+            when(userServiceClient.getUserSummary(FRIEND_ID))
+                    .thenThrow(new FeignException.NotFound("Not found", feignRequest, null, null));
+
+            ValidationException ex1 = catchThrowableOfType(
+                    () -> friendshipService.sendFriendRequest(USER_ID, request),
+                    ValidationException.class);
+
+            // Path 2: SSO returns null data (user does not exist via different internal path)
+            reset(userServiceClient);
+            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(null));
+
+            ValidationException ex2 = catchThrowableOfType(
+                    () -> friendshipService.sendFriendRequest(USER_ID, request),
+                    ValidationException.class);
+
+            // Both paths must produce identical message — no enumeration signal to caller
+            assertThat(ex1).isNotNull();
+            assertThat(ex2).isNotNull();
+            assertThat(ex1.getMessage()).isEqualTo("Unable to send friend request");
+            assertThat(ex2.getMessage()).isEqualTo("Unable to send friend request");
+            assertThat(ex1.getMessage()).isEqualTo(ex2.getMessage());
         }
 
         @Test

@@ -57,7 +57,7 @@ class UserServiceClientFallbackFactoryTest {
     class NotFound {
 
         @Test
-        @DisplayName("Throws ResourceNotFoundException, not a fabricated UserSummary")
+        @DisplayName("Throws ResourceNotFoundException with non-disclosive message (NDC-23)")
         void create_notFound_throwsResourceNotFoundException() {
             FeignException.NotFound notFound = mock(FeignException.NotFound.class);
             when(notFound.getMessage()).thenReturn("404 Not Found");
@@ -66,7 +66,7 @@ class UserServiceClientFallbackFactoryTest {
 
             assertThatThrownBy(() -> client.getUserSummary(99L))
                     .isInstanceOf(ResourceNotFoundException.class)
-                    .hasMessageContaining("99");
+                    .hasMessage("Unable to send friend request");
         }
     }
 
