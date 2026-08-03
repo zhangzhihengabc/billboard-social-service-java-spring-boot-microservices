@@ -10,9 +10,12 @@ import com.billboard.social.graph.dto.response.SocialResponses.BlockResponse;
 import com.billboard.social.graph.entity.Block;
 import com.billboard.social.graph.entity.Follow;
 import com.billboard.social.graph.entity.Friendship;
+import com.billboard.social.graph.entity.FriendshipEvent;
+import com.billboard.social.graph.entity.enums.FriendshipStatus;
 import com.billboard.social.graph.event.SocialEventPublisher;
 import com.billboard.social.graph.repository.BlockRepository;
 import com.billboard.social.graph.repository.FollowRepository;
+import com.billboard.social.graph.repository.FriendshipEventRepository;
 import com.billboard.social.graph.repository.FriendshipRepository;
 import feign.FeignException;
 import feign.Request;
@@ -40,6 +43,9 @@ class BlockServiceTest {
 
     @Mock
     private FriendshipRepository friendshipRepository;
+
+    @Mock
+    private FriendshipEventRepository friendshipEventRepository;
 
     @Mock
     private FollowRepository followRepository;
@@ -184,7 +190,7 @@ class BlockServiceTest {
         }
 
         @Test
-        @DisplayName("Success - removes existing friendship")
+        @DisplayName("Success - transitions existing friendship to BLOCKED status and records event")
         void blockUser_RemovesExistingFriendship() {
             BlockRequest request = BlockRequest.builder()
                     .userId(BLOCKED_USER_ID)
@@ -195,11 +201,13 @@ class BlockServiceTest {
                     .requesterId(USER_ID)
                     .addresseeId(BLOCKED_USER_ID)
                     .build();
+            // builder default is PENDING; isBlocked() returns false so the transition branch executes
 
             when(blockRepository.existsByBlockerIdAndBlockedId(USER_ID, BLOCKED_USER_ID)).thenReturn(false);
             when(blockRepository.countByBlockerId(USER_ID)).thenReturn(0L);
             when(friendshipRepository.findBetweenUsers(USER_ID, BLOCKED_USER_ID))
                     .thenReturn(Optional.of(existingFriendship));
+            when(friendshipRepository.save(any(Friendship.class))).thenAnswer(invocation -> invocation.getArgument(0));
             when(followRepository.findByFollowerIdAndFollowingId(USER_ID, BLOCKED_USER_ID)).thenReturn(Optional.empty());
             when(followRepository.findByFollowerIdAndFollowingId(BLOCKED_USER_ID, USER_ID)).thenReturn(Optional.empty());
             when(blockRepository.save(any(Block.class))).thenAnswer(invocation -> {
@@ -212,7 +220,16 @@ class BlockServiceTest {
 
             blockService.blockUser(USER_ID, request);
 
-            verify(friendshipRepository).delete(existingFriendship);
+            // Friendship row saved with BLOCKED status (not deleted)
+            ArgumentCaptor<Friendship> savedCaptor = ArgumentCaptor.forClass(Friendship.class);
+            verify(friendshipRepository).save(savedCaptor.capture());
+            assertThat(savedCaptor.getValue().getStatus()).isEqualTo(FriendshipStatus.BLOCKED);
+            verify(friendshipRepository, never()).delete(any(Friendship.class));
+
+            // Event recorded for the transition
+            ArgumentCaptor<FriendshipEvent> eventCaptor = ArgumentCaptor.forClass(FriendshipEvent.class);
+            verify(friendshipEventRepository).save(eventCaptor.capture());
+            assertThat(eventCaptor.getValue().getToStatus()).isEqualTo(FriendshipStatus.BLOCKED);
         }
 
         @Test
@@ -658,6 +675,56 @@ class BlockServiceTest {
             PageResponse<BlockResponse> response = blockService.getBlockedUsers(USER_ID, 0, 20);
 
             assertThat(response.getContent().get(0).getReason()).isNull();
+        }
+    }
+
+    // ==================== AFTER-BLOCK GUARDS (P04) ====================
+
+    @Nested
+    @DisplayName("After-block guards (P04)")
+    class AfterBlockGuardTests {
+
+        @Test
+        @DisplayName("After block, isBlockedEitherWay returns true (explicit guard)")
+        void afterBlock_IsBlockedEitherWayIsTrue() {
+            when(blockRepository.isBlockedEitherWay(USER_ID, BLOCKED_USER_ID)).thenReturn(true);
+
+            assertThat(blockService.isBlockedEitherWay(USER_ID, BLOCKED_USER_ID)).isTrue();
+        }
+
+        @Test
+        @DisplayName("Already-BLOCKED friendship row is not transitioned again (idempotency guard)")
+        void blockUser_AlreadyBlockedFriendshipRow_NotTransitionedAgain() {
+            BlockRequest request = BlockRequest.builder()
+                    .userId(BLOCKED_USER_ID)
+                    .build();
+
+            Friendship alreadyBlocked = Friendship.builder()
+                    .id(UUID.randomUUID())
+                    .requesterId(USER_ID)
+                    .addresseeId(BLOCKED_USER_ID)
+                    .status(FriendshipStatus.BLOCKED)
+                    .build();
+
+            when(blockRepository.existsByBlockerIdAndBlockedId(USER_ID, BLOCKED_USER_ID)).thenReturn(false);
+            when(blockRepository.countByBlockerId(USER_ID)).thenReturn(0L);
+            when(friendshipRepository.findBetweenUsers(USER_ID, BLOCKED_USER_ID))
+                    .thenReturn(Optional.of(alreadyBlocked));
+            when(followRepository.findByFollowerIdAndFollowingId(USER_ID, BLOCKED_USER_ID)).thenReturn(Optional.empty());
+            when(followRepository.findByFollowerIdAndFollowingId(BLOCKED_USER_ID, USER_ID)).thenReturn(Optional.empty());
+            when(blockRepository.save(any(Block.class))).thenAnswer(invocation -> {
+                Block saved = invocation.getArgument(0);
+                saved.setId(BLOCK_ID);
+                saved.setCreatedAt(LocalDateTime.now());
+                return saved;
+            });
+            when(userServiceClient.getUserSummary(BLOCKED_USER_ID)).thenReturn(apiResponse(testUserSummary));
+
+            blockService.blockUser(USER_ID, request);
+
+            // isBlocked() is true → inner if-branch skipped; no duplicate save or event
+            verify(friendshipRepository, never()).save(any(Friendship.class));
+            verify(friendshipEventRepository, never()).save(any(FriendshipEvent.class));
         }
     }
 

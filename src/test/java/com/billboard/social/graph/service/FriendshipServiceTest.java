@@ -12,6 +12,8 @@ import com.billboard.social.graph.entity.Friendship;
 import com.billboard.social.graph.entity.enums.FriendshipStatus;
 import com.billboard.social.graph.event.SocialEventPublisher;
 import com.billboard.social.graph.repository.BlockRepository;
+import com.billboard.social.graph.entity.FriendshipEvent;
+import com.billboard.social.graph.repository.FriendshipEventRepository;
 import com.billboard.social.graph.repository.FriendshipRepository;
 import feign.FeignException;
 import feign.Request;
@@ -40,6 +42,9 @@ class FriendshipServiceTest {
 
     @Mock
     private BlockRepository blockRepository;
+
+    @Mock
+    private FriendshipEventRepository friendshipEventRepository;
 
     @Mock
     private UserServiceClient userServiceClient;
@@ -118,17 +123,20 @@ class FriendshipServiceTest {
         }
 
         @Test
-        @DisplayName("Friend request already pending (isPending branch) - throws ValidationException")
+        @DisplayName("Friend request already pending (PENDING switch case) - throws ValidationException")
         void sendFriendRequest_IsPendingBranch() {
             FriendRequest request = FriendRequest.builder()
                     .userId(FRIEND_ID)
                     .build();
 
-            // Create friendship with PENDING status
-            // isAccepted() returns false, isPending() returns true
-            Friendship pendingFriendship = mock(Friendship.class);
-            when(pendingFriendship.isAccepted()).thenReturn(false);  // Skip first if
-            when(pendingFriendship.isPending()).thenReturn(true);    // Enter second if
+            // Production code uses switch(existing.getStatus()); a real entity is required so
+            // getStatus() returns PENDING rather than null (which would cause NPE).
+            Friendship pendingFriendship = Friendship.builder()
+                    .id(FRIENDSHIP_ID)
+                    .requesterId(USER_ID)
+                    .addresseeId(FRIEND_ID)
+                    .status(FriendshipStatus.PENDING)
+                    .build();
 
             when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(testUserSummary));
             when(blockRepository.isBlockedEitherWay(USER_ID, FRIEND_ID)).thenReturn(false);
@@ -138,48 +146,49 @@ class FriendshipServiceTest {
                     .isInstanceOf(ValidationException.class)
                     .hasMessage("Friend request already pending");
 
-            // Verify both methods were called in order
-            verify(pendingFriendship).isAccepted();
-            verify(pendingFriendship).isPending();
             verify(friendshipRepository, never()).save(any());
         }
 
         @Test
-        @DisplayName("Existing friendship is declined - allows new request (isPending false branch)")
+        @DisplayName("Existing friendship is declined - reactivates to PENDING with correct event; max-friends check skipped")
         void sendFriendRequest_ExistingDeclinedFriendship_AllowsNewRequest() {
             FriendRequest request = FriendRequest.builder()
                     .userId(FRIEND_ID)
                     .build();
 
-            // Create friendship with DECLINED status (neither ACCEPTED nor PENDING)
-            // isAccepted() returns false, isPending() returns false -> continues past both ifs
-            Friendship declinedFriendship = mock(Friendship.class);
-            when(declinedFriendship.isAccepted()).thenReturn(false);  // Skip first if
-            when(declinedFriendship.isPending()).thenReturn(false);   // Skip second if -> continue
+            // Real entity so status mutation can be observed — the prior mock(Friendship.class) was a
+            // false green: it never verified the status was actually set to PENDING or that the event
+            // was recorded with fromStatus=DECLINED.
+            Friendship declinedFriendship = Friendship.builder()
+                    .id(FRIENDSHIP_ID)
+                    .requesterId(FRIEND_ID)
+                    .addresseeId(USER_ID)
+                    .status(FriendshipStatus.DECLINED)
+                    .build();
+            declinedFriendship.setCreatedAt(LocalDateTime.now());
 
             when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(testUserSummary));
             when(blockRepository.isBlockedEitherWay(USER_ID, FRIEND_ID)).thenReturn(false);
             when(friendshipRepository.findBetweenUsers(USER_ID, FRIEND_ID)).thenReturn(Optional.of(declinedFriendship));
-            when(friendshipRepository.countFriends(USER_ID)).thenReturn(0L);
             when(friendshipRepository.findMutualFriendIds(USER_ID, FRIEND_ID)).thenReturn(Collections.emptyList());
-            when(friendshipRepository.save(any(Friendship.class))).thenAnswer(invocation -> {
-                Friendship saved = invocation.getArgument(0);
-                saved.setId(FRIENDSHIP_ID);
-                saved.setCreatedAt(LocalDateTime.now());
-                return saved;
-            });
+            when(friendshipRepository.save(any(Friendship.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             FriendshipResponse response = friendshipService.sendFriendRequest(USER_ID, request);
 
-            // Verify both branches were checked and skipped
-            verify(declinedFriendship).isAccepted();
-            verify(declinedFriendship).isPending();
+            // Row returns to PENDING
+            assertThat(response.getStatus()).isEqualTo(FriendshipStatus.PENDING);
 
-            // Verify code continued past ifPresent block
-            verify(friendshipRepository).countFriends(USER_ID);
-            verify(friendshipRepository).save(any(Friendship.class));
+            // Reactivation event saved: DECLINED → PENDING
+            ArgumentCaptor<FriendshipEvent> eventCaptor = ArgumentCaptor.forClass(FriendshipEvent.class);
+            verify(friendshipEventRepository).save(eventCaptor.capture());
+            assertThat(eventCaptor.getValue().getFromStatus()).isEqualTo(FriendshipStatus.DECLINED);
+            assertThat(eventCaptor.getValue().getToStatus()).isEqualTo(FriendshipStatus.PENDING);
 
-            assertThat(response).isNotNull();
+            // Friend-request-sent event published
+            verify(eventPublisher).publishFriendRequestSent(any(Friendship.class));
+
+            // max-friends count is NOT consulted for a reactivation (no new row inserted)
+            verify(friendshipRepository, never()).countFriends(any());
         }
 
         @Test
@@ -568,17 +577,26 @@ class FriendshipServiceTest {
     class DeclineFriendRequestTests {
 
         @Test
-        @DisplayName("Success - declines friend request")
+        @DisplayName("Success - declines friend request; row transitions to DECLINED and event recorded")
         void declineFriendRequest_Success() {
             testFriendship.setRequesterId(FRIEND_ID);
             testFriendship.setAddresseeId(USER_ID);
 
             when(friendshipRepository.findById(FRIENDSHIP_ID)).thenReturn(Optional.of(testFriendship));
-            doNothing().when(friendshipRepository).delete(testFriendship);
+            when(friendshipRepository.save(any(Friendship.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             friendshipService.declineFriendRequest(USER_ID, FRIENDSHIP_ID);
 
-            verify(friendshipRepository).delete(testFriendship);
+            ArgumentCaptor<Friendship> savedCaptor = ArgumentCaptor.forClass(Friendship.class);
+            verify(friendshipRepository).save(savedCaptor.capture());
+            assertThat(savedCaptor.getValue().getStatus()).isEqualTo(FriendshipStatus.DECLINED);
+
+            ArgumentCaptor<FriendshipEvent> eventCaptor = ArgumentCaptor.forClass(FriendshipEvent.class);
+            verify(friendshipEventRepository).save(eventCaptor.capture());
+            assertThat(eventCaptor.getValue().getFromStatus()).isEqualTo(FriendshipStatus.PENDING);
+            assertThat(eventCaptor.getValue().getToStatus()).isEqualTo(FriendshipStatus.DECLINED);
+
+            verify(eventPublisher).publishFriendRequestDeclined(any(Friendship.class));
         }
 
         @Test
@@ -593,7 +611,7 @@ class FriendshipServiceTest {
                     .isInstanceOf(ValidationException.class)
                     .hasMessage("Only the addressee can decline this request");
 
-            verify(friendshipRepository, never()).delete(any(Friendship.class));
+            verify(friendshipRepository, never()).save(any(Friendship.class));
         }
 
         @Test
@@ -628,17 +646,24 @@ class FriendshipServiceTest {
     class CancelFriendRequestTests {
 
         @Test
-        @DisplayName("Success - cancels friend request")
+        @DisplayName("Success - cancels friend request; row transitions to CANCELLED and event recorded")
         void cancelFriendRequest_Success() {
             testFriendship.setRequesterId(USER_ID);
             testFriendship.setAddresseeId(FRIEND_ID);
 
             when(friendshipRepository.findById(FRIENDSHIP_ID)).thenReturn(Optional.of(testFriendship));
-            doNothing().when(friendshipRepository).delete(testFriendship);
+            when(friendshipRepository.save(any(Friendship.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             friendshipService.cancelFriendRequest(USER_ID, FRIENDSHIP_ID);
 
-            verify(friendshipRepository).delete(testFriendship);
+            ArgumentCaptor<Friendship> savedCaptor = ArgumentCaptor.forClass(Friendship.class);
+            verify(friendshipRepository).save(savedCaptor.capture());
+            assertThat(savedCaptor.getValue().getStatus()).isEqualTo(FriendshipStatus.CANCELLED);
+
+            ArgumentCaptor<FriendshipEvent> eventCaptor = ArgumentCaptor.forClass(FriendshipEvent.class);
+            verify(friendshipEventRepository).save(eventCaptor.capture());
+            assertThat(eventCaptor.getValue().getFromStatus()).isEqualTo(FriendshipStatus.PENDING);
+            assertThat(eventCaptor.getValue().getToStatus()).isEqualTo(FriendshipStatus.CANCELLED);
         }
 
         @Test
@@ -653,7 +678,7 @@ class FriendshipServiceTest {
                     .isInstanceOf(ValidationException.class)
                     .hasMessage("Only the requester can cancel this request");
 
-            verify(friendshipRepository, never()).delete(any(Friendship.class));
+            verify(friendshipRepository, never()).save(any(Friendship.class));
         }
 
         @Test
@@ -688,7 +713,7 @@ class FriendshipServiceTest {
     class UnfriendTests {
 
         @Test
-        @DisplayName("Success - unfriends user")
+        @DisplayName("Success - unfriends user; row transitions to UNFRIENDED, event recorded, social.unfriended published")
         void unfriend_Success() {
             Friendship acceptedFriendship = Friendship.builder()
                     .id(FRIENDSHIP_ID)
@@ -699,11 +724,19 @@ class FriendshipServiceTest {
 
             when(friendshipRepository.findBetweenUsers(USER_ID, FRIEND_ID))
                     .thenReturn(Optional.of(acceptedFriendship));
-            doNothing().when(friendshipRepository).delete(acceptedFriendship);
+            when(friendshipRepository.save(any(Friendship.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             friendshipService.unfriend(USER_ID, FRIEND_ID);
 
-            verify(friendshipRepository).delete(acceptedFriendship);
+            ArgumentCaptor<Friendship> savedCaptor = ArgumentCaptor.forClass(Friendship.class);
+            verify(friendshipRepository).save(savedCaptor.capture());
+            assertThat(savedCaptor.getValue().getStatus()).isEqualTo(FriendshipStatus.UNFRIENDED);
+
+            ArgumentCaptor<FriendshipEvent> eventCaptor = ArgumentCaptor.forClass(FriendshipEvent.class);
+            verify(friendshipEventRepository).save(eventCaptor.capture());
+            assertThat(eventCaptor.getValue().getFromStatus()).isEqualTo(FriendshipStatus.ACCEPTED);
+            assertThat(eventCaptor.getValue().getToStatus()).isEqualTo(FriendshipStatus.UNFRIENDED);
+
             verify(eventPublisher).publishUnfriended(USER_ID, FRIEND_ID);
         }
 
@@ -717,7 +750,7 @@ class FriendshipServiceTest {
                     .isInstanceOf(ValidationException.class)
                     .hasMessage("Friendship not found");
 
-            verify(friendshipRepository, never()).delete(any(Friendship.class));
+            verify(friendshipRepository, never()).save(any(Friendship.class));
         }
 
         @Test
@@ -1179,6 +1212,115 @@ class FriendshipServiceTest {
             assertThat(friendResponse.getUsername()).isEqualTo("friend");
             assertThat(friendResponse.getMutualFriendsCount()).isEqualTo(10);
             assertThat(friendResponse.getFriendsSince()).isNotNull();
+        }
+    }
+
+    // ==================== STATUS TRANSITION GUARDS ====================
+
+    @Nested
+    @DisplayName("Status transition guards (P04)")
+    class StatusTransitionGuardTests {
+
+        @Test
+        @DisplayName("After decline, declined pair does not appear in getFriendIds (regression guard: query must filter by ACCEPTED)")
+        void afterDecline_PairAbsentFromFriendIdsList() {
+            // findFriendIds() uses WHERE status = 'ACCEPTED' — a DECLINED row must never leak.
+            // If someone removes that filter from the JPQL, this contract assertion fails.
+            when(friendshipRepository.findFriendIds(USER_ID)).thenReturn(Collections.emptyList());
+
+            List<Long> result = friendshipService.getFriendIds(USER_ID);
+
+            assertThat(result).doesNotContain(FRIEND_ID);
+            verify(friendshipRepository).findFriendIds(USER_ID);
+        }
+
+        @Test
+        @DisplayName("After block, areFriends returns false (BLOCKED status is not ACCEPTED)")
+        void afterBlock_AreFriendsIsFalse() {
+            when(friendshipRepository.areFriends(USER_ID, FRIEND_ID)).thenReturn(false);
+
+            assertThat(friendshipService.areFriends(USER_ID, FRIEND_ID)).isFalse();
+        }
+
+        @Test
+        @DisplayName("Re-request after decline: row returns to PENDING and both events survive in friendship_events")
+        void reRequestAfterDecline_BothEventsInHistory() {
+            // Step 1 — decline the pending request
+            testFriendship.setRequesterId(FRIEND_ID);
+            testFriendship.setAddresseeId(USER_ID);
+            when(friendshipRepository.findById(FRIENDSHIP_ID)).thenReturn(Optional.of(testFriendship));
+            when(friendshipRepository.save(any(Friendship.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            friendshipService.declineFriendRequest(USER_ID, FRIENDSHIP_ID);
+            // testFriendship.status is now DECLINED
+
+            // Step 2 — re-request; friendship row is found in DECLINED state
+            FriendRequest request = FriendRequest.builder().userId(FRIEND_ID).build();
+            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(testUserSummary));
+            when(blockRepository.isBlockedEitherWay(USER_ID, FRIEND_ID)).thenReturn(false);
+            when(friendshipRepository.findBetweenUsers(USER_ID, FRIEND_ID)).thenReturn(Optional.of(testFriendship));
+            when(friendshipRepository.findMutualFriendIds(USER_ID, FRIEND_ID)).thenReturn(Collections.emptyList());
+
+            FriendshipResponse response = friendshipService.sendFriendRequest(USER_ID, request);
+
+            assertThat(response.getStatus()).isEqualTo(FriendshipStatus.PENDING);
+
+            // Both events saved across the two operations: PENDING→DECLINED then DECLINED→PENDING
+            ArgumentCaptor<FriendshipEvent> eventCaptor = ArgumentCaptor.forClass(FriendshipEvent.class);
+            verify(friendshipEventRepository, times(2)).save(eventCaptor.capture());
+            List<FriendshipEvent> events = eventCaptor.getAllValues();
+            assertThat(events.get(0).getFromStatus()).isEqualTo(FriendshipStatus.PENDING);
+            assertThat(events.get(0).getToStatus()).isEqualTo(FriendshipStatus.DECLINED);
+            assertThat(events.get(1).getFromStatus()).isEqualTo(FriendshipStatus.DECLINED);
+            assertThat(events.get(1).getToStatus()).isEqualTo(FriendshipStatus.PENDING);
+
+            // Append-only: no event deleted
+            verify(friendshipEventRepository, never()).delete(any());
+            verify(friendshipEventRepository, never()).deleteAll();
+        }
+
+        @Test
+        @DisplayName("Re-request after block: BLOCKED friendship row refuses with same message as isBlockedEitherWay refusal")
+        void reRequestAfterBlock_RefusedWithSameBlockMessage() {
+            FriendRequest request = FriendRequest.builder().userId(FRIEND_ID).build();
+
+            Friendship blockedFriendship = Friendship.builder()
+                    .id(FRIENDSHIP_ID)
+                    .requesterId(USER_ID)
+                    .addresseeId(FRIEND_ID)
+                    .status(FriendshipStatus.BLOCKED)
+                    .build();
+
+            when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(testUserSummary));
+            // isBlockedEitherWay returns false so we reach the switch; friendship row has BLOCKED status
+            when(blockRepository.isBlockedEitherWay(USER_ID, FRIEND_ID)).thenReturn(false);
+            when(friendshipRepository.findBetweenUsers(USER_ID, FRIEND_ID)).thenReturn(Optional.of(blockedFriendship));
+
+            assertThatThrownBy(() -> friendshipService.sendFriendRequest(USER_ID, request))
+                    .isInstanceOf(ValidationException.class)
+                    .hasMessage("Cannot send friend request to this user");
+
+            // Same message the existing sendFriendRequest_BlockedEitherWay test asserts — indistinguishable paths
+            verify(friendshipRepository, never()).save(any(Friendship.class));
+            verify(friendshipRepository, never()).countFriends(any());
+        }
+
+        @Test
+        @DisplayName("Unfriend publishes social.unfriended (explicit regression guard)")
+        void unfriend_StillPublishesSocialUnfriendedEvent() {
+            Friendship acceptedFriendship = Friendship.builder()
+                    .id(FRIENDSHIP_ID)
+                    .requesterId(USER_ID)
+                    .addresseeId(FRIEND_ID)
+                    .status(FriendshipStatus.ACCEPTED)
+                    .build();
+
+            when(friendshipRepository.findBetweenUsers(USER_ID, FRIEND_ID)).thenReturn(Optional.of(acceptedFriendship));
+            when(friendshipRepository.save(any(Friendship.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            friendshipService.unfriend(USER_ID, FRIEND_ID);
+
+            verify(eventPublisher).publishUnfriended(USER_ID, FRIEND_ID);
         }
     }
 

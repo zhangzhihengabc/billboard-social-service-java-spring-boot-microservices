@@ -62,11 +62,23 @@ public class Friendship extends BaseEntity {
         this.status = FriendshipStatus.CANCELLED;
     }
 
+    public void unfriend() {
+        this.status = FriendshipStatus.UNFRIENDED;
+    }
+
+    public void block() {
+        this.status = FriendshipStatus.BLOCKED;
+    }
+
     public boolean isPending() {
         return status == FriendshipStatus.PENDING;
     }
 
     public boolean isAccepted() {
         return status == FriendshipStatus.ACCEPTED;
+    }
+
+    public boolean isBlocked() {
+        return status == FriendshipStatus.BLOCKED;
     }
 }

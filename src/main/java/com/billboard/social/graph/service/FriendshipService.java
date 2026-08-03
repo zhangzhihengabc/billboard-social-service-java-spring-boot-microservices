@@ -6,9 +6,12 @@ import com.billboard.social.common.client.UserServiceClient;
 import com.billboard.social.graph.dto.request.SocialRequests.*;
 import com.billboard.social.graph.dto.response.SocialResponses.*;
 import com.billboard.social.graph.entity.Friendship;
+import com.billboard.social.graph.entity.FriendshipEvent;
+import com.billboard.social.graph.entity.enums.FriendshipStatus;
 import com.billboard.social.graph.event.SocialEventPublisher;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.graph.repository.BlockRepository;
+import com.billboard.social.graph.repository.FriendshipEventRepository;
 import com.billboard.social.graph.repository.FriendshipRepository;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -32,6 +36,7 @@ import java.util.UUID;
 public class FriendshipService {
 
     private final FriendshipRepository friendshipRepository;
+    private final FriendshipEventRepository friendshipEventRepository;
     private final BlockRepository blockRepository;
     private final UserServiceClient userServiceClient;
     private final SocialEventPublisher eventPublisher;
@@ -57,15 +62,37 @@ public class FriendshipService {
             throw new ValidationException("Cannot send friend request to this user");
         }
 
-        friendshipRepository.findBetweenUsers(requesterId, addresseeId)
-                .ifPresent(f -> {
-                    if (f.isAccepted()) {
-                        throw new ValidationException("Already friends with this user");
-                    }
-                    if (f.isPending()) {
-                        throw new ValidationException("Friend request already pending");
-                    }
-                });
+        Optional<Friendship> existingOpt = friendshipRepository.findBetweenUsers(requesterId, addresseeId);
+        if (existingOpt.isPresent()) {
+            Friendship existing = existingOpt.get();
+            switch (existing.getStatus()) {
+                case ACCEPTED:
+                    throw new ValidationException("Already friends with this user");
+                case PENDING:
+                    throw new ValidationException("Friend request already pending");
+                case BLOCKED:
+                    // indistinguishable from the isBlockedEitherWay refusal above
+                    throw new ValidationException("Cannot send friend request to this user");
+                default:
+                    // DECLINED, CANCELLED, UNFRIENDED — reactivate
+                    FriendshipStatus previous = existing.getStatus();
+                    // Flip direction so the new requester appears correctly in pending-inbox queries.
+                    // findPendingRequests filters by addresseeId = currentUser; without a flip the
+                    // wrong user would receive the pending notification.
+                    existing.setRequesterId(requesterId);
+                    existing.setAddresseeId(addresseeId);
+                    existing.setAcceptedAt(null);
+                    existing.setStatus(FriendshipStatus.PENDING);
+                    existing.setMessage(request.getMessage());
+                    List<Long> newMutuals = friendshipRepository.findMutualFriendIds(requesterId, addresseeId);
+                    existing.setMutualFriendsCount(newMutuals.size());
+                    existing = friendshipRepository.save(existing);
+                    recordEvent(existing, previous, FriendshipStatus.PENDING, requesterId);
+                    eventPublisher.publishFriendRequestSent(existing);
+                    log.info("Friend request reactivated from {} to {}", requesterId, addresseeId);
+                    return mapToFriendshipResponse(existing);
+            }
+        }
 
         long friendCount = friendshipRepository.countFriends(requesterId);
         if (friendCount >= maxFriends) {
@@ -89,6 +116,7 @@ public class FriendshipService {
             throw new ValidationException("Friend request already exists or is pending");
         }
 
+        recordEvent(friendship, null, FriendshipStatus.PENDING, requesterId);
         eventPublisher.publishFriendRequestSent(friendship);
 
         log.info("Friend request sent from {} to {}", requesterId, addresseeId);
@@ -111,6 +139,7 @@ public class FriendshipService {
         friendship.accept();
         friendship = friendshipRepository.save(friendship);
 
+        recordEvent(friendship, FriendshipStatus.PENDING, FriendshipStatus.ACCEPTED, userId);
         eventPublisher.publishFriendRequestAccepted(friendship);
 
         log.info("Friend request {} accepted by {}", friendshipId, userId);
@@ -130,7 +159,10 @@ public class FriendshipService {
             throw new ValidationException("Friend request is not pending");
         }
 
-        friendshipRepository.delete(friendship);
+        friendship.decline();
+        friendship = friendshipRepository.save(friendship);
+        recordEvent(friendship, FriendshipStatus.PENDING, FriendshipStatus.DECLINED, userId);
+        eventPublisher.publishFriendRequestDeclined(friendship);
 
         log.info("Friend request {} declined by {}", friendshipId, userId);
     }
@@ -147,7 +179,9 @@ public class FriendshipService {
             throw new ValidationException("Friend request is not pending");
         }
 
-        friendshipRepository.delete(friendship);
+        friendship.cancel();
+        friendship = friendshipRepository.save(friendship);
+        recordEvent(friendship, FriendshipStatus.PENDING, FriendshipStatus.CANCELLED, userId);
 
         log.info("Friend request {} cancelled by {}", friendshipId, userId);
     }
@@ -162,7 +196,9 @@ public class FriendshipService {
             throw new ValidationException("Not friends with this user");
         }
 
-        friendshipRepository.delete(friendship);
+        friendship.unfriend();
+        friendship = friendshipRepository.save(friendship);
+        recordEvent(friendship, FriendshipStatus.ACCEPTED, FriendshipStatus.UNFRIENDED, userId);
 
         eventPublisher.publishUnfriended(userId, friendId);
 
@@ -212,6 +248,17 @@ public class FriendshipService {
     @Transactional(readOnly = true)
     public long getFriendsCount(Long userId) {
         return friendshipRepository.countFriends(userId);
+    }
+
+    private void recordEvent(Friendship f, FriendshipStatus from, FriendshipStatus to, Long actor) {
+        friendshipEventRepository.save(FriendshipEvent.builder()
+                .friendshipId(f.getId())
+                .requesterId(f.getRequesterId())
+                .addresseeId(f.getAddresseeId())
+                .fromStatus(from)
+                .toStatus(to)
+                .actorUserId(actor)
+                .build());
     }
 
     private Friendship findFriendshipOrThrow(UUID friendshipId) {

@@ -6,10 +6,14 @@ import com.billboard.social.common.client.UserServiceClient;
 import com.billboard.social.graph.dto.request.SocialRequests.*;
 import com.billboard.social.graph.dto.response.SocialResponses.*;
 import com.billboard.social.graph.entity.Block;
+import com.billboard.social.graph.entity.Friendship;
+import com.billboard.social.graph.entity.FriendshipEvent;
+import com.billboard.social.graph.entity.enums.FriendshipStatus;
 import com.billboard.social.graph.event.SocialEventPublisher;
 import com.billboard.social.common.exception.ValidationException;
 import com.billboard.social.graph.repository.BlockRepository;
 import com.billboard.social.graph.repository.FollowRepository;
+import com.billboard.social.graph.repository.FriendshipEventRepository;
 import com.billboard.social.graph.repository.FriendshipRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +37,7 @@ public class BlockService {
 
     private final BlockRepository blockRepository;
     private final FriendshipRepository friendshipRepository;
+    private final FriendshipEventRepository friendshipEventRepository;
     private final FollowRepository followRepository;
     private final UserServiceClient userServiceClient;
     private final SocialEventPublisher eventPublisher;
@@ -63,7 +68,21 @@ public class BlockService {
         }
 
         friendshipRepository.findBetweenUsers(blockerId, blockedId)
-                .ifPresent(friendshipRepository::delete);
+                .ifPresent(f -> {
+                    if (!f.isBlocked()) {
+                        FriendshipStatus previous = f.getStatus();
+                        f.block();
+                        Friendship saved = friendshipRepository.save(f);
+                        friendshipEventRepository.save(FriendshipEvent.builder()
+                                .friendshipId(saved.getId())
+                                .requesterId(saved.getRequesterId())
+                                .addresseeId(saved.getAddresseeId())
+                                .fromStatus(previous)
+                                .toStatus(FriendshipStatus.BLOCKED)
+                                .actorUserId(blockerId)
+                                .build());
+                    }
+                });
 
         followRepository.findByFollowerIdAndFollowingId(blockerId, blockedId)
                 .ifPresent(followRepository::delete);
