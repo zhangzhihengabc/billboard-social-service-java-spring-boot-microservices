@@ -1088,6 +1088,7 @@ class FriendshipServiceTest {
 
             when(friendshipRepository.findById(FRIENDSHIP_ID)).thenReturn(Optional.of(testFriendship));
             when(friendshipRepository.save(any(Friendship.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            when(friendshipRepository.findMutualFriendIds(FRIEND_ID, USER_ID)).thenReturn(List.of(10L, 20L, 30L, 40L, 50L));
 
             FriendshipResponse response = friendshipService.acceptFriendRequest(USER_ID, FRIENDSHIP_ID);
 
@@ -1138,6 +1139,8 @@ class FriendshipServiceTest {
             Page<Friendship> page = new PageImpl<>(List.of(friendship), PageRequest.of(0, 20), 1);
             when(friendshipRepository.findAcceptedFriendships(eq(USER_ID), any(Pageable.class))).thenReturn(page);
             when(userServiceClient.getUserSummary(FRIEND_ID)).thenReturn(apiResponse(testUserSummary));
+            when(friendshipRepository.findMutualFriendIds(USER_ID, FRIEND_ID))
+                    .thenReturn(List.of(10L, 20L, 30L, 40L, 50L, 60L, 70L, 80L, 90L, 100L));
 
             PageResponse<FriendResponse> response = friendshipService.getFriends(USER_ID, 0, 20);
 
