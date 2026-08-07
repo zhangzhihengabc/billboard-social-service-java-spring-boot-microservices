@@ -285,7 +285,8 @@ class FriendshipControllerTest {
             mockMvc.perform(post("/api/v1/friendships/{friendshipId}/accept", FRIENDSHIP_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(FRIENDSHIP_ID.toString()))
-                    .andExpect(jsonPath("$.status").value("ACCEPTED"));
+                    .andExpect(jsonPath("$.status").value("ACCEPTED"))
+                    .andExpect(jsonPath("$.resultMessage").value("Friend request accepted successfully."));
         }
 
         @Test
@@ -336,12 +337,13 @@ class FriendshipControllerTest {
     class DeclineFriendRequestTests {
 
         @Test
-        @DisplayName("Success - returns 204")
+        @DisplayName("Success - returns 200 with confirmation message")
         void declineFriendRequest_Success() throws Exception {
             doNothing().when(friendshipService).declineFriendRequest(USER_ID, FRIENDSHIP_ID);
 
             mockMvc.perform(post("/api/v1/friendships/{friendshipId}/decline", FRIENDSHIP_ID))
-                    .andExpect(status().isNoContent());
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.message").value("Friend request declined successfully."));
 
             verify(friendshipService).declineFriendRequest(USER_ID, FRIENDSHIP_ID);
         }

@@ -115,6 +115,19 @@ public class SocialResponses {
         @Schema(description = "When the request was created", example = "2026-01-19T11:33:16Z", type = "string", format = "date-time")
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
         private LocalDateTime createdAt;
+
+        @Schema(description = "Human-readable confirmation of the action just performed", example = "Friend request accepted successfully.", nullable = true)
+        private String resultMessage;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "Simple success message response")
+    public static class MessageResponse {
+        @Schema(description = "Human-readable confirmation of the action just performed", example = "Friend request declined successfully.")
+        private String message;
     }
 
     @Data
