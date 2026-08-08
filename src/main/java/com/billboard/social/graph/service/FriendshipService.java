@@ -289,13 +289,17 @@ public class FriendshipService {
     }
 
     private FriendshipResponse mapToFriendshipResponse(Friendship friendship) {
+        int mutualFriendsCount = friendshipRepository
+                .findMutualFriendIds(friendship.getRequesterId(), friendship.getAddresseeId())
+                .size();
+
         return FriendshipResponse.builder()
                 .id(friendship.getId())
                 .requesterId(friendship.getRequesterId())
                 .addresseeId(friendship.getAddresseeId())
                 .status(friendship.getStatus())
                 .message(friendship.getMessage())
-                .mutualFriendsCount(friendship.getMutualFriendsCount())
+                .mutualFriendsCount(mutualFriendsCount)
                 .acceptedAt(friendship.getAcceptedAt())
                 .createdAt(friendship.getCreatedAt())
                 .build();
@@ -307,11 +311,12 @@ public class FriendshipService {
                 : friendship.getRequesterId();
 
         UserSummary userSummary = userServiceClient.getUserSummary(friendId).getData();
+        int mutualFriendsCount = friendshipRepository.findMutualFriendIds(userId, friendId).size();
 
         return FriendResponse.builder()
                 .friendId(friendId)
                 .username(userSummary != null ? userSummary.getUsername() : null)
-                .mutualFriendsCount(friendship.getMutualFriendsCount())
+                .mutualFriendsCount(mutualFriendsCount)
                 .friendsSince(friendship.getAcceptedAt())
                 .build();
     }

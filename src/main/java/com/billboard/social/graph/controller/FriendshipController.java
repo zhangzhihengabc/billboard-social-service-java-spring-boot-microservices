@@ -70,26 +70,30 @@ public class FriendshipController {
                     schema = @Schema(type = "string", format = "uuid"))
             @PathVariable UUID friendshipId) {
         FriendshipResponse response = friendshipService.acceptFriendRequest(principal.getId(), friendshipId);
+        response.setResultMessage("Friend request accepted successfully.");
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{friendshipId}/decline")
     @Operation(summary = "Decline a friend request", description = "Decline a pending friend request")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Friend request declined successfully"),
+            @ApiResponse(responseCode = "200", description = "Friend request declined successfully",
+                    content = @Content(schema = @Schema(implementation = MessageResponse.class))),
             @ApiResponse(responseCode = "400", description = "Bad request - Not the addressee, request not pending, or friendship not found",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized - Missing or invalid JWT token",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<Void> declineFriendRequest(
+    public ResponseEntity<MessageResponse> declineFriendRequest(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal,
             @Parameter(description = "ID of the friendship request", required = true,
                     example = "550e8400-e29b-41d4-a716-446655440000",
                     schema = @Schema(type = "string", format = "uuid"))
             @PathVariable UUID friendshipId) {
         friendshipService.declineFriendRequest(principal.getId(), friendshipId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(MessageResponse.builder()
+                .message("Friend request declined successfully.")
+                .build());
     }
 
     @DeleteMapping("/{friendshipId}/cancel")
